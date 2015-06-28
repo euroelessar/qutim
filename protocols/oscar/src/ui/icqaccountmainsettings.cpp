@@ -32,11 +32,11 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 IcqAccountMainSettings::IcqAccountMainSettings(IcqAccount *account, QWidget *parent) :
-    QWidget(parent),
+	QWidget(parent),
 	ui(new Ui::IcqAccountMainSettings),
 	m_account(account)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	connect(ui->sslBox, SIGNAL(clicked(bool)), SLOT(onSslChecked(bool)));
 	connect(ui->serverBox, SIGNAL(currentIndexChanged(QString)),
 			SLOT(onCurrentServerChanged(QString)));
@@ -57,7 +57,7 @@ IcqAccountMainSettings::IcqAccountMainSettings(IcqAccount *account, QWidget *par
 
 IcqAccountMainSettings::~IcqAccountMainSettings()
 {
-    delete ui;
+	delete ui;
 }
 
 void IcqAccountMainSettings::reloadSettings()
@@ -177,14 +177,14 @@ const QHash<QString, QString> &IcqAccountMainSettings::defaultSslServers() const
 
 void IcqAccountMainSettings::changeEvent(QEvent *e)
 {
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWidget::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 void IcqAccountMainSettings::onSslChecked(bool checked)

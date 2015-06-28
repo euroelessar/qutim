@@ -91,9 +91,9 @@ bool Buddy::event(QEvent *ev)
 		}
 		event->addHtml("<font size=-1>", 50);
 		QString text = QLatin1Literal("<b>")
-                % name().toHtmlEscaped()
+				% name().toHtmlEscaped()
 				% QLatin1Literal("</b> &lt;")
-                % id().toHtmlEscaped()
+				% id().toHtmlEscaped()
 				% QLatin1Literal("&gt;");
 		event->addHtml("</font>", 10);
 		event->addHtml(text, 90);

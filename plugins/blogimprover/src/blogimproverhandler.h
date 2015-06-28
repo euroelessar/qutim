@@ -42,7 +42,7 @@ namespace BlogImprover {
 
 class BlogImproverHandler : public QObject, public qutim_sdk_0_3::MessageHandler
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit BlogImproverHandler();
 	enum BlogType {
@@ -55,25 +55,25 @@ public:
 	};
 
 protected:
-    qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
+	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 public slots:
 	void loadSettings();
 private:
-    class HtmlLinker
-    {
-    public:
-        HtmlLinker(qutim_sdk_0_3::ChatSession *session);
+	class HtmlLinker
+	{
+	public:
+		HtmlLinker(qutim_sdk_0_3::ChatSession *session);
 
-        bool isValid() const;
+		bool isValid() const;
 
-        QString create(const QString &text, const QString &label) const;
+		QString create(const QString &text, const QString &label) const;
 
-    private:
-        bool m_valid = false;
-        qutim_sdk_0_3::ChatSession *m_session = nullptr;
-        QMetaMethod m_appendTextUrl;
-        QString m_template;
-    };
+	private:
+		bool m_valid = false;
+		qutim_sdk_0_3::ChatSession *m_session = nullptr;
+		QMetaMethod m_appendTextUrl;
+		QString m_template;
+	};
 
 	bool m_enablePstoIntegration;
 	bool m_enableJuickIntegration;
@@ -87,9 +87,9 @@ private:
 	QRegExp m_juickPost;
 	QRegExp m_juickComment;
 
-    void handlePsto(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
-    void handleJuick(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
-    void handleBnw(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
+	void handlePsto(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
+	void handleJuick(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
+	void handleBnw(qutim_sdk_0_3::Message &message, const HtmlLinker &linker);
 };
 
 } // namespace BlogImprover

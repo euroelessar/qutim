@@ -37,11 +37,11 @@ Q_OBJECT
 Q_CLASSINFO("DependsOn", "MrimProtocol")
 public:
 	MrimAccountWizard();
-    QList<QWizardPage*> createPages(QWidget *parent);
-    ~MrimAccountWizard();
+	QList<QWizardPage*> createPages(QWidget *parent);
+	~MrimAccountWizard();
 
 private:
-    QScopedPointer<MrimAccountWizardPrivate> p;
+	QScopedPointer<MrimAccountWizardPrivate> p;
 };
 
 #endif // MRIMACCOUNTWIZARD_H

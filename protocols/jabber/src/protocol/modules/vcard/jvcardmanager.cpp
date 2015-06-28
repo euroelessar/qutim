@@ -135,7 +135,7 @@ void JVCardManager::onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VC
 			unit = m_account->unit(jid.full(), false);
 		if (!unit)
 			return;
-		
+
 		const QMetaObject * const meta = unit->metaObject();
 		const int index = meta->indexOfProperty("photoHash");
 		if (index == -1)
@@ -167,9 +167,9 @@ void JVCardManager::init(qutim_sdk_0_3::Account *account)
 	connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	connect(m_manager, SIGNAL(vCardFetched(Jreen::VCard::Ptr,Jreen::JID)),
-	        SLOT(onVCardReceived(Jreen::VCard::Ptr,Jreen::JID)));
+			SLOT(onVCardReceived(Jreen::VCard::Ptr,Jreen::JID)));
 	connect(m_manager, SIGNAL(vCardUpdateDetected(Jreen::JID,Jreen::VCardUpdate::Ptr)),
-	        SLOT(onVCardUpdateDetected(Jreen::JID,Jreen::VCardUpdate::Ptr)));
+			SLOT(onVCardUpdateDetected(Jreen::JID,Jreen::VCardUpdate::Ptr)));
 	connect(m_client, SIGNAL(connected()), SLOT(onConnected()));
 	static_cast<JAccountVCardHook*>(account)->setInfoRequestFactory(this);
 }

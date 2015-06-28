@@ -39,7 +39,7 @@ enum {
 };
 
 ChatChannelUsersModel::ChatChannelUsersModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(IdRole, "id");
@@ -50,7 +50,7 @@ ChatChannelUsersModel::ChatChannelUsersModel(QObject *parent) :
 	roleNames.insert(StatusTextRole, "subtitle");
 	roleNames.insert(AvatarRole, "avatar");
 	setRoleNames(roleNames);
-	
+
 	m_statusPrefix = QLatin1String("icon-m-common");
 }
 
@@ -78,9 +78,9 @@ void ChatChannelUsersModel::addUnit(Buddy *unit)
 	beginInsertRows(QModelIndex(), index, index);
 	m_units.insert(index, unit);
 	connect(unit, SIGNAL(destroyed(QObject*)),
-	        this, SLOT(onUnitDeath(QObject*)));
+			this, SLOT(onUnitDeath(QObject*)));
 	connect(unit, SIGNAL(titleChanged(QString,QString)),
-	        this, SLOT(onTitleChanged(QString,QString)));
+			this, SLOT(onTitleChanged(QString,QString)));
 	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 	endInsertRows();

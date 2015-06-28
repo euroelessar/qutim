@@ -30,7 +30,7 @@
 namespace qutim_sdk_0_3 {
 
 namespace nowplaying {
-	
+
 	MprisPlayerFactory::MprisPlayerFactory()
 	{
 		QDBusConnection conn = QDBusConnection::sessionBus();
@@ -44,12 +44,12 @@ namespace nowplaying {
 		connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
 				this, SLOT(onNamesReceived(QDBusPendingCallWatcher*)));
 	}
-	
+
 	QMap<QString, Player::Info> MprisPlayerFactory::players()
 	{
 		return m_knownPlayers;
 	}
-	
+
 	QObject *MprisPlayerFactory::player(const QString &id)
 	{
 		if (m_knownPlayers.contains(id))
@@ -97,14 +97,14 @@ namespace nowplaying {
 			onIdentityReceived(service, identity);
 		}
 	}
-	
+
 	void MprisPlayerFactory::onIdentityReceived(const QString &service, const QString &identity)
 	{
 		m_knownPlayers[service].name = identity;
 		PlayerEvent ev(service, PlayerEvent::Available);
 		qApp->sendEvent(this, &ev);
 	}
-	
+
 	void MprisPlayerFactory::onDesktopNameReceived(const QString &service, const QString &desktopId)
 	{
 		QString desktopFile = desktopId + QLatin1String(".desktop");
@@ -133,7 +133,7 @@ namespace nowplaying {
 			icon = Icon(iconName);
 		m_knownPlayers[service].icon = icon;
 	}
-	
+
 	void MprisPlayerFactory::onNamesReceived(QDBusPendingCallWatcher *watcher)
 	{
 		watcher->deleteLater();
@@ -143,7 +143,7 @@ namespace nowplaying {
 				ensureServiceInfo(service);
 		}
 	}
-	
+
 	void MprisPlayerFactory::ensureServiceInfo(const QString &service)
 	{
 		QDBusMessage msg;

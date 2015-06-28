@@ -34,7 +34,7 @@ namespace qutim_sdk_0_3
 class GroupChatManagerPrivate
 {
 public:
-    Account *account;
+	Account *account;
 };
 
 }

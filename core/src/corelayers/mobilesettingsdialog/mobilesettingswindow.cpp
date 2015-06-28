@@ -239,7 +239,7 @@ void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
 			label->setWordWrap(true);
 #endif
 		p->slideMap.insert(area,p->settingsListWidget);
-		p->scrollAreas.insert(w,area);		
+		p->scrollAreas.insert(w,area);
 		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));
 		connect(w,SIGNAL(destroyed(QObject*)),SLOT(onWidgetDestroyed(QObject*)));
 	}
@@ -299,13 +299,13 @@ void MobileSettingsWindow::save()
 
 void MobileSettingsWindow::cancel()
 {
-	QWidget *c = p->stackedWidget->currentWidget();	
+	QWidget *c = p->stackedWidget->currentWidget();
 	while (p->modifiedWidgets.count()) {
 		SettingsWidget *widget = p->modifiedWidgets.takeFirst();
 		widget->cancel();
 		if (widget != c)
 			widget->deleteLater();
-	}	
+	}
 }
 
 void MobileSettingsWindow::slideUp()
@@ -327,7 +327,7 @@ void MobileSettingsWindow::fingerGesture( enum SlidingStackedWidget::SlideDirect
 {
 	if (direction==SlidingStackedWidget::LeftToRight) {
 		slideUp();
-    }
+	}
 
 }
 

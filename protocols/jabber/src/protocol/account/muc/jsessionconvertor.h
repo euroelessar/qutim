@@ -35,7 +35,7 @@
 //namespace Jabber
 //{
 //	class JSessionConvertorPrivate;
-	
+
 //	class JSessionConvertor : public QObject, public JServiceReceiver, public MUCRoomHandler
 //	{
 //		Q_OBJECT
@@ -47,7 +47,7 @@
 //		virtual void setInfo(int id);
 //		virtual void setItems(int id, const QList<JDiscoItem> &items);
 //		virtual void setError(int id);
-		
+
 //		void handleMUCParticipantPresence(MUCRoom *room, const MUCRoomParticipant participant,
 //										  const Presence &presence);
 //		void handleMUCMessage(MUCRoom *room, const gloox::Message &msg, bool priv);

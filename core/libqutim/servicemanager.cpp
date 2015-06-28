@@ -61,7 +61,7 @@ void ServiceManagerPrivate::init()
 		}
 	}
 	CheckedServiceHash::Iterator it = checked.begin();
-	for (; it != checked.end(); ++it) { 
+	for (; it != checked.end(); ++it) {
 		if (!it.value().generator())
 			continue;
 		init(it.key(), it.value(), used);
@@ -200,7 +200,7 @@ ServicePointerData::Ptr ServiceManager::getData(const QByteArray &name)
 		data = QSharedPointer<ServicePointerData>::create();
 		data->name = name;
 	}
-    return data.toWeakRef();
+	return data.toWeakRef();
 }
 
 } // namespace qutim_sdk_0_3

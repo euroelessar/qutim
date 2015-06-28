@@ -37,7 +37,7 @@ namespace oscar {
 
 class CustomStatusDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	CustomStatusDialog(IcqAccount *account, QWidget *parent = 0);
 	~CustomStatusDialog();

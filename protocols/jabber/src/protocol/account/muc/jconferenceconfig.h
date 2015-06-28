@@ -43,7 +43,7 @@ class JConferenceConfig : public DataSettingsObject
 public:
 	JConferenceConfig();
 	~JConferenceConfig();
-	
+
 	virtual void setControllerImpl(QObject *controller);
 
 protected:

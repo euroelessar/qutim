@@ -131,7 +131,7 @@ void SessionListWidget::onRemoveSession(QObject *obj)
 	Q_D(SessionListWidget);
 	ChatSessionImpl *s = reinterpret_cast<ChatSessionImpl*>(obj);
 	int index = d->sessions.indexOf(s);
-	d->sessions.removeAll(s);	
+	d->sessions.removeAll(s);
 	delete takeItem(index);
 }
 
@@ -183,7 +183,7 @@ bool SessionListWidget::event(QEvent *event)
 				return true;
 			}
 		}
-	} else 
+	} else
 #endif
 	if (event->type() == QEvent::ContextMenu) {
 		QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);

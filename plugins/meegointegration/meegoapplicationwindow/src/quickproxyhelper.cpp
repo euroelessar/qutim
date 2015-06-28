@@ -7,72 +7,72 @@ namespace MeegoIntegration {
 using namespace qutim_sdk_0_3;
 
 QuickProxyHelper::QuickProxyHelper(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
-    qRegisterMetaType<DataItem>();
+	qRegisterMetaType<DataItem>();
 }
 
 QObject *QuickProxyHelper::account() const
 {
-    return m_account;
+	return m_account;
 }
 
 void QuickProxyHelper::setAccount(QObject *account)
 {
-    account = qobject_cast<Account*>(account);
-    if (m_account != account) {
-        m_account = static_cast<Account*>(account);
-        emit accountChanged(account);
-    }
-    if (m_account) {
+	account = qobject_cast<Account*>(account);
+	if (m_account != account) {
+		m_account = static_cast<Account*>(account);
+		emit accountChanged(account);
+	}
+	if (m_account) {
 		NetworkProxyManager *manager = NetworkProxyManager::get(m_account->protocol());
 		m_infos = manager ? manager->proxies() : QList<NetworkProxyInfo*>();
 	} else {
 		m_infos = NetworkProxyInfo::allProxies();
-    }
+	}
 }
 
 Config QuickProxyHelper::config() const
 {
-    Config cfg = m_account ? m_account->config() : Config();
-    return cfg.group(QLatin1String("proxy"));
+	Config cfg = m_account ? m_account->config() : Config();
+	return cfg.group(QLatin1String("proxy"));
 }
 
 int QuickProxyHelper::count()
 {
-    return m_infos.count();
+	return m_infos.count();
 }
 
 QString QuickProxyHelper::name(int index)
 {
-    return m_infos.at(index)->name();
+	return m_infos.at(index)->name();
 }
 
 QString QuickProxyHelper::description(int index)
 {
-    return m_infos.at(index)->description();
+	return m_infos.at(index)->description();
 }
 
 QVariant QuickProxyHelper::settings(int index)
 {
-    return qVariantFromValue(m_infos.at(index)->settings(config()));
+	return qVariantFromValue(m_infos.at(index)->settings(config()));
 }
 
 void QuickProxyHelper::save(const QVariant &itemData, int index, bool disabled, bool useGlobal)
 {
-    NetworkProxyInfo *proxy = m_infos.value(index);
-    DataItem settings = itemData.value<DataItem>();
-    Config globalCfg = Config().group("proxy");
+	NetworkProxyInfo *proxy = m_infos.value(index);
+	DataItem settings = itemData.value<DataItem>();
+	Config globalCfg = Config().group("proxy");
 	Config cfg = m_account ? m_account->config("proxy") : globalCfg;
-    cfg.setValue("disabled", disabled);
-    cfg.setValue("useGlobal", useGlobal);
-    if (!disabled && proxy)
-        proxy->saveSettings(cfg, settings);
-    
-    if (proxy && settings.subitem("type").isNull())
+	cfg.setValue("disabled", disabled);
+	cfg.setValue("useGlobal", useGlobal);
+	if (!disabled && proxy)
+		proxy->saveSettings(cfg, settings);
+
+	if (proxy && settings.subitem("type").isNull())
 		settings.addSubitem(StringDataItem("type", QT_TR_NOOP("Type"), proxy->name()));
-    
-    if (!m_account) {
+
+	if (!m_account) {
 		// User changed global proxy settings.
 		foreach (NetworkProxyManager *manager, NetworkProxyManager::allManagers()) {
 			if (proxy && !manager->proxies().contains(proxy))
@@ -102,24 +102,24 @@ void QuickProxyHelper::save(const QVariant &itemData, int index, bool disabled, 
 			manager->setProxy(m_account, proxy, settings);
 		}
 	}
-    cfg.sync();
-    globalCfg.sync();
+	cfg.sync();
+	globalCfg.sync();
 }
 
 QVariantMap QuickProxyHelper::load()
 {
-    Config cfg = m_account ? m_account->config() : Config();
+	Config cfg = m_account ? m_account->config() : Config();
 	cfg = cfg.group("proxy");
-    
-    QString currentName	= cfg.value("type", QString());
+
+	QString currentName	= cfg.value("type", QString());
 	bool disabled = cfg.value("disabled", m_account ? false : true);
 	bool useGlobal = m_account ? cfg.value("useGlobalProxy", true) : false;
-    
-    QVariantMap result;
-    result.insert("currentName", currentName);
-    result.insert("disabled", disabled);
-    result.insert("useGlobal", useGlobal);
-    return result;
+
+	QVariantMap result;
+	result.insert("currentName", currentName);
+	result.insert("disabled", disabled);
+	result.insert("useGlobal", useGlobal);
+	return result;
 }
 
 } // namespace MeegoIntegration

@@ -45,12 +45,12 @@ MessageHandlerAsyncResult FormulaHandler::doHandle(Message &message)
 	const QString html = message.html();
 	QString newHtml;
 	newHtml.reserve(html.size());
-    while ((index = m_regexp.indexIn(html, index)) >= 0) {
+	while ((index = m_regexp.indexIn(html, index)) >= 0) {
 		html.midRef(lastIndex, index - lastIndex).appendTo(&newHtml);
 		// html is already escaped
 		const QString equation = m_regexp.cap(0);
 		const QString url = QLatin1String("http://latex.codecogs.com/png.latex?")
-		                    + QUrl::toPercentEncoding(unescape(m_regexp.cap(1)));
+							+ QUrl::toPercentEncoding(unescape(m_regexp.cap(1)));
 		newHtml += QLatin1String("<img src=\"");
 		newHtml += url;
 		newHtml += QLatin1String("\"alt=\"");
@@ -60,7 +60,7 @@ MessageHandlerAsyncResult FormulaHandler::doHandle(Message &message)
 		newHtml += QLatin1String("\">");
 		index += m_regexp.cap(0).length();
 		lastIndex = index;
-    }
+	}
 	html.midRef(lastIndex, html.size() - lastIndex).appendTo(&newHtml);
 	message.setHtml(newHtml);
 	return makeAsyncResult(Accept, QString());

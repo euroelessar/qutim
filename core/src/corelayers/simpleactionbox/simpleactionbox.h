@@ -37,7 +37,7 @@ using namespace qutim_sdk_0_3;
 
 class SimpleActionBoxModule : public ActionBoxModule
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("DebugName","SimpleActionBox")
 public:
 	explicit SimpleActionBoxModule();

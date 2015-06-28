@@ -33,18 +33,18 @@ namespace MeegoIntegration
 
 class ApplicationWindow : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("Service", "ApplicationWindow")
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "PasswordDialog")
 	Q_CLASSINFO("Uses", "ContactInfo")
 public:
-    explicit ApplicationWindow();
+	explicit ApplicationWindow();
 	~ApplicationWindow();
-	
+
 	void showWidget(QWidget *widget);
-	
+
 	QDeclarativeEngine *engine() const;
 	static ApplicationWindow *instance();
 
@@ -57,7 +57,7 @@ signals:
 public slots:
 	void closeWidget();
 	void activate();
-	
+
 private:
 	QDeclarativeView *m_view;
 };

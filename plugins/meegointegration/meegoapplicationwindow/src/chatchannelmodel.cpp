@@ -34,7 +34,7 @@ enum {
 };
 
 ChatChannelModel::ChatChannelModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(ChannelRole, "channel");
@@ -42,10 +42,10 @@ ChatChannelModel::ChatChannelModel(QObject *parent) :
 	roleNames.insert(Qt::DisplayRole, "title");
 	roleNames.insert(Qt::DecorationRole, "iconSource");
 	setRoleNames(roleNames);
-	
+
 	ChatLayer *chatLayer = ChatLayer::instance();
 	connect(chatLayer, SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-	        SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	foreach (ChatSession *session, chatLayer->sessions())
 		onSessionCreated(session);
 }
@@ -78,7 +78,7 @@ QVariant ChatChannelModel::data(const QModelIndex &index, int role) const
 void ChatChannelModel::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
 	connect(session, SIGNAL(destroyed(QObject*)),
-	        SLOT(onSessionDeath(QObject*)));
+			SLOT(onSessionDeath(QObject*)));
 	beginInsertRows(QModelIndex(), m_sessions.size(), m_sessions.size());
 	m_sessions << session;
 	endInsertRows();

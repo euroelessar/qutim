@@ -49,31 +49,31 @@ public:
 
 class MrimRoster : public QObject, public PacketHandler
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    MrimRoster(class MrimAccount* acc);
-    virtual ~MrimRoster();
-    virtual QList<quint32> handledTypes();
-    virtual bool handlePacket(MrimPacket& packet);
-    QString groupName(quint32 groupId) const;
-    MrimContact *getContact(const QString& id, bool create);
+	MrimRoster(class MrimAccount* acc);
+	virtual ~MrimRoster();
+	virtual QList<quint32> handledTypes();
+	virtual bool handlePacket(MrimPacket& packet);
+	QString groupName(quint32 groupId) const;
+	MrimContact *getContact(const QString& id, bool create);
 
 protected:
-    void addToList(class MrimContact *cnt);
+	void addToList(class MrimContact *cnt);
 	void handleUserInfo(MrimPacket &packet);
 	void handleAuthorizeAck(MrimPacket &packet);
-    bool parseList(MrimPacket& packet);    
-    bool parseGroups(MrimPacket& packet, quint32 count, const QString& mask);
-    bool parseContacts(MrimPacket& packet, const QString& mask);    
-    MrimRosterResult parseByMask(MrimPacket& packet, const QString& mask);
-    bool handleStatusChanged(MrimPacket &packet);
+	bool parseList(MrimPacket& packet);
+	bool parseGroups(MrimPacket& packet, quint32 count, const QString& mask);
+	bool parseContacts(MrimPacket& packet, const QString& mask);
+	MrimRosterResult parseByMask(MrimPacket& packet, const QString& mask);
+	bool handleStatusChanged(MrimPacket &packet);
 
 public slots:
-    void handleLoggedOut();
+	void handleLoggedOut();
 
 private:
-    Q_DISABLE_COPY(MrimRoster);
-    QScopedPointer<class MrimRosterPrivate> p;
+	Q_DISABLE_COPY(MrimRoster);
+	QScopedPointer<class MrimRosterPrivate> p;
 };
 
 #endif // ROSTER_H

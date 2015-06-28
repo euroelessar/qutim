@@ -55,7 +55,7 @@ static QVariant messageToVariant(const Message &mes)
 	//TODO Optimize if posible
 	QVariantMap map;
 
-    map.insert(QStringLiteral("originalMessage"), QVariant::fromValue(mes));
+	map.insert(QStringLiteral("originalMessage"), QVariant::fromValue(mes));
 	map.insert(QStringLiteral("messageId"), mes.id());
 	map.insert(QStringLiteral("time"), mes.time().isValid() ? mes.time() : QDateTime::currentDateTime());
 
@@ -78,16 +78,16 @@ static QVariant messageToVariant(const Message &mes)
 	if (isMe)
 		map.insert(QStringLiteral("action"), true);
 	map.insert(QStringLiteral("body"), UrlParser::parseUrls(body));
-    map.insert(QStringLiteral("text"), mes.text());
-    map.insert(QStringLiteral("html"), mes.html());
+	map.insert(QStringLiteral("text"), mes.text());
+	map.insert(QStringLiteral("html"), mes.html());
 
 	foreach(const QByteArray &name, mes.dynamicPropertyNames())
 		map.insert(QString::fromUtf8(name), mes.property(name));
 
-    const MessageUnitData unit = mes.unitData();
-    map.insert(QStringLiteral("senderId"), unit.title());
-    map.insert(QStringLiteral("senderName"), unit.id());
-    map.insert(QStringLiteral("senderAvatar"), unit.avatar());
+	const MessageUnitData unit = mes.unitData();
+	map.insert(QStringLiteral("senderId"), unit.title());
+	map.insert(QStringLiteral("senderName"), unit.id());
+	map.insert(QStringLiteral("senderAvatar"), unit.avatar());
 
 	return map;
 }
@@ -123,7 +123,7 @@ void QuickChatController::loadHistory()
 	qDebug() << Q_FUNC_INFO;
 	Config config = Config(QStringLiteral("appearance")).group(QStringLiteral("chat/history"));
 	int max_num = 50 + config.value(QStringLiteral("maxDisplayMessages"), 5);
-    MessageList messages = History::instance()->readSync(m_session.data()->getUnit(), max_num);
+	MessageList messages = History::instance()->readSync(m_session.data()->getUnit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
 		mess.setProperty("store", false);
@@ -162,33 +162,33 @@ bool QuickChatController::eventFilter(QObject *obj, QEvent *ev)
 void QuickChatController::loadSettings()
 {
 	Config config(QStringLiteral("appearance/quickChat"));
-    config.beginGroup(QStringLiteral("style"));
+	config.beginGroup(QStringLiteral("style"));
 	loadTheme(config.value(QStringLiteral("name"), QStringLiteral("default")));
 }
 
 void QuickChatController::loadTheme(const QString &name)
 {
-    QQuickItem *item = m_item;
+	QQuickItem *item = m_item;
 
 	QString path = ThemeManager::path(QStringLiteral("qmlchat"), name);
 	QString main = path % QLatin1Literal("/main.qml");
 
 	QQmlComponent component (DeclarativeView::globalEngine(), QUrl::fromLocalFile(main));
 	QObject *obj = component.create();
-    if (!obj) {
-        qDebug() << component.errors();
-        return;
-    }
+	if (!obj) {
+		qDebug() << component.errors();
+		return;
+	}
 
 	m_item = qobject_cast<QQuickItem*>(obj);
-    QQmlEngine::setObjectOwnership(m_item, QQmlEngine::CppOwnership);
+	QQmlEngine::setObjectOwnership(m_item, QQmlEngine::CppOwnership);
 
-    QQmlProperty controllerProperty(m_item, QStringLiteral("controller"));
-    controllerProperty.write(QVariant::fromValue(this));
+	QQmlProperty controllerProperty(m_item, QStringLiteral("controller"));
+	controllerProperty.write(QVariant::fromValue(this));
 
-    emit itemChanged(m_item);
+	emit itemChanged(m_item);
 
-    delete item;
+	delete item;
 
 	loadHistory();
 }
@@ -196,21 +196,21 @@ void QuickChatController::loadTheme(const QString &name)
 QString QuickChatController::parseEmoticons(const QString &text) const
 {
 	//TODO Write flexible textfield with animated emoticons, copy/paste and follow links support
-    return Emoticons::theme().parseEmoticons(text);
+	return Emoticons::theme().parseEmoticons(text);
 }
 
 QQuickItem *QuickChatController::item() const
 {
-    return m_item;
+	return m_item;
 }
 
 void QuickChatController::appendText(const QString &text)
 {
-    qDebug() << Q_FUNC_INFO << text << m_session.data();
+	qDebug() << Q_FUNC_INFO << text << m_session.data();
 	QMetaObject::invokeMethod(ChatLayer::instance(),
-	                          "insertText",
-	                          Q_ARG(ChatSession*, m_session.data()),
-	                          Q_ARG(QString, text + QStringLiteral(" ")));
+							  "insertText",
+							  Q_ARG(ChatSession*, m_session.data()),
+							  Q_ARG(QString, text + QStringLiteral(" ")));
 }
 
 } // namespace AdiumChat

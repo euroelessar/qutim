@@ -47,11 +47,11 @@ public:
 	WebViewFactory();
 	virtual QWidget *createViewWidget();
 	virtual QObject *createViewController();
-    virtual ~WebViewFactory();
-	
+	virtual ~WebViewFactory();
+
 signals:
 	void settingsSaved();
-	
+
 private:
 	qutim_sdk_0_3::SettingsItem *m_appearanceSettings;
 };

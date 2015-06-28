@@ -43,7 +43,7 @@ namespace Core {
 using namespace qutim_sdk_0_3;
 
 SubmitPage::SubmitPage(qutim_sdk_0_3::StatisticsHelper *helper, QWizard *parent)
-    : QWizardPage(parent)
+	: QWizardPage(parent)
 {
 	m_helper = helper;
 	if (qobject_cast<ProfileCreationWizard*>(parent)) {

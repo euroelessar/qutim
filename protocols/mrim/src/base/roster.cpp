@@ -38,81 +38,81 @@
 class MrimRosterPrivate // : public RosterStorage
 {
 public:
-    typedef QMultiHash<QString,MrimContact*> ContactsHash;
-    QList<quint32> handledTypes;
-    QMap<quint32,QString> groups;
-    ContactsHash contacts;
-    MrimAccount* account;
+	typedef QMultiHash<QString,MrimContact*> ContactsHash;
+	QList<quint32> handledTypes;
+	QMap<quint32,QString> groups;
+	ContactsHash contacts;
+	MrimAccount* account;
 };
 
 MrimRoster::MrimRoster(MrimAccount* acc) : p(new MrimRosterPrivate)
-{    
-    p->account = acc;
+{
+	p->account = acc;
 }
 
 MrimRoster::~MrimRoster()
 {
-    //cleanup
-    QList<MrimContact*> contacts = p->contacts.values();
+	//cleanup
+	QList<MrimContact*> contacts = p->contacts.values();
 	qDeleteAll(contacts);
 }
 
 QList<quint32> MrimRoster::handledTypes()
 {
-    if (p->handledTypes.isEmpty())
-    {
-        p->handledTypes
+	if (p->handledTypes.isEmpty())
+	{
+		p->handledTypes
 				<< MRIM_CS_CONTACT_LIST2
 				<< MRIM_CS_USER_INFO
 				<< MRIM_CS_MAILBOX_STATUS
 				<< MRIM_CS_AUTHORIZE_ACK
 				<< MRIM_CS_USER_STATUS; //TODO: add more types
-    }
-    return p->handledTypes;
+	}
+	return p->handledTypes;
 }
-    
+
 bool MrimRoster::handlePacket(MrimPacket& packet)
 {
-    bool handled = true;
-    
-    switch (packet.msgType())
-    {
-    case MRIM_CS_CONTACT_LIST2:
-        parseList(packet);
-        break;
-    case MRIM_CS_USER_INFO:
+	bool handled = true;
+
+	switch (packet.msgType())
+	{
+	case MRIM_CS_CONTACT_LIST2:
+		parseList(packet);
+		break;
+	case MRIM_CS_USER_INFO:
 		handleUserInfo(packet);
 		break;
-    case MRIM_CS_USER_STATUS:
-        handleStatusChanged(packet);
-        break;
-    default:
-        handled = false;
-        break;
-    }
-    return handled;
+	case MRIM_CS_USER_STATUS:
+		handleStatusChanged(packet);
+		break;
+	default:
+		handled = false;
+		break;
+	}
+	return handled;
 }
 
 bool MrimRoster::parseList(MrimPacket& packet)
 {
-    quint32 opResult;
-    packet.readTo(opResult);
-    
-    if (opResult == GET_CONTACTS_OK)
-    {
-        quint32 grCount = 0;    
-        packet.readTo(grCount);
-        
-        QString grMask, contMask;
-        packet.readTo(&grMask);
-        packet.readTo(&contMask);
-        
-        if (parseGroups(packet,grCount,grMask))
-        {
-            parseContacts(packet,contMask);                    
-        }
-    }
-    //TODO: handle errors
+	quint32 opResult;
+	packet.readTo(opResult);
+
+	if (opResult == GET_CONTACTS_OK)
+	{
+		quint32 grCount = 0;
+		packet.readTo(grCount);
+
+		QString grMask, contMask;
+		packet.readTo(&grMask);
+		packet.readTo(&contMask);
+
+		if (parseGroups(packet,grCount,grMask))
+		{
+			parseContacts(packet,contMask);
+		}
+	}
+	//TODO: handle errors
 	return true;
 }
 
@@ -151,15 +151,15 @@ bool MrimRoster::parseContacts(MrimPacket& packet, const QString& mask)
 	quint32 contactId = 20;
 	QString statusUri, statusTitle, statusDesc, phones;
 	MrimContact *contact = 0;
-	
+
 	QSet<QString> removedContacts;
 	foreach (MrimContact *contact, p->contacts)
 		removedContacts << contact->email();
-	
+
 	while(!packet.atEnd())
 	{
 		MrimRosterResult parsedContact = parseByMask(packet,mask);
-	
+
 		if (parsedContact.isEmpty())
 			break;// TODO: learn why its possible
 		QString id = parsedContact.getString(MrimContactEMail, false);
@@ -185,9 +185,9 @@ bool MrimRoster::parseContacts(MrimPacket& packet, const QString& mask)
 			status.setUserAgent(agent);
 		status.setFlags(contact->serverFlags());
 		contact->setStatus(status);
-	
+
 		contact->setUserAgent(agent);
-	
+
 		debug(DebugVerbose)<<"New contact read:"<<*contact;
 		if (newContact)
 			addToList(contact);
@@ -220,18 +220,18 @@ MrimRosterResult MrimRoster::parseByMask(MrimPacket& packet, const QString& mask
 
 bool MrimRoster::handleStatusChanged(MrimPacket &packet)
 {
-    quint32 statusNum, comSupport;
-    QString statusUri, statusTitle, statusDescr, email, userAgent;
+	quint32 statusNum, comSupport;
+	QString statusUri, statusTitle, statusDescr, email, userAgent;
 
-    packet.readTo(statusNum);
-    packet.readTo(&statusUri);
-    packet.readTo(&statusTitle,true);
-    packet.readTo(&statusDescr,true);
-    packet.readTo(&email);
-    packet.readTo(comSupport);
-    packet.readTo(&userAgent);
+	packet.readTo(statusNum);
+	packet.readTo(&statusUri);
+	packet.readTo(&statusTitle,true);
+	packet.readTo(&statusDescr,true);
+	packet.readTo(&email);
+	packet.readTo(comSupport);
+	packet.readTo(&userAgent);
 
-    MrimContact *contact = getContact(email, true);
+	MrimContact *contact = getContact(email, true);
 	MrimStatus status(statusUri, statusTitle, statusDescr);
 	MrimUserAgent ag;
 	ag.parse(userAgent);
@@ -245,23 +245,23 @@ bool MrimRoster::handleStatusChanged(MrimPacket &packet)
 
 QString MrimRoster::groupName(quint32 groupId) const
 {
-    QString group;
+	QString group;
 
 	if (groupId < uint(p->groups.count()))
-    {
-        group = p->groups[groupId];
-    }
-    else if (groupId == MRIM_PHONE_GROUP_ID)
-    {
-        group = tr("Phone contacts");
-    }
-    return group;
+	{
+		group = p->groups[groupId];
+	}
+	else if (groupId == MRIM_PHONE_GROUP_ID)
+	{
+		group = tr("Phone contacts");
+	}
+	return group;
 }
 
 void MrimRoster::addToList(MrimContact *cnt)
 {
-    Q_ASSERT(cnt);
-    p->contacts.insertMulti(cnt->email(),cnt);
+	Q_ASSERT(cnt);
+	p->contacts.insertMulti(cnt->email(),cnt);
 	emit p->account->contactCreated(cnt);
 }
 
@@ -293,7 +293,7 @@ void MrimRoster::handleAuthorizeAck(MrimPacket &packet)
 
 MrimContact *MrimRoster::getContact(const QString& id, bool create)
 {
-    MrimContact *contact = p->contacts.value(id);
+	MrimContact *contact = p->contacts.value(id);
 	if (!contact && create) {
 		contact = new MrimContact(id, p->account);
 		contact->setContactInList(false);
@@ -304,10 +304,10 @@ MrimContact *MrimRoster::getContact(const QString& id, bool create)
 
 void MrimRoster::handleLoggedOut()
 {
-    Status st(Status::Offline);
+	Status st(Status::Offline);
 
-    foreach (MrimContact *cnt, p->contacts) {        
-        cnt->setStatus(st);
-    }
+	foreach (MrimContact *cnt, p->contacts) {
+		cnt->setStatus(st);
+	}
 }
 

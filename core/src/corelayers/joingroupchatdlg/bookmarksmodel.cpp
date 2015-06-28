@@ -34,12 +34,12 @@ using namespace qutim_sdk_0_3;
 typedef QHash<BookmarkType, QIcon> Icons;
 Icons init_icons()
 {
-    Icons icons;
+	Icons icons;
 	icons.insert(BookmarkNew, Icon("meeting-attending"));
 	icons.insert(BookmarkEdit, Icon("bookmark-new-list"));
 	icons.insert(BookmarkItem, Icon("bookmarks"));
 	icons.insert(BookmarkRecentItem, Icon("view-history"));
-    return icons;
+	return icons;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(Icons, icons, (init_icons()))

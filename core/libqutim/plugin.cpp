@@ -30,14 +30,14 @@
 namespace qutim_sdk_0_3
 {
 	PluginInfoData::PluginInfoData()
-	    : version(PLUGIN_VERSION(0, 0, 0, 1)), inited(0), loaded(0)
+		: version(PLUGIN_VERSION(0, 0, 0, 1)), inited(0), loaded(0)
 	{
 	}
 
 	PluginInfoData::PluginInfoData(const PluginInfoData &o)
-	    : QSharedData(o), authors(o.authors), name(o.name), description(o.description),
-	      version(o.version), inited(o.inited), loaded(o.loaded),
-	      capabilities(o.capabilities), icon(o.icon)
+		: QSharedData(o), authors(o.authors), name(o.name), description(o.description),
+		  version(o.version), inited(o.inited), loaded(o.loaded),
+		  capabilities(o.capabilities), icon(o.icon)
 	{
 	}
 
@@ -105,12 +105,12 @@ namespace qutim_sdk_0_3
 		d->version = version;
 		return *this;
 	}
-	
+
 	PluginInfo::Capabilities PluginInfo::capabilities() const
 	{
 		return d->capabilities;
 	}
-	
+
 	PluginInfo &PluginInfo::setCapabilities(PluginInfo::Capabilities capabilities)
 	{
 		d->capabilities = capabilities;
@@ -150,13 +150,13 @@ namespace qutim_sdk_0_3
 
 	QString PluginInfo::fileName() const
 	{
-        return d->fileName;
-    }
+		return d->fileName;
+	}
 
-    QString PluginInfo::libraryName() const
-    {
-        return d->libraryName;
-    }
+	QString PluginInfo::libraryName() const
+	{
+		return d->libraryName;
+	}
 
 	class CommandArgumentPrivate : public QSharedData
 	{
@@ -257,7 +257,7 @@ namespace qutim_sdk_0_3
 			return;
 		Q_UNUSED(p->info.addAuthor(name, task, email, web));
 	}
-	
+
 	void Plugin::addAuthor(const QString &ocsUsername)
 	{
 		if (p->info.data()->inited)
@@ -275,7 +275,7 @@ namespace qutim_sdk_0_3
 		p->info.setVersion(version);
 		p->info.setIcon(icon);
 	}
-	
+
 	void Plugin::setCapabilities(Capabilities capabilities)
 	{
 		if (p->info.data()->inited)

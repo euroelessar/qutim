@@ -29,19 +29,19 @@
 #include <QWidget>
 
 namespace Ui {
-    class KineticScrollerSettings;
+	class KineticScrollerSettings;
 }
 
 class KineticScrollerSettings : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit KineticScrollerSettings(QWidget *parent = 0);
-    ~KineticScrollerSettings();
+	explicit KineticScrollerSettings(QWidget *parent = 0);
+	~KineticScrollerSettings();
 
 private:
-    Ui::KineticScrollerSettings *ui;
+	Ui::KineticScrollerSettings *ui;
 };
 
 #endif // KINETICSCROLLERSETTINGS_H

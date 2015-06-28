@@ -30,13 +30,13 @@
 
 class PackageDelegate : public QAbstractItemDelegate
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit PackageDelegate(QObject *parent = 0);
-	
-    virtual void paint(QPainter *painter,  const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const;
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	explicit PackageDelegate(QObject *parent = 0);
+
+	virtual void paint(QPainter *painter,  const QStyleOptionViewItem &option,
+					   const QModelIndex &index) const;
+	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	virtual void updateEditorGeometry(QWidget *editor,
 									  const QStyleOptionViewItem &option,
 									  const QModelIndex &index) const;

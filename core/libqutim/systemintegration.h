@@ -52,7 +52,7 @@ public:
 		IconSize, //default icon size
 		CurrentProxyInfo
 	};
-	
+
 	enum Operation
 	{
 		ShowWidget,
@@ -88,7 +88,7 @@ public:
 	virtual void init() = 0;
 	virtual bool isAvailable() const = 0;
 	virtual int priority() = 0;
-	
+
 	static void show(QWidget *widget);
 	static void open(QDialog *dialog);
 	static void keepAlive(QAbstractSocket *socket);

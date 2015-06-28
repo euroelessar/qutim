@@ -38,7 +38,7 @@ namespace Control
 using namespace qutim_sdk_0_3;
 
 AutoReplyButtonActionGenerator::AutoReplyButtonActionGenerator(QObject *object, const char *slot)
-    : ActionGenerator(QIcon(), LocalizedString(), object, slot)
+	: ActionGenerator(QIcon(), LocalizedString(), object, slot)
 {
 	setType(ActionTypeChatButton);
 }
@@ -66,7 +66,7 @@ void AutoReplyButtonActionGenerator::hideImpl(QAction *action, QObject *obj)
 }
 
 AutoReplyButtonAction::AutoReplyButtonAction(QObject *parent) :
-    QWidgetAction(parent)
+	QWidgetAction(parent)
 {
 }
 
@@ -86,7 +86,7 @@ void AutoReplyButtonAction::deleteWidget(QWidget *widget)
 }
 
 AutoReplyButton::AutoReplyButton(QAction *action, QWidget *parent)
-    : QWidget(parent), m_action(action)
+	: QWidget(parent), m_action(action)
 {
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	m_spinBox = new QSpinBox(this);

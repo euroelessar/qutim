@@ -59,7 +59,7 @@
 //	friend class JPGPSupport;
 //public:
 //	JPGPDecryptReply(QObject *parent);
-	
+
 //signals:
 //	void finished(qutim_sdk_0_3::ChatUnit *unit, qutim_sdk_0_3::ChatUnit *unitForSession, const Jreen::Message &message);
 //};
@@ -77,14 +77,14 @@
 //		PublicKey,
 //		SecretKey
 //	};
-	
+
 //	static JPGPSupport *instance();
 
 //	bool isAvailable();
 //	bool canAddKey() const;
 ////	QString addKey(const QCA::PGPKey &key);
 ////	void verifyPGPSigning(JContactResource *resource);
-	
+
 //	void addAccount(JAccount *account);
 //	void removeAccount(JAccount *account);
 //	QString stripHeader(const QString &message);

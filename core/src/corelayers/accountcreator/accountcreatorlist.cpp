@@ -57,7 +57,7 @@ AccountCreatorList::AccountCreatorList() :
 #elif defined (Q_OS_WIN32) || defined(Q_OS_MAC)
 	int width = 22;
 #else
-    int width = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+	int width = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 #endif
 
 	QSize size = QSize(width, width);

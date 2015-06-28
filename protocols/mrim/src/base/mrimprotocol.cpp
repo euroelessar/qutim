@@ -37,13 +37,13 @@ MrimProtocol* MrimProtocol::self = 0;
 
 struct MrimProtocolPrivate
 {
-    QHash<QString,MrimAccount*> m_accountsHash;
+	QHash<QString,MrimAccount*> m_accountsHash;
 };
 
 MrimProtocol::MrimProtocol() : p(new MrimProtocolPrivate())
 {
-    Q_ASSERT(!self);
-    self = this;
+	Q_ASSERT(!self);
+	self = this;
 }
 
 MrimProtocol::~MrimProtocol()
@@ -52,19 +52,19 @@ MrimProtocol::~MrimProtocol()
 
 QList<Account *> MrimProtocol::accounts() const
 {
-    QList<Account *> accounts;
-    QHash<QString, MrimAccount* >::const_iterator it;
+	QList<Account *> accounts;
+	QHash<QString, MrimAccount* >::const_iterator it;
 
-    for (it = p->m_accountsHash.begin(); it != p->m_accountsHash.end(); it++)
-    {
-        accounts.append(it.value());
-    }
-    return accounts;
+	for (it = p->m_accountsHash.begin(); it != p->m_accountsHash.end(); it++)
+	{
+		accounts.append(it.value());
+	}
+	return accounts;
 }
 
 Account *MrimProtocol::account(const QString &id) const
 {
-    return p->m_accountsHash.value(id);
+	return p->m_accountsHash.value(id);
 }
 
 void MrimProtocol::loadActions()
@@ -99,12 +99,12 @@ void MrimProtocol::addAccount(MrimAccount *account)
 void MrimProtocol::loadAccounts()
 {
 	loadActions();
-    QStringList accounts = config("general").value("accounts",QStringList());
+	QStringList accounts = config("general").value("accounts",QStringList());
 	debug() << Q_FUNC_INFO << accounts;
 
-    foreach (QString email, accounts) {
+	foreach (QString email, accounts) {
 		addAccount(new MrimAccount(email));
-    }
+	}
 }
 
 QVariant MrimProtocol::data(DataType type)
@@ -126,45 +126,45 @@ void MrimProtocol::onAccountDestroyed(QObject *obj)
 
 MrimProtocol* MrimProtocol::instance()
 {
-    if (!self)
-    {
+	if (!self)
+	{
 		warning() << "MrimProtocol isn't created yet!";
-    }
-    return self;
+	}
+	return self;
 }
 
 MrimProtocol::AccountCreationError MrimProtocol::createAccount(const QString& email, const QString& password)
 {
-    AccountCreationError err = None;
+	AccountCreationError err = None;
 
-    QString validEmail = Utils::stripEmail(email);
+	QString validEmail = Utils::stripEmail(email);
 
-    if (!validEmail.isEmpty())
-    {//email is compliant
-        ConfigGroup cfg = config("general");
-        QStringList accounts = cfg.value("accounts",QStringList());
+	if (!validEmail.isEmpty())
+	{//email is compliant
+		ConfigGroup cfg = config("general");
+		QStringList accounts = cfg.value("accounts",QStringList());
 
-        if (!accounts.contains(validEmail))
-        {//account is new, saving
-            MrimAccount *account = new MrimAccount(validEmail);
-            account->config().group("general").setValue("passwd", password, Config::Crypted);
-            account->config().sync();//save account settings
+		if (!accounts.contains(validEmail))
+		{//account is new, saving
+			MrimAccount *account = new MrimAccount(validEmail);
+			account->config().group("general").setValue("passwd", password, Config::Crypted);
+			account->config().sync();//save account settings
 			addAccount(account);
 
-            accounts << validEmail;
-            cfg.setValue("accounts",accounts);
-            cfg.sync(); //save global settings
-        }
-        else
-        {
-            err = AlreadyExists;
-        }
-    }
-    else
-    {
-        err = InvalidArguments;
-    }
-    return err;
+			accounts << validEmail;
+			cfg.setValue("accounts",accounts);
+			cfg.sync(); //save global settings
+		}
+		else
+		{
+			err = AlreadyExists;
+		}
+	}
+	else
+	{
+		err = InvalidArguments;
+	}
+	return err;
 }
 
 void MrimProtocol::virtual_hook(int id, void *data)
@@ -180,21 +180,21 @@ void MrimProtocol::virtual_hook(int id, void *data)
 		QString validEmail = Utils::stripEmail(argument.id);
 		if (!validEmail.isEmpty())
 		{//email is compliant
-		    ConfigGroup cfg = config("general");
-		    QStringList accounts = cfg.value("accounts",QStringList());
+			ConfigGroup cfg = config("general");
+			QStringList accounts = cfg.value("accounts",QStringList());
 
-		    if (!accounts.contains(validEmail))
-		    {//account is new, saving
+			if (!accounts.contains(validEmail))
+			{//account is new, saving
 			MrimAccount *account = new MrimAccount(validEmail);
 			QString password = argument.parameters.value(QLatin1String("password")).toString();
 			account->config().group("general").setValue("passwd", password, Config::Crypted);
 			account->config().sync();//save account settings
-				    addAccount(account);
+					addAccount(account);
 
 			accounts << validEmail;
 			cfg.setValue("accounts",accounts);
 			cfg.sync(); //save global settings
-		    }
+			}
 		}
 
 

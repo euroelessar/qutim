@@ -51,8 +51,8 @@ public:
 		QStringRef text;
 		QString url;
 	};
-    typedef QVector<UrlToken> UrlTokenList;
-	
+	typedef QVector<UrlToken> UrlTokenList;
+
 	static UrlTokenList tokenize(const QString &text, Flags flags = None);
 	static QString parseUrls(const QString &text, Flags flags = None);
 private:

@@ -33,9 +33,9 @@ class KopeteEmoticonsBackend : public EmoticonsBackend
 {
 	Q_OBJECT
 public:
-    virtual EmoticonsProvider* loadTheme(const QString& name);
-    virtual QStringList themeList();	
-    virtual ~KopeteEmoticonsBackend();
+	virtual EmoticonsProvider* loadTheme(const QString& name);
+	virtual QStringList themeList();
+	virtual ~KopeteEmoticonsBackend();
 };
 
 #endif // KOPETEEMOTICONSBACKEND_H

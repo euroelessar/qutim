@@ -52,7 +52,7 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 		Notification::UserTyping,
 		Notification::System,
 		Notification::Attention,
-	    // And again some of them for legacy names
+		// And again some of them for legacy names
 		Notification::UserOnline,
 		Notification::UserOffline,
 		Notification::UserChangedStatus,
@@ -126,7 +126,7 @@ OldSoundThemeProvider::OldSoundThemeProvider(const QString &name, const QString 
 			if (eventName.isEmpty() || !soundElement.elementsByTagName("file").count())
 				continue;
 			soundFileName = dir.filePath(soundElement.elementsByTagName("file").at(0).toElement().text());
-			if (!QFile::exists(soundFileName)) 
+			if (!QFile::exists(soundFileName))
 				continue;
 			for (int i = 0; i < eventsCount; i++) {
 				if (eventName == QLatin1String(xmlEventNames[i])) {

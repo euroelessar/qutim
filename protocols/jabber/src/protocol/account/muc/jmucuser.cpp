@@ -35,10 +35,10 @@ class JMUCUserPrivate : public JContactResourcePrivate
 {
 public:
 	JMUCUserPrivate(qutim_sdk_0_3::ChatUnit *c) :
-		JContactResourcePrivate(c) 
+		JContactResourcePrivate(c)
 	{
 		affiliation = MUCRoom::AffiliationNone;
-        	role = MUCRoom::RoleNone;	
+			role = MUCRoom::RoleNone;
 	}
 	QString avatar;
 	QStringRef hash;
@@ -137,7 +137,7 @@ void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoo
 	d_func()->role = role;
 	int newPriority = priority();
 	emit priorityChanged(oldPriority, newPriority);
-	
+
 	QString iconName;
 	if (affiliation == MUCRoom::AffiliationOwner)
 		iconName = QStringLiteral("user-role-owner");
@@ -151,7 +151,7 @@ void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoo
 		iconName = QStringLiteral("user-role-member");
 	else
 		iconName = QStringLiteral("user-role-participant");
-	
+
 	QVariantHash clientInfo;
 	ExtensionIcon extIcon(iconName);
 	clientInfo.insert("id", "mucRole");

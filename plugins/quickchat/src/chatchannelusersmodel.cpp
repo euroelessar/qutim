@@ -39,7 +39,7 @@ enum {
 };
 
 ChatChannelUsersModel::ChatChannelUsersModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
 	m_statusPrefix = QLatin1String("icon-m-common");
 }
@@ -59,7 +59,7 @@ void ChatChannelUsersModel::setStatusPrefix(const QString &prefix)
 
 void ChatChannelUsersModel::addUnit(Buddy *unit)
 {
-    QQmlEngine::setObjectOwnership(unit, QQmlEngine::CppOwnership);
+	QQmlEngine::setObjectOwnership(unit, QQmlEngine::CppOwnership);
 	const Node node(unit);
 	const QList<Node>::Iterator it = qLowerBound(m_units.begin(), m_units.end(), node);
 	if (it != m_units.end() && it->unit == unit)
@@ -68,9 +68,9 @@ void ChatChannelUsersModel::addUnit(Buddy *unit)
 	beginInsertRows(QModelIndex(), index, index);
 	m_units.insert(index, unit);
 	connect(unit, SIGNAL(destroyed(QObject*)),
-	        this, SLOT(onUnitDeath(QObject*)));
+			this, SLOT(onUnitDeath(QObject*)));
 	connect(unit, SIGNAL(titleChanged(QString,QString)),
-	        this, SLOT(onTitleChanged(QString,QString)));
+			this, SLOT(onTitleChanged(QString,QString)));
 	connect(unit, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 	endInsertRows();
@@ -152,20 +152,20 @@ QVariant ChatChannelUsersModel::data(const QModelIndex &index, int role) const
 		return unit->id();
 	case Qt::DisplayRole:
 		return unit->title();
-    case Qt::DecorationRole: {
-        QString avatar = unit->avatar();
+	case Qt::DecorationRole: {
+		QString avatar = unit->avatar();
 
-        QUrlQuery query;
-        query.addQueryItem(QStringLiteral("name"), unit->status().icon().name());
+		QUrlQuery query;
+		query.addQueryItem(QStringLiteral("name"), unit->status().icon().name());
 
-        QUrl url;
-        url.setScheme(QStringLiteral("image"));
-        url.setHost(QStringLiteral("avatar"));
-        url.setPath(avatar.isEmpty() ? QStringLiteral("/") : avatar);
-        url.setQuery(query);
+		QUrl url;
+		url.setScheme(QStringLiteral("image"));
+		url.setHost(QStringLiteral("avatar"));
+		url.setPath(avatar.isEmpty() ? QStringLiteral("/") : avatar);
+		url.setQuery(query);
 
-        return url.toString();
-    }
+		return url.toString();
+	}
 	case ContactRole:
 		return qVariantFromValue<QObject*>(unit);
 	case AlphabetRole:
@@ -176,29 +176,29 @@ QVariant ChatChannelUsersModel::data(const QModelIndex &index, int role) const
 		return unit->avatar();
 	default:
 		return QVariant();
-    }
+	}
 }
 
 QHash<int, QByteArray> ChatChannelUsersModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames.insert(IdRole, "id");
-    roleNames.insert(Qt::DisplayRole, "title");
-    roleNames.insert(Qt::DecorationRole, "iconSource");
-    roleNames.insert(ContactRole, "contact");
-    roleNames.insert(AlphabetRole, "alphabet");
-    roleNames.insert(StatusTextRole, "subtitle");
-    roleNames.insert(AvatarRole, "avatar");
-    return roleNames;
+	QHash<int, QByteArray> roleNames;
+	roleNames.insert(IdRole, "id");
+	roleNames.insert(Qt::DisplayRole, "title");
+	roleNames.insert(Qt::DecorationRole, "iconSource");
+	roleNames.insert(ContactRole, "contact");
+	roleNames.insert(AlphabetRole, "alphabet");
+	roleNames.insert(StatusTextRole, "subtitle");
+	roleNames.insert(AvatarRole, "avatar");
+	return roleNames;
 }
 
 QObject *ChatChannelUsersModel::unitById(const QString &id) const
 {
-    for (const Node &unit : m_units) {
-        if (unit.unit->id() == id)
-            return unit.unit;
-    }
-    return nullptr;
+	for (const Node &unit : m_units) {
+		if (unit.unit->id() == id)
+			return unit.unit;
+	}
+	return nullptr;
 }
 
 }

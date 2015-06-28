@@ -33,7 +33,7 @@ enum {
 };
 
 PackagePreviewWidget::PackagePreviewWidget(QWidget *parent)
-    : QWidget(parent)
+	: QWidget(parent)
 {
 }
 

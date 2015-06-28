@@ -38,14 +38,14 @@ class JAccountWizard;
 class JAccountFinishPage : public QWizardPage
 {
 	Q_OBJECT
-	
+
 public:
 	explicit JAccountFinishPage(JAccountWizard *accountWizard, QWidget *parent = 0);
 	~JAccountFinishPage();
-	
+
 	virtual void initializePage();
 	virtual bool validatePage();
-	
+
 private:
 	Ui::JAccountFinishPage *ui;
 	JAccountWizard *m_accountWizard;

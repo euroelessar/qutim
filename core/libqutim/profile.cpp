@@ -37,7 +37,7 @@
 
 namespace qutim_sdk_0_3
 {
-LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); 
+LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
 
 class SimpleJsonConfigBackend : public ConfigBackend
@@ -199,9 +199,9 @@ static QString replaceEnvironmentVariables(const QString &path)
 	QRegExp regexp(QLatin1String("%(\\w+)%"));
 	Q_ASSERT(regexp.isValid());
 	int pos = 0;
-   
-    while ((pos = regexp.indexIn(cleanedPath, pos)) != -1) {
-        QByteArray variable = regexp.cap(1).toLocal8Bit();
+
+	while ((pos = regexp.indexIn(cleanedPath, pos)) != -1) {
+		QByteArray variable = regexp.cap(1).toLocal8Bit();
 		QByteArray localEncodedVariable = qgetenv(variable);
 		QString data = QString::fromLocal8Bit(localEncodedVariable.constData(), localEncodedVariable.size());
 		if (data.isEmpty()) {
@@ -210,7 +210,7 @@ static QString replaceEnvironmentVariables(const QString &path)
 			cleanedPath.replace(pos, regexp.matchedLength(), data);
 			pos += data.length();
 		}
-    }
+	}
 	return cleanedPath;
 }
 
@@ -238,7 +238,7 @@ bool Profile::acceptData(const QVariantMap &data, const QString &password, bool 
 	QFile file(configDir + "/profilehash");
 	if (service && (!checkHash || file.open(QIODevice::ReadOnly))) {
 		service->setPassword(password, QVariant());
-		
+
 		if (checkHash) {
 			QByteArray data = service->decrypt(file.readAll()).toByteArray();
 			QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8()

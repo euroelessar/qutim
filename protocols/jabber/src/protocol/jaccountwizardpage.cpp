@@ -126,7 +126,7 @@ void JAccountWizardPage::on_newAccountButton_clicked()
 		QNetworkRequest request(url);
 		m_networkManager.get(request);
 	}
-    setFinalPage(false);
+	setFinalPage(false);
 }
 
 void JAccountWizardPage::on_oldAccountButton_clicked()
@@ -148,7 +148,7 @@ void JAccountWizardPage::onFinished(QNetworkReply *reply)
 			if (!jid.isEmpty())
 				servers << jid.toString();
 		}
-    }
+	}
 	QString text = ui->serverEdit->currentText();
 	if (text.isEmpty()) {
 		int index = qrand() % servers.size();

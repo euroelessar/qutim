@@ -116,7 +116,7 @@ template <typename T>
 T InfoRequest::value(const QString &name, const T &def) const
 {
 	QVariant val = value(name);
-    return val.isNull() ? def : val.value<T>();
+	return val.isNull() ? def : val.value<T>();
 }
 
 class LIBQUTIM_EXPORT InfoObserver : public QObject
@@ -131,7 +131,7 @@ public:
 
 signals:
 	void supportLevelChanged(qutim_sdk_0_3::InfoRequestFactory::SupportLevel level);
-	
+
 private slots:
 	void onObjectDestroyed(QObject *object);
 

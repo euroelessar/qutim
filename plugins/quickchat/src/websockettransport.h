@@ -42,18 +42,18 @@ namespace QuickChat {
 
 class WebSocketTransport : public QWebChannelAbstractTransport
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit WebSocketTransport(QWebSocket *socket);
-    virtual ~WebSocketTransport();
+	explicit WebSocketTransport(QWebSocket *socket);
+	virtual ~WebSocketTransport();
 
-    void sendMessage(const QJsonObject &message) Q_DECL_OVERRIDE;
+	void sendMessage(const QJsonObject &message) Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
-    void textMessageReceived(const QString &message);
+	void textMessageReceived(const QString &message);
 
 private:
-    QWebSocket *m_socket;
+	QWebSocket *m_socket;
 };
 
 } // namespace QuickChat

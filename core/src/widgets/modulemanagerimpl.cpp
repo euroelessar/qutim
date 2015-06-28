@@ -69,7 +69,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 				wizard = new QWizard();
 				wizard->addPage(new SubmitPage(helper, wizard));
 			}
-			
+
 			bool systemProfiles = false;
 			ProfileDialog::profilesConfigPath(&systemProfiles);
 			if(ProfileDialog::acceptProfileInfo(config, QString(), !systemProfiles)) {

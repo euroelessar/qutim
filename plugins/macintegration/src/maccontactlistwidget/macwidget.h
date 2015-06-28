@@ -68,7 +68,7 @@ public:
 	virtual void removeButton(ActionGenerator *generator);
 	virtual TreeView *contactView();
 
-    void onSearchTextChanged(const QString &text);
+	void onSearchTextChanged(const QString &text);
 private slots:
 	void showStatusDialog();
 	void changeStatusTextAccepted();
@@ -78,14 +78,14 @@ private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 	void onSessionDestroyed();
 	void onActivatedSession(bool state);
-    void initMenu();
-    bool isToolBarVisible();
-    void setToolBarVisible(bool visible);
-    void setSearchText(const QString &text);
+	void initMenu();
+	bool isToolBarVisible();
+	void setToolBarVisible(bool visible);
+	void setSearchText(const QString &text);
 protected:
 	void loadGeometry();
 	void addMenu(const QString &title, MacMenuId id);
-    void resizeEvent(QResizeEvent *event);
+	void resizeEvent(QResizeEvent *event);
 	bool eventFilter(QObject *obj, QEvent *ev);
 private:
 	QScopedPointer<MacWidgetPrivate> d_ptr;

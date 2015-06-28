@@ -54,9 +54,9 @@ AboutDialogWrapper::AboutDialogWrapper()
 	emit qtVerChanged();
 
 	QString license = tr("<div><b>qutIM</b> %1 is licensed under GNU General Public License, version 2"
-			     " or (at your option) any later version.</div>"
-			     "<div>qutIM resources such as themes, icons, sounds may come along with a "
-			     "different license.</div><br><hr><br>").arg(versionString());
+				 " or (at your option) any later version.</div>"
+				 "<div>qutIM resources such as themes, icons, sounds may come along with a "
+				 "different license.</div><br><hr><br>").arg(versionString());
 
 	license += "<br><a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GPLv2 license text</a>";
 

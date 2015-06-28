@@ -127,7 +127,7 @@ static bool lsbRelease(SystemInfoPrivate *d)
 	}
 
 	QProcess process;
-    process.start(found, QStringList(QStringLiteral("-dirs")), QIODevice::ReadOnly);
+	process.start(found, QStringList(QStringLiteral("-dirs")), QIODevice::ReadOnly);
 
 	if(!process.waitForStarted())
 		return false;   // process failed to start
@@ -138,27 +138,27 @@ static bool lsbRelease(SystemInfoPrivate *d)
 	while (process.waitForReadyRead())
 		ret += stream.readAll();
 
-    process.close();
+	process.close();
 
-    QStringList list = ret.split(QLatin1Char('\n'), QString::KeepEmptyParts);
+	QStringList list = ret.split(QLatin1Char('\n'), QString::KeepEmptyParts);
 
-    if (list.size() >= 3) {
-        auto fixed = [] (QString value) {
-            value = value.trimmed();
-            if (value.startsWith(QLatin1Char('"')))
+	if (list.size() >= 3) {
+		auto fixed = [] (QString value) {
+			value = value.trimmed();
+			if (value.startsWith(QLatin1Char('"')))
 				value.remove(0, 1);
 			if (value.endsWith(QLatin1Char('"')))
 				value.chop(1);
-            return value;
-        };
+			return value;
+		};
 
-        d->os_name = fixed(list[0]);
-        d->os_full = fixed(list[1]);
-        d->os_version = fixed(list[2]);
-        return true;
-    }
+		d->os_name = fixed(list[0]);
+		d->os_full = fixed(list[1]);
+		d->os_version = fixed(list[2]);
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 enum OsFlags {
@@ -188,7 +188,7 @@ static bool osReleaseDetect(SystemInfoPrivate *d)
 		{ "/etc/os-release",  "NAME",       "VERSION",         "PRETTY_NAME"         },
 		{ "/etc/lsb-release", "DISTRIB_ID", "DISTRIB_RELEASE", "DISTRIB_DESCRIPTION" }
 	};
-	
+
 	QFile releaseFile;
 	for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i) {
 		OsRelease &release = files[i];
@@ -203,7 +203,7 @@ static bool osReleaseDetect(SystemInfoPrivate *d)
 				value.remove(0, 1);
 			if (value.endsWith(QLatin1Char('"')))
 				value.chop(1);
-			
+
 			if (name == QLatin1String(release.name))
 				d->os_name = value;
 			else if (name == QLatin1String(release.version))
@@ -262,7 +262,7 @@ static QString unixHeuristicDetect(SystemInfoPrivate *d)
 			f.readLine( buffer, 128 );
 
 			QString desc = QString::fromUtf8(buffer).simplified();
-			
+
 			d->os_name = osInfo[i].name;
 			d->os_version.clear();
 
@@ -297,7 +297,7 @@ SystemInfo::~SystemInfo()
 
 SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 {
-    auto d = this;
+	auto d = this;
 	// Initialize
 	d->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
 	d->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
@@ -356,7 +356,7 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 		long revision = 0;
 		if (sscanf(uname_info.version, "r%ld", &revision) == 1 ||
 				sscanf(uname_info.version, "hrev%ld", &revision) == 1) {
-			
+
 			char version[16];
 			snprintf(version, sizeof(version), "%ld", revision);
 			d->os_full += " (" + d->os_name + " Rev. ";
@@ -383,8 +383,8 @@ SystemInfoPrivate::SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1)
 	// Firstly try to get info from "/etc/os-release" or compatible as it's faster then invoking lsb_release
 	if (!osReleaseDetect(d)) {
 		// attempt to get LSB version before trying the distro-specific approach
-        if (!lsbRelease(d))
-            unixHeuristicDetect(d);
+		if (!lsbRelease(d))
+			unixHeuristicDetect(d);
 	}
 
 
@@ -528,13 +528,13 @@ QString SystemInfo::systemID2String(quint8 type, quint32 id)
 			else
 				str += " Server 2008 R2";
 			break;
-        case 0x0602:
+		case 0x0602:
 			if(product == VER_NT_WORKSTATION)
 				str += " 8";
 			else
 				str += " Server 2012";
 			break;
-        case 0x0603:
+		case 0x0603:
 			if(product == VER_NT_WORKSTATION)
 				str += " 8.1";
 			else

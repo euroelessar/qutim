@@ -77,7 +77,7 @@ public:
 	QSignalMapper signalMapper;
 	int loadedModules;
 	int priority;
-	
+
 	void applyStatus(const Status &status);
 	void setPresence(Jreen::Presence);
 	void _q_set_nick(const QString &nick);

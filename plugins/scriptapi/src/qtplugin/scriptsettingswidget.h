@@ -37,7 +37,7 @@ class ScriptSettingsWidget : public SettingsWidget
 	Q_PROPERTY(QScriptValue load READ loadFunction WRITE setLoadFunction)
 	Q_PROPERTY(QScriptValue save READ saveFunction WRITE setSaveFunction)
 public:
-    ScriptSettingsWidget();
+	ScriptSettingsWidget();
 
 	QScriptValue loadFunction() const;
 	void setLoadFunction(const QScriptValue &func);

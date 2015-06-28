@@ -117,7 +117,7 @@ ScriptMessage::ScriptMessage(QScriptEngine *engine) : QScriptClass(engine)
 	qRegisterMetaType<qutim_sdk_0_3::Message>("qutim_sdk_0_3::Message&");
 	m_prototype = engine->newObject(this);
 	QScriptValue ctor = engine->newFunction(createMessage);
-    engine->globalObject().setProperty(name(), ctor);
+	engine->globalObject().setProperty(name(), ctor);
 }
 
 ScriptMessage::~ScriptMessage()
@@ -126,8 +126,8 @@ ScriptMessage::~ScriptMessage()
 }
 
 QScriptClass::QueryFlags ScriptMessage::queryProperty(const QScriptValue &object,
-                                                      const QScriptString &name,
-                                                      QueryFlags flags, uint *id)
+													  const QScriptString &name,
+													  QueryFlags flags, uint *id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);
@@ -151,7 +151,7 @@ msg.text = "Hi!";
 conference.sendMessage(msg);
 */
 void ScriptMessage::setProperty(QScriptValue &object, const QScriptString &name,
-                                uint id, const QScriptValue &value)
+								uint id, const QScriptValue &value)
 {
 	Q_UNUSED(id);
 	Message *msg = message_get_value(object);
@@ -162,7 +162,7 @@ void ScriptMessage::setProperty(QScriptValue &object, const QScriptString &name,
 }
 
 QScriptValue::PropertyFlags ScriptMessage::propertyFlags(const QScriptValue &object,
-                                                         const QScriptString &name, uint id)
+														 const QScriptString &name, uint id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);

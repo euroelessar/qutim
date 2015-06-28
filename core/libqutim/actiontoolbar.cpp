@@ -40,7 +40,7 @@
 #include <QStyle>
 
 namespace qutim_sdk_0_3
-{	
+{
 static ActionGenerator *createGenerator(int data, const LocalizedString &text, bool showIconSize = false)
 {
 	QString title = showIconSize ? text.toString() + QString("(%1, %1)").arg(data) : text.toString();
@@ -126,8 +126,8 @@ QMenu *ActionToolBarPrivate::initContextMenu()
 	QMenu *sizeMenu = new QMenu(QObject::tr("Icon size"), contextMenu);
 	group = fillMenu(sizeMenu, sizeMap(), q->iconSize().height());
 	contextMenu->addMenu(sizeMenu);
-    q->connect(group, SIGNAL(triggered(QAction*)),
-               q, SLOT(_q_size_action_triggered(QAction*)));
+	q->connect(group, SIGNAL(triggered(QAction*)),
+			   q, SLOT(_q_size_action_triggered(QAction*)));
 
 	QMenu *styleMenu = new QMenu(QObject::tr("Tool button style"), contextMenu);
 	group = fillMenu(styleMenu, styleMap(), q->toolButtonStyle());
@@ -144,7 +144,7 @@ void ActionToolBarPrivate::_q_size_action_triggered(QAction *action)
 	size = QSize(s,s);
 	QToolBar *bar = q;
 	bar->setIconSize(size);
-	
+
 	Config cfg = Config("appearance").group("toolBars").group(q->objectName());
 	cfg.setValue("iconSize",s);
 	cfg.sync();
@@ -156,7 +156,7 @@ void ActionToolBarPrivate::_q_style_action_triggered(QAction *action)
 	style = action->property("intData").toInt();
 	QToolBar *bar = q;
 	bar->setToolButtonStyle(static_cast<Qt::ToolButtonStyle>(style));
-	
+
 	Config cfg = Config("appearance").group("toolBars").group(q->objectName());
 	cfg.setValue("buttonStyle",style);
 	cfg.sync();
@@ -273,8 +273,8 @@ void ActionToolBar::mousePressEvent(QMouseEvent *event)
 	Q_D(ActionToolBar);
 	if (d->moveHookEnabled && event->button() == Qt::LeftButton) {
 		ReleaseCapture();
-        SendMessage((HWND)this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
-        PostMessage((HWND)this->window()->winId(), WM_LBUTTONUP, 0, 0);
+		SendMessage((HWND)this->window()->winId(), WM_SYSCOMMAND, SC_MOVE|HTCAPTION, 0);
+		PostMessage((HWND)this->window()->winId(), WM_LBUTTONUP, 0, 0);
 	}
 #endif
 	QToolBar::mousePressEvent(event);
@@ -285,7 +285,7 @@ void ActionToolBar::mouseMoveEvent(QMouseEvent *event)
 #ifdef Q_OS_WIN
 	Q_D(ActionToolBar);
 	if(d->moveHookEnabled && event->buttons() & Qt::LeftButton)
-        QWidget::window()->move(event->globalPos());
+		QWidget::window()->move(event->globalPos());
 #endif
 	QToolBar::mouseMoveEvent(event);
 }
@@ -349,7 +349,7 @@ void ActionToolBar::showEvent(QShowEvent* event)
 	int size = cfg.value("iconSize",-1);
 	d->size = QSize(size,size);
 	d->style = cfg.value("buttonStyle",-1);
-	
+
 	if(d->size.isValid())
 		QToolBar::setIconSize(d->size);
 	if(d->style != -1)

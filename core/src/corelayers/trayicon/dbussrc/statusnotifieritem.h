@@ -27,9 +27,9 @@ class QVariant;
  */
 class StatusNotifierItemAdaptor: public QDBusAbstractAdaptor
 {
-    Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.kde.StatusNotifierItem")
-    Q_CLASSINFO("D-Bus Introspection", ""
+	Q_OBJECT
+	Q_CLASSINFO("D-Bus Interface", "org.kde.StatusNotifierItem")
+	Q_CLASSINFO("D-Bus Introspection", ""
 "  <interface name=\"org.kde.StatusNotifierItem\">\n"
 "    <property access=\"read\" type=\"s\" name=\"Category\"/>\n"
 "    <property access=\"read\" type=\"s\" name=\"Id\"/>\n"
@@ -91,72 +91,72 @@ class StatusNotifierItemAdaptor: public QDBusAbstractAdaptor
 "      <arg type=\"s\" name=\"status\"/>\n"
 "    </signal>\n"
 "  </interface>\n"
-        "")
+		"")
 public:
-    StatusNotifierItemAdaptor(QObject *parent);
-    virtual ~StatusNotifierItemAdaptor();
+	StatusNotifierItemAdaptor(QObject *parent);
+	virtual ~StatusNotifierItemAdaptor();
 
 public: // PROPERTIES
-    Q_PROPERTY(QString AttentionIconName READ attentionIconName)
-    QString attentionIconName() const;
+	Q_PROPERTY(QString AttentionIconName READ attentionIconName)
+	QString attentionIconName() const;
 
-    Q_PROPERTY(qutim_dbus::KDbusImageVector AttentionIconPixmap READ attentionIconPixmap)
-    qutim_dbus::KDbusImageVector attentionIconPixmap() const;
+	Q_PROPERTY(qutim_dbus::KDbusImageVector AttentionIconPixmap READ attentionIconPixmap)
+	qutim_dbus::KDbusImageVector attentionIconPixmap() const;
 
-    Q_PROPERTY(QString AttentionMovieName READ attentionMovieName)
-    QString attentionMovieName() const;
+	Q_PROPERTY(QString AttentionMovieName READ attentionMovieName)
+	QString attentionMovieName() const;
 
-    Q_PROPERTY(QString Category READ category)
-    QString category() const;
+	Q_PROPERTY(QString Category READ category)
+	QString category() const;
 
-    Q_PROPERTY(QString IconName READ iconName)
-    QString iconName() const;
+	Q_PROPERTY(QString IconName READ iconName)
+	QString iconName() const;
 
-    Q_PROPERTY(qutim_dbus::KDbusImageVector IconPixmap READ iconPixmap)
-    qutim_dbus::KDbusImageVector iconPixmap() const;
+	Q_PROPERTY(qutim_dbus::KDbusImageVector IconPixmap READ iconPixmap)
+	qutim_dbus::KDbusImageVector iconPixmap() const;
 
-    Q_PROPERTY(QString IconThemePath READ iconThemePath)
-    QString iconThemePath() const;
+	Q_PROPERTY(QString IconThemePath READ iconThemePath)
+	QString iconThemePath() const;
 
-    Q_PROPERTY(QString Id READ id)
-    QString id() const;
+	Q_PROPERTY(QString Id READ id)
+	QString id() const;
 
-    Q_PROPERTY(bool ItemIsMenu READ itemIsMenu)
-    bool itemIsMenu() const;
+	Q_PROPERTY(bool ItemIsMenu READ itemIsMenu)
+	bool itemIsMenu() const;
 
-    Q_PROPERTY(QDBusObjectPath Menu READ menu)
-    QDBusObjectPath menu() const;
+	Q_PROPERTY(QDBusObjectPath Menu READ menu)
+	QDBusObjectPath menu() const;
 
-    Q_PROPERTY(QString OverlayIconName READ overlayIconName)
-    QString overlayIconName() const;
+	Q_PROPERTY(QString OverlayIconName READ overlayIconName)
+	QString overlayIconName() const;
 
-    Q_PROPERTY(qutim_dbus::KDbusImageVector OverlayIconPixmap READ overlayIconPixmap)
-    qutim_dbus::KDbusImageVector overlayIconPixmap() const;
+	Q_PROPERTY(qutim_dbus::KDbusImageVector OverlayIconPixmap READ overlayIconPixmap)
+	qutim_dbus::KDbusImageVector overlayIconPixmap() const;
 
-    Q_PROPERTY(QString Status READ status)
-    QString status() const;
+	Q_PROPERTY(QString Status READ status)
+	QString status() const;
 
-    Q_PROPERTY(QString Title READ title)
-    QString title() const;
+	Q_PROPERTY(QString Title READ title)
+	QString title() const;
 
-    Q_PROPERTY(qutim_dbus::KDbusToolTipStruct ToolTip READ toolTip)
-    qutim_dbus::KDbusToolTipStruct toolTip() const;
+	Q_PROPERTY(qutim_dbus::KDbusToolTipStruct ToolTip READ toolTip)
+	qutim_dbus::KDbusToolTipStruct toolTip() const;
 
-    Q_PROPERTY(int WindowId READ windowId)
-    int windowId() const;
+	Q_PROPERTY(int WindowId READ windowId)
+	int windowId() const;
 
 public Q_SLOTS: // METHODS
-    void Activate(int x, int y);
-    void ContextMenu(int x, int y);
-    void Scroll(int delta, const QString &orientation);
-    void SecondaryActivate(int x, int y);
+	void Activate(int x, int y);
+	void ContextMenu(int x, int y);
+	void Scroll(int delta, const QString &orientation);
+	void SecondaryActivate(int x, int y);
 Q_SIGNALS: // SIGNALS
-    void NewAttentionIcon();
-    void NewIcon();
-    void NewOverlayIcon();
-    void NewStatus(const QString &status);
-    void NewTitle();
-    void NewToolTip();
+	void NewAttentionIcon();
+	void NewIcon();
+	void NewOverlayIcon();
+	void NewStatus(const QString &status);
+	void NewTitle();
+	void NewToolTip();
 };
 
 #endif

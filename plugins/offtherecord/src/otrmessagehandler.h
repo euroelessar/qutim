@@ -32,7 +32,7 @@ class OtrMessagePreHandler : public qutim_sdk_0_3::MessageHandler
 {
 public:
 	MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
-	
+
 	void encrypt(qutim_sdk_0_3::Message &message);
 	void decrypt(qutim_sdk_0_3::Message &message);
 };

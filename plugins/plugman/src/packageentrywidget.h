@@ -34,10 +34,10 @@
 
 class PackageEntryWidget : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit PackageEntryWidget(const PackageEntry &entry);
-	
+	explicit PackageEntryWidget(const PackageEntry &entry);
+
 	PackageEntry entry() const { return m_entry; }
 	void updateData();
 signals:

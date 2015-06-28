@@ -35,7 +35,7 @@ namespace Core
 class OldSoundThemeProvider : public SoundThemeProvider
 {
 public:
-    OldSoundThemeProvider(const QString &name, const QString &path, QString variant);
+	OldSoundThemeProvider(const QString &name, const QString &path, QString variant);
 	virtual bool setSoundPath(Notification::Type sound, const QString &file);
 	virtual QString soundPath(Notification::Type sound);
 	virtual QString themeName();

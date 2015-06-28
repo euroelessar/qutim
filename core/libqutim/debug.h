@@ -42,7 +42,7 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT QDebug debug_helper(quint64, DebugLevel, QtMsgType);
 	LIBQUTIM_EXPORT void debugAddPluginId(quint64, const QMetaObject *meta);
 	LIBQUTIM_EXPORT void debugClearConfig();
-    LIBQUTIM_EXPORT QtMsgType debug_level(const char *name);
+	LIBQUTIM_EXPORT QtMsgType debug_level(const char *name);
 
 #undef qDebug
 #undef qWarning

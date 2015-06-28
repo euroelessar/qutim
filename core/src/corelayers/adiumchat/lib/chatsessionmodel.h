@@ -76,7 +76,7 @@ private:
 		QString title;
 		qutim_sdk_0_3::Buddy *unit;
 		int priority = unit->property("priority").toInt();
-		
+
 		bool operator <(const Node &o) const
 		{
 			int cmp = o.priority - priority;

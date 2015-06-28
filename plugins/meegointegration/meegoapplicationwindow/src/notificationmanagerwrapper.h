@@ -33,18 +33,18 @@ namespace MeegoIntegration
 {
 class NotificationManagerWrapper : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit NotificationManagerWrapper();
-	
+	explicit NotificationManagerWrapper();
+
 	static void init();
-	
+
 public slots:
 	void setBackendState(const QString &type, bool enabled);
 	void enableBackend(const QString &type);
 	void disableBackend(const QString &type);
 	bool isBackendEnabled(const QString &type);
-	
+
 private slots:
 	void onBackendStateChanged(const QByteArray &type, bool enabled);
 
@@ -61,19 +61,19 @@ class NotificationBackendWrapper : public QObject
 public:
 	NotificationBackendWrapper();
 	virtual ~NotificationBackendWrapper();
-	
+
 	QString type() const;
 	void setType(const QString &type);
 	bool isEnabled() const;
 	void setEnabled(bool enabled);
-	
+
 signals:
 	void typeChanged(const QString &type);
 	void enabledChanged(bool enabled);
 
 private slots:
 	void onBackendStateChanged(const QByteArray &type, bool enabled);
-	
+
 private:
 	QByteArray m_type;
 };

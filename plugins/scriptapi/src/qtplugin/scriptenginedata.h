@@ -43,12 +43,12 @@ class ScriptEngineData
 	Q_DISABLE_COPY(ScriptEngineData)
 public:
 	typedef QSharedPointer<ScriptEngineData> Ptr;
-	
-    ScriptEngineData();
+
+	ScriptEngineData();
 	~ScriptEngineData();
 
 	static ScriptEngineData *data(QScriptEngine *engine);
-	
+
 	QScriptEngine *engine;
 	ScriptMessage *message;
 	ScriptServices *services;

@@ -49,8 +49,8 @@ void AvatarIconEngine::paint(QPainter *painter, const QRect &rect,
 {
 	Q_UNUSED(mode);
 	Q_UNUSED(state);
-    QSize pixmapSize = rect.size() * qApp->devicePixelRatio();
-    painter->drawPixmap(rect, pixmap(pixmapSize, mode, state));
+	QSize pixmapSize = rect.size() * qApp->devicePixelRatio();
+	painter->drawPixmap(rect, pixmap(pixmapSize, mode, state));
 }
 
 QSize AvatarIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
@@ -65,12 +65,12 @@ QSize AvatarIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::S
 
 QString AvatarIconEngine::key() const
 {
-    return QLatin1String("AvatarIconEngiixne");
+	return QLatin1String("AvatarIconEngiixne");
 }
 
 AvatarIconEngine *AvatarIconEngine::clone() const
 {
-    return new AvatarIconEngine(*this);
+	return new AvatarIconEngine(*this);
 }
 
 QPixmap AvatarIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)

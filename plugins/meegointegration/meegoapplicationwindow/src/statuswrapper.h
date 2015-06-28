@@ -32,7 +32,7 @@ namespace MeegoIntegration
 {
 class StatusWrapper : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_ENUMS(Type ChangeReason)
 public:
 	enum Type
@@ -55,8 +55,8 @@ public:
 		ByNetworkError = qutim_sdk_0_3::Status::ByNetworkError,
 		ByFatalError = qutim_sdk_0_3::Status::ByFatalError
 	};
-	
-    explicit StatusWrapper(QObject *parent = 0);
+
+	explicit StatusWrapper(QObject *parent = 0);
 
 signals:
 

@@ -30,16 +30,16 @@
 
 namespace Core
 {
-    using namespace qutim_sdk_0_3;
+	using namespace qutim_sdk_0_3;
 
 	EmoticonsSettings::EmoticonsSettings()
 	{
-        SettingsItem *item = new QmlSettingsItem(QStringLiteral("emoticonssettings"),
-                                                 Settings::Appearance,
-                                                 Icon("face-smile"),
-                                                 QT_TRANSLATE_NOOP("Settings","Emoticons"));
+		SettingsItem *item = new QmlSettingsItem(QStringLiteral("emoticonssettings"),
+												 Settings::Appearance,
+												 Icon("face-smile"),
+												 QT_TRANSLATE_NOOP("Settings","Emoticons"));
 		Settings::registerItem(item);
-        deleteLater();
-    }
+		deleteLater();
+	}
 }
 

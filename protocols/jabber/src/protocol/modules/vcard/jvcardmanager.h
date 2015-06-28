@@ -48,7 +48,7 @@ class JVCardManager : public InfoRequestFactory, public JabberExtension
 public:
 	JVCardManager();
 	~JVCardManager();
-	
+
 	virtual void init(qutim_sdk_0_3::Account *account);
 	static QString ensurePhoto(const Jreen::VCard::Photo &photo, QString *path = NULL);
 
@@ -64,7 +64,7 @@ protected slots:
 	void onVCardUpdateDetected(const Jreen::JID &jid, const Jreen::VCardUpdate::Ptr &update);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status,
 								const qutim_sdk_0_3::Status &previous);
-	
+
 private:
 	friend class JInfoRequest;
 	bool m_autoLoad;

@@ -82,7 +82,7 @@ class PrivacyLists : public QObject, public FeedbagItemHandler
 	Q_INTERFACES(qutim_sdk_0_3::oscar::FeedbagItemHandler)
 	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
-    PrivacyLists();
+	PrivacyLists();
 	static PrivacyLists *instance() { Q_ASSERT(self); return self; }
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	void setVisibility(IcqAccount *account, int visibility);

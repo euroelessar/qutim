@@ -33,13 +33,13 @@
 Q_GLOBAL_STATIC_WITH_ARGS(bool, isDebug, (qgetenv("ADIUM_WEBKIT_DEBUG").toInt() > 0))
 
 WebKitNetworkAccessManager::WebKitNetworkAccessManager(QObject *parent) :
-    QNetworkAccessManager(parent)
+	QNetworkAccessManager(parent)
 {
 }
 
 QNetworkReply *WebKitNetworkAccessManager::createRequest(QNetworkAccessManager::Operation op,
-                                                         const QNetworkRequest &request,
-                                                         QIODevice *outgoingData)
+														 const QNetworkRequest &request,
+														 QIODevice *outgoingData)
 {
 	QNetworkRequest fixedRequest = request;
 	QUrl url = request.url();

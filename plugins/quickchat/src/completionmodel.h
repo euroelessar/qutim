@@ -7,26 +7,26 @@ namespace QuickChat {
 
 class CompletionModel : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(QObject *model READ model WRITE setModel NOTIFY modelChanged)
-    Q_PROPERTY(bool valid READ isValid NOTIFY modelChanged)
+	Q_OBJECT
+	Q_PROPERTY(QObject *model READ model WRITE setModel NOTIFY modelChanged)
+	Q_PROPERTY(bool valid READ isValid NOTIFY modelChanged)
 
 public:
-    explicit CompletionModel(QObject *parent = 0);
+	explicit CompletionModel(QObject *parent = 0);
 
-    bool isValid() const;
+	bool isValid() const;
 
-    QObject *model() const;
-    void setModel(QObject *model);
+	QObject *model() const;
+	void setModel(QObject *model);
 
 public slots:
-    QStringList suggestions(const QString &prefix);
+	QStringList suggestions(const QString &prefix);
 
 signals:
-    void modelChanged(QAbstractItemModel *model);
+	void modelChanged(QAbstractItemModel *model);
 
 private:
-    QAbstractItemModel *m_model;
+	QAbstractItemModel *m_model;
 };
 
 } // namespace QuickChat

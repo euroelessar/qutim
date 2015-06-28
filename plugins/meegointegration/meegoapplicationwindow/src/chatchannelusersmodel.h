@@ -33,30 +33,30 @@ namespace MeegoIntegration
 {
 class ChatChannelUsersModel : public QAbstractListModel
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_PROPERTY(QString statusPrefix READ statusPrefix WRITE setStatusPrefix NOTIFY statusPrefixChanged)
 	Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 public:
-    explicit ChatChannelUsersModel(QObject *parent = 0);
-	
+	explicit ChatChannelUsersModel(QObject *parent = 0);
+
 	QString statusPrefix();
 	void setStatusPrefix(const QString &prefix);
 	void addUnit(qutim_sdk_0_3::Buddy *unit);
 	void removeUnit(qutim_sdk_0_3::Buddy *unit);
-	
+
 	// QAbstractListModel
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
 signals:
 	void statusPrefixChanged(const QString &prefix);
 	void countChanged(int arg);
-	
+
 private slots:
 	void onUnitDeath(QObject *object);
 	void onStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onTitleChanged(const QString &title, const QString &oldTitle);
-	
+
 private:
 	struct Node {
 		Node(qutim_sdk_0_3::Buddy *u, const QString &t) : title(t), unit(u) {}
@@ -64,7 +64,7 @@ private:
 		Node() : unit(NULL) {}
 		QString title;
 		qutim_sdk_0_3::Buddy *unit;
-		
+
 		bool operator <(const Node &o) const
 		{
 			const int cmp = title.compare(o.title, Qt::CaseInsensitive);

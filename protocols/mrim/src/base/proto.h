@@ -39,14 +39,14 @@
 
 typedef struct mrim_packet_header_t
 {
-    quint32      magic; // Magic
-    quint32      proto; // Protocol version
-    quint32        seq; // Sequence
-    quint32        msg; // Packet type
-    quint32       dlen; // Data length
-    quint32       from; // Sender address
-    quint32  fromport; // Sender port
-    uchar reserved[16]; // Reserved
+	quint32      magic; // Magic
+	quint32      proto; // Protocol version
+	quint32        seq; // Sequence
+	quint32        msg; // Packet type
+	quint32       dlen; // Data length
+	quint32       from; // Sender address
+	quint32  fromport; // Sender port
+	uchar reserved[16]; // Reserved
 } mrim_packet_header_t;
 
 #define HEADER_SIZE (44)
@@ -193,7 +193,7 @@ Protocol of client-server connection
 
 
 #define MRIM_CS_ADD_CONTACT			0x1019	// C -> S
-// UL flags (group(2) or usual(0) 
+// UL flags (group(2) or usual(0)
 	#define CONTACT_FLAG_REMOVED		0x00000001
 	#define CONTACT_FLAG_GROUP			0x00000002
 	#define CONTACT_FLAG_INVISIBLE		0x00000004
@@ -213,11 +213,11 @@ Protocol of client-server connection
 //				LPS auth_sender_nick ???
 //				LPS auth_request_text ???
 //	)
-// UL actions ( >= 1.15) 
-	#define ADD_CONTACT_ACTION_FLAG_MYMAIL_INVITE   0x00000001 
+// UL actions ( >= 1.15)
+	#define ADD_CONTACT_ACTION_FLAG_MYMAIL_INVITE   0x00000001
 	//used internal in win32 agent
 	#define CONTACT_AWAITING_AUTHORIZATION_USER     0x00000100
-	#define CONTACT_FLAG_TEMPORARY                  0x00010000 
+	#define CONTACT_FLAG_TEMPORARY                  0x00010000
 
 
 #define MRIM_CS_ADD_CONTACT_ACK			0x101A	// S -> C
@@ -269,31 +269,31 @@ Protocol of client-server connection
 
 
 #define MRIM_CS_MPOP_SESSION			0x1025	// S -> C
-// UL status 
+// UL status
 	#define MRIM_GET_SESSION_FAIL		0
 	#define MRIM_GET_SESSION_SUCCESS	1
 // LPS mpop session ???
 
 
-#define MRIM_CS_FILE_TRANSFER			0x1026  // C->S 
+#define MRIM_CS_FILE_TRANSFER			0x1026  // C->S
 // LPS TO/FROM e-mail ANSI
-// DWORD id_request - uniq per connect 
-// DWORD FILESIZE 
+// DWORD id_request - uniq per connect
+// DWORD FILESIZE
 // LPS:	// LPS Files (FileName;FileSize;FileName;FileSize;) ANSI
 		// LPS DESCRIPTION:
 							// UL ?
 							// Files (FileName;FileSize;FileName;FileSize;) UNICODE
 		// LPS Conn (IP:Port;IP:Port;) ANSI
 
-#define MRIM_CS_FILE_TRANSFER_ACK		0x1027 // S->C 
-// DWORD status 
-	#define FILE_TRANSFER_STATUS_OK                 1 
-	#define FILE_TRANSFER_STATUS_DECLINE            0 
-	#define FILE_TRANSFER_STATUS_ERROR              2 
-	#define FILE_TRANSFER_STATUS_INCOMPATIBLE_VERS  3 
-	#define FILE_TRANSFER_MIRROR                    4 
+#define MRIM_CS_FILE_TRANSFER_ACK		0x1027 // S->C
+// DWORD status
+	#define FILE_TRANSFER_STATUS_OK                 1
+	#define FILE_TRANSFER_STATUS_DECLINE            0
+	#define FILE_TRANSFER_STATUS_ERROR              2
+	#define FILE_TRANSFER_STATUS_INCOMPATIBLE_VERS  3
+	#define FILE_TRANSFER_MIRROR                    4
 // LPS TO/FROM e-mail ANSI
-// DWORD id_request 
+// DWORD id_request
 // LPS DESCRIPTION [Conn (IP:Port;IP:Port;) ANSI]
 
 
@@ -305,7 +305,7 @@ Protocol of client-server connection
 #define PARAMS_NUMBER_LIMIT			50
 #define PARAM_VALUE_LENGTH_LIMIT	64
 
-//if last symbol in value eq '*' it will be replaced by LIKE '%' 
+//if last symbol in value eq '*' it will be replaced by LIKE '%'
 // params define
 // must be  in consecutive order (0..N) to quick check in check_anketa_info_request
 	enum {
@@ -323,19 +323,19 @@ Protocol of client-server connection
 	MRIM_CS_WP_REQUEST_PARAM_STATUS	,		// we do not used it, yet
 	MRIM_CS_WP_REQUEST_PARAM_CITY_ID,		// ANSI
 	MRIM_CS_WP_REQUEST_PARAM_ZODIAC,		// ANSI
-	MRIM_CS_WP_REQUEST_PARAM_BIRTHDAY_MONTH,// ANSI	
+	MRIM_CS_WP_REQUEST_PARAM_BIRTHDAY_MONTH,// ANSI
 	MRIM_CS_WP_REQUEST_PARAM_BIRTHDAY_DAY,	// ANSI
 	MRIM_CS_WP_REQUEST_PARAM_COUNTRY_ID,	// ANSI
-	MRIM_CS_WP_REQUEST_PARAM_MAX		
+	MRIM_CS_WP_REQUEST_PARAM_MAX
 	};
 
 #define MRIM_CS_ANKETA_INFO			0x1028 //S->C
-// DWORD status 
+// DWORD status
 	#define MRIM_ANKETA_INFO_STATUS_OK			1
 	#define MRIM_ANKETA_INFO_STATUS_NOUSER		0
 	#define MRIM_ANKETA_INFO_STATUS_DBERR		2
 	#define MRIM_ANKETA_INFO_STATUS_RATELIMERR	3
-// DWORD fields_num				
+// DWORD fields_num
 // DWORD max_rows
 // DWORD server_time sec since 1970 (unixtime)
 	// fields set 				//%fields_num == 0
@@ -343,7 +343,7 @@ Protocol of client-server connection
 // LPS value (numbers too) ???
 
 
-#define MRIM_CS_MAILBOX_STATUS			0x1033	
+#define MRIM_CS_MAILBOX_STATUS			0x1033
 // DWORD new messages in mailbox
 
 
@@ -352,7 +352,7 @@ Protocol of client-server connection
 // DWORD session unique per game
 // DWORD msg internal game message
 	enum {
-	GAME_BASE, 
+	GAME_BASE,
 	GAME_CONNECTION_INVITE,
 	GAME_CONNECTION_ACCEPT,
 	GAME_DECLINE,
@@ -384,7 +384,7 @@ Protocol of client-server connection
 	// mask symbols table:
 	// 's' - lps
 	// 'u' - unsigned long
-	// 'z' - zero terminated string 
+	// 'z' - zero terminated string
 	// LPS groups fields mask ANSI
 	// LPS contacts fields mask ANSI
 	// group fields
@@ -420,7 +420,7 @@ Protocol of client-server connection
 // LPS to Phone ???
 // LPS message ???
 
-#define MRIM_CS_SMS_ACK		0x1040 // S->C 
+#define MRIM_CS_SMS_ACK		0x1040 // S->C
 // UL status
 
 

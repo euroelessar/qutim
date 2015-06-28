@@ -60,9 +60,9 @@ bool AntispamPlugin::load()
 	if (!m_handler) {
 		m_handler = new Handler;
 		MessageHandler::registerHandler(m_handler.data(),
-		                                QLatin1String("Antispam"),
-		                                MessageHandler::HighPriority + 100500,
-		                                MessageHandler::NormalPriortity);
+										QLatin1String("Antispam"),
+										MessageHandler::HighPriority + 100500,
+										MessageHandler::NormalPriortity);
 		Settings::registerItem(item());
 		item()->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
 	}

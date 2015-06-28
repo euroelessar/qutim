@@ -60,7 +60,7 @@ public:
 
 	void update(WContact *contact, bool needMessage);
 	void getForecast(WContact *contact);
-	
+
 	void timerEvent(QTimerEvent *event);
 
 private slots:

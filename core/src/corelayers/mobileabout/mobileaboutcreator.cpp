@@ -39,9 +39,9 @@ MobileAboutCreator::MobileAboutCreator()
 {
 	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList")) {
 		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String("qutim")),
-		                                           QT_TRANSLATE_NOOP("Core", "About qutIM"),
-		                                           this,
-		                                           SLOT(showWidget()));
+												   QT_TRANSLATE_NOOP("Core", "About qutIM"),
+												   this,
+												   SLOT(showWidget()));
 		gen->setPriority(1);
 		gen->setType(ActionTypePreferences);
 		menu->addAction(gen);

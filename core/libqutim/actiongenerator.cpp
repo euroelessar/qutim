@@ -120,7 +120,7 @@ ActionCleanupHandler::ActionCleanupHandler(QObject *parent)
 
 ActionCleanupHandler *ActionCleanupHandler::get(QObject *object)
 {
-    const QObjectList &children = object->children();
+	const QObjectList &children = object->children();
 	for (int i = 0; i < children.size(); ++i) {
 		if (children[i]->metaObject() == &ActionCleanupHandler::staticMetaObject)
 			return static_cast<ActionCleanupHandler*>(children[i]);
@@ -129,7 +129,7 @@ ActionCleanupHandler *ActionCleanupHandler::get(QObject *object)
 }
 
 ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen, QObject *con)
-    : QEvent(eventType()), m_action(action), m_gen(gen), m_con(con)
+	: QEvent(eventType()), m_action(action), m_gen(gen), m_con(con)
 {
 }
 
@@ -216,8 +216,8 @@ ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator
 
 ActionGenerator::~ActionGenerator()
 {
-    Q_D(ActionGenerator);
-    localizationHelper()->handleDeath(d);
+	Q_D(ActionGenerator);
+	localizationHelper()->handleDeath(d);
 	delete d->data;
 }
 
@@ -233,7 +233,7 @@ const LocalizedString &ActionGenerator::text() const
 
 const QObject *ActionGenerator::receiver() const
 {
-    return d_func()->receiver.data();
+	return d_func()->receiver.data();
 }
 
 const char *ActionGenerator::member() const
@@ -270,7 +270,7 @@ ActionGenerator *ActionGenerator::setPriority(int priority)
 
 void ActionGenerator::setMenuController(MenuController *controller)
 {
-    d_func()->data->controller = controller;
+	d_func()->data->controller = controller;
 }
 
 void ActionGenerator::addHandler(int type, QObject* obj)
@@ -312,7 +312,7 @@ QAction *ActionGenerator::prepareAction(QAction *action) const
 	//			return NULL;
 	//		}
 	if (d->receiver)
-        action->setParent(d->receiver.data());
+		action->setParent(d->receiver.data());
 	if (!d->icon.isNull())
 		action->setIcon(d->icon);
 	if (!d->text.original().isEmpty())
@@ -371,7 +371,7 @@ QObject *MenuActionGenerator::generateHelper() const
 	if (d->data->controller) {
 		QMenu *menu = d->data->controller->menu(false);
 		action->setMenu(menu);
-        action->setProperty("conrtoller", QVariant::fromValue(d->data->controller));
+		action->setProperty("conrtoller", QVariant::fromValue(d->data->controller));
 	}
 	//		const ActionGenerator *gen = this;
 	//		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(gen)));

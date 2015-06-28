@@ -99,8 +99,8 @@ void KdePlugin::init()
 			QT_TRANSLATE_NOOP("Plugin", "Integration with K Desktop Environment"),
 			KDE_VERSION << 8, kdeIcon);
 	addExtension<KdeSystemIntegration>(QT_TRANSLATE_NOOP("Plugin", "KDE Integration"),
-	                                   QT_TRANSLATE_NOOP("Plugin", "Full-featured integration with KDE"),
-	                                   kdeIcon);
+									   QT_TRANSLATE_NOOP("Plugin", "Full-featured integration with KDE"),
+									   kdeIcon);
 	addExtension<KdeEmoticons>(QT_TRANSLATE_NOOP("Plugin", "KDE Emoticons"),
 							   QT_TRANSLATE_NOOP("Plugin", "Using KDE emoticons packs"),
 							   kdeIcon);
@@ -121,11 +121,11 @@ void KdePlugin::init()
 							  QT_TRANSLATE_NOOP("Plugin", "Using new KDE DBus tray specification"),
 							  kdeIcon);
 	addExtension<AboutKdeDialog, StartupModule>(QT_TRANSLATE_NOOP("Plugin", "About KDE dialog"),
-	                                            QT_TRANSLATE_NOOP("Plugin", "Show \"About KDE\" menu option"),
-	                                            kdeIcon);
+												QT_TRANSLATE_NOOP("Plugin", "Show \"About KDE\" menu option"),
+												kdeIcon);
 	addExtension<KdeAboutAppDialog>(QT_TRANSLATE_NOOP("Plugin", "KDE About application dialog"),
-	                                QT_TRANSLATE_NOOP("Plugin", "Use kde-specific application about dialog"),
-	                                kdeIcon);
+									QT_TRANSLATE_NOOP("Plugin", "Use kde-specific application about dialog"),
+									kdeIcon);
 }
 
 bool KdePlugin::load()

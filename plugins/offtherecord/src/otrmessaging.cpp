@@ -28,132 +28,132 @@ namespace OtrSupport
 //-----------------------------------------------------------------------------
 
 OtrMessaging::OtrMessaging(Policy policy, OtrlUserState userstate)
-    : m_otrPolicy(policy),
-      m_impl(new OtrInternal(m_otrPolicy, userstate))
+	: m_otrPolicy(policy),
+	  m_impl(new OtrInternal(m_otrPolicy, userstate))
 {
 }
 
 void OtrMessaging::requestAuth(TreeModelItem &item, bool agree, QString answer, QString question)
 {
-    m_impl->requestAuth(item,agree,answer,question);
+	m_impl->requestAuth(item,agree,answer,question);
 }
 
 //-----------------------------------------------------------------------------
 
 OtrMessaging::~OtrMessaging()
 {
-    delete m_impl;
+	delete m_impl;
 }
 
 //-----------------------------------------------------------------------------
 
 QString OtrMessaging::encryptMessage(const QString& from, const QString& to,
-                                     const QString& message, TreeModelItem &item)
+									 const QString& message, TreeModelItem &item)
 {
-    return m_impl->encryptMessage(from, to, message, item);
+	return m_impl->encryptMessage(from, to, message, item);
 }
 
 //-----------------------------------------------------------------------------
 
 QString OtrMessaging::decryptMessage(const QString& from, const QString& to,
-                                     const QString& message, TreeModelItem &item)
+									 const QString& message, TreeModelItem &item)
 {
-    return m_impl->decryptMessage(from, to, message, item);
+	return m_impl->decryptMessage(from, to, message, item);
 }
 
 //-----------------------------------------------------------------------------
 
 QList<Fingerprint> OtrMessaging::getFingerprints()
 {
-    return m_impl->getFingerprints();
+	return m_impl->getFingerprints();
 }
 
 //-----------------------------------------------------------------------------
 
 void OtrMessaging::verifyFingerprint(const OtrSupport::Fingerprint& fingerprint,
-                                     bool verified)
+									 bool verified)
 {
-    m_impl->verifyFingerprint(fingerprint, verified);
+	m_impl->verifyFingerprint(fingerprint, verified);
 }
 
 //-----------------------------------------------------------------------------
 
 void OtrMessaging::deleteFingerprint(const OtrSupport::Fingerprint& fingerprint)
 {
-    m_impl->deleteFingerprint(fingerprint);
+	m_impl->deleteFingerprint(fingerprint);
 }
 
 void OtrMessaging::deleteKey(QString account, QString protocol)
 {
-    m_impl->deleteKey(account,protocol);
+	m_impl->deleteKey(account,protocol);
 }
 
 //-----------------------------------------------------------------------------
 
 QHash<QString, QHash<QString, QString> > OtrMessaging::getPrivateKeys()
 {
-    return m_impl->getPrivateKeys();
+	return m_impl->getPrivateKeys();
 }
 
 //-----------------------------------------------------------------------------
 
 void OtrMessaging::startSession(const QString& account, const QString& jid, TreeModelItem &item, int pol)
 {
-    m_impl->startSession(account, jid, item, pol);
+	m_impl->startSession(account, jid, item, pol);
 }
 
 //-----------------------------------------------------------------------------
 
 void OtrMessaging::endSession(const QString& account, const QString& jid, TreeModelItem &item)
 {
-    m_impl->endSession(account, jid, item);
+	m_impl->endSession(account, jid, item);
 }
 //-----------------------------------------------------------------------------
 
 MessageState OtrMessaging::getMessageState(const QString& thisJid,
-                                              const QString& remoteJid,
-                                              TreeModelItem &item)
+											  const QString& remoteJid,
+											  TreeModelItem &item)
 {
-    return m_impl->getMessageState(thisJid, remoteJid, item);
+	return m_impl->getMessageState(thisJid, remoteJid, item);
 }
 
 //-----------------------------------------------------------------------------
 
 QString OtrMessaging::getMessageStateString(const QString& thisJid,
-                                             const QString& remoteJid,
-                                             TreeModelItem &item)
+											 const QString& remoteJid,
+											 TreeModelItem &item)
 {
-    return m_impl->getMessageStateString(thisJid, remoteJid, item);
+	return m_impl->getMessageStateString(thisJid, remoteJid, item);
 }
 
 int OtrMessaging::getMessageStateInt(const QString& thisJid,
-                              const QString& remoteJid,
-                              TreeModelItem &item)
+							  const QString& remoteJid,
+							  TreeModelItem &item)
 {
-    return m_impl->getMessageStateIntCode(thisJid, remoteJid, item);
+	return m_impl->getMessageStateIntCode(thisJid, remoteJid, item);
 }
 
 //-----------------------------------------------------------------------------
 
 QString OtrMessaging::getSessionId(const QString& thisJid,
-                                   const QString& remoteJid,
-                                   TreeModelItem &item)
+								   const QString& remoteJid,
+								   TreeModelItem &item)
 {
-    return m_impl->getSessionId(thisJid, remoteJid, item);
+	return m_impl->getSessionId(thisJid, remoteJid, item);
 }
 
 //-----------------------------------------------------------------------------
 
 void OtrMessaging::setPolicy(OtrSupport::Policy policy)
 {
-    m_otrPolicy = policy;
+	m_otrPolicy = policy;
 }
 
 //-----------------------------------------------------------------------------
 
 Policy OtrMessaging::getPolicy()
 {
-    return m_otrPolicy;
+	return m_otrPolicy;
 }
 
 //-----------------------------------------------------------------------------

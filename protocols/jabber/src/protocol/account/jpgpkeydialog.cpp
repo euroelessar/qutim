@@ -115,12 +115,12 @@
 //		item->setData(qVariantFromValue(keyEntry), KeyEntry);
 //	}
 //	m_model->appendRow(items);
-	
+
 //	QModelIndex realIndex = m_model->indexFromItem(items.first());
 //    QModelIndex fakeIndex = m_proxyModel->mapFromSource(realIndex);
 //    ui->treeView->setCurrentIndex(fakeIndex);
 //    ui->treeView->scrollTo(fakeIndex);
-	
+
 //	ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 //	return key.keyId();
 //}

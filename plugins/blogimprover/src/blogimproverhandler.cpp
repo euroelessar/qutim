@@ -56,7 +56,7 @@ void BlogImproverHandler::loadSettings()
 	m_pstoPost.setPattern("(#[a-z]+)\\b(?!/)");
 	m_pstoComment.setPattern("(#[a-z]{4,}/\\d+)\\b");
 
-    //m_pstoTag.setPattern("[*] ([^*,<]+(, [^*,<]+)*)");
+	//m_pstoTag.setPattern("[*] ([^*,<]+(, [^*,<]+)*)");
 }
 
 MessageHandlerAsyncResult BlogImproverHandler::doHandle(Message &message)
@@ -64,12 +64,12 @@ MessageHandlerAsyncResult BlogImproverHandler::doHandle(Message &message)
 	//qutim_sdk_0_3::MessageHandler::traceHandlers();
 
 	if (!message.isIncoming())
-        return makeAsyncResult(Accept, QString());
+		return makeAsyncResult(Accept, QString());
 
-    ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-    HtmlLinker linker(session);
-    if (!linker.isValid())
-        return makeAsyncResult(Accept, QString());
+	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
+	HtmlLinker linker(session);
+	if (!linker.isValid())
+		return makeAsyncResult(Accept, QString());
 
 	static QLatin1Literal jids[] = {
 		QLatin1Literal("p@point.im"),
@@ -93,17 +93,17 @@ MessageHandlerAsyncResult BlogImproverHandler::doHandle(Message &message)
 	switch(blogtype) {
 	case BlogImproverHandler::PstoJabber:
 	case BlogImproverHandler::PstoOscar:
-        handlePsto(message, linker);
+		handlePsto(message, linker);
 		break;
 	case BlogImproverHandler::Juick:
 	case BlogImproverHandler::JuBo:
-        handleJuick(message, linker);
+		handleJuick(message, linker);
 		break;
 	case BlogImproverHandler::Bnw:
-        handleBnw(message, linker);
+		handleBnw(message, linker);
 		break;
 	default:
-        break;
+		break;
 	}
 
 	return makeAsyncResult(Accept, QString());
@@ -113,52 +113,52 @@ void BlogImproverHandler::handlePsto(Message &message, const HtmlLinker &linker)
 {
 	if(!m_enablePstoIntegration)
 		return;
-    QString html = message.html();
+	QString html = message.html();
 	int pos = 0;
 
-    while ((pos = m_pstoPost.indexIn(html, pos)) != -1) {
-        const QString id = m_pstoPost.cap(1);
-        const QString toReplace = linker.create(id, id)
-            % QStringLiteral(" (")
-            % linker.create(QStringLiteral("S ") + id, QStringLiteral("S"))
-            % QStringLiteral(" ")
-            % linker.create(id + QStringLiteral("++"), QStringLiteral("++"))
-            % QStringLiteral(" ")
-            % linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
-            % QStringLiteral(" ")
-            % linker.create(QStringLiteral("~ ") + id, QStringLiteral("~"))
-            % QStringLiteral(")");
+	while ((pos = m_pstoPost.indexIn(html, pos)) != -1) {
+		const QString id = m_pstoPost.cap(1);
+		const QString toReplace = linker.create(id, id)
+			% QStringLiteral(" (")
+			% linker.create(QStringLiteral("S ") + id, QStringLiteral("S"))
+			% QStringLiteral(" ")
+			% linker.create(id + QStringLiteral("++"), QStringLiteral("++"))
+			% QStringLiteral(" ")
+			% linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
+			% QStringLiteral(" ")
+			% linker.create(QStringLiteral("~ ") + id, QStringLiteral("~"))
+			% QStringLiteral(")");
 
-        html.replace(pos, id.length(), toReplace);
+		html.replace(pos, id.length(), toReplace);
 		pos += toReplace.length();
 	}
 
 	pos = 0;
 
-    while ((pos = m_pstoComment.indexIn(html, pos)) != -1) {
-        const QString id = m_pstoComment.cap(1);
-        const QString toReplace = linker.create(id, id)
-            % QStringLiteral(" (")
-            % linker.create(QStringLiteral("U ") + id, QStringLiteral("U"))
-            % QStringLiteral(" ")
-            % linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
-            % QStringLiteral(" ")
-            % linker.create(QStringLiteral("~ ") + id, QStringLiteral("~"))
-            % QStringLiteral(" ")
-            % linker.create(id + QStringLiteral("++"), QStringLiteral("++"))
-            % QStringLiteral(")");
+	while ((pos = m_pstoComment.indexIn(html, pos)) != -1) {
+		const QString id = m_pstoComment.cap(1);
+		const QString toReplace = linker.create(id, id)
+			% QStringLiteral(" (")
+			% linker.create(QStringLiteral("U ") + id, QStringLiteral("U"))
+			% QStringLiteral(" ")
+			% linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
+			% QStringLiteral(" ")
+			% linker.create(QStringLiteral("~ ") + id, QStringLiteral("~"))
+			% QStringLiteral(" ")
+			% linker.create(id + QStringLiteral("++"), QStringLiteral("++"))
+			% QStringLiteral(")");
 
-        html.replace(pos, id.length(), toReplace);
+		html.replace(pos, id.length(), toReplace);
 		pos += toReplace.length();
 	}
 
 	pos = 0;
 
 	while ((pos = m_pstoNick.indexIn(html, pos)) != -1) {
-        const QString id = m_pstoNick.cap(1);
-        const QString toReplace = linker.create(id + QLatin1Char('+'), id);
+		const QString id = m_pstoNick.cap(1);
+		const QString toReplace = linker.create(id + QLatin1Char('+'), id);
 
-        html.replace(pos, id.length(), toReplace);
+		html.replace(pos, id.length(), toReplace);
 		pos += toReplace.length();
 	}
 
@@ -170,49 +170,49 @@ void BlogImproverHandler::handleJuick(Message &message, const HtmlLinker &linker
 	if(!m_enableJuickIntegration)
 		return;
 	QString html = message.html();
-    QString toReplace;
+	QString toReplace;
 
 	int pos = 0;
 
 	while ((pos = m_juickPost.indexIn(html, pos)) != -1) {
-        const QString id = m_juickPost.cap(0);
-        const QString toReplace = linker.create(id, id)
-            % QStringLiteral(" (")
-            % linker.create(QStringLiteral("S ") + id, QStringLiteral("S"))
-            % QStringLiteral(" ")
-            % linker.create(id + QStringLiteral("+"), QStringLiteral("+"))
-            % QStringLiteral(" ")
-            % linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
-            % QStringLiteral(")");
+		const QString id = m_juickPost.cap(0);
+		const QString toReplace = linker.create(id, id)
+			% QStringLiteral(" (")
+			% linker.create(QStringLiteral("S ") + id, QStringLiteral("S"))
+			% QStringLiteral(" ")
+			% linker.create(id + QStringLiteral("+"), QStringLiteral("+"))
+			% QStringLiteral(" ")
+			% linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
+			% QStringLiteral(")");
 
-        html.replace(pos, id.length(), toReplace);
+		html.replace(pos, id.length(), toReplace);
 		pos += toReplace.length();
 	}
 
 	pos = 0;
 
 	while ((pos = m_juickComment.indexIn(html, pos)) != -1) {
-        const QString id = m_juickComment.cap(0);
-        const QString toReplace = linker.create(id, id)
-            % QStringLiteral(" (")
-            % linker.create(QStringLiteral("U ") + id, QStringLiteral("U"))
-            % QStringLiteral(" ")
-            % linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
-            % QStringLiteral(" ")
-            % linker.create(id + QStringLiteral("+"), QStringLiteral("+"))
-            % QStringLiteral(")");
+		const QString id = m_juickComment.cap(0);
+		const QString toReplace = linker.create(id, id)
+			% QStringLiteral(" (")
+			% linker.create(QStringLiteral("U ") + id, QStringLiteral("U"))
+			% QStringLiteral(" ")
+			% linker.create(QStringLiteral("! ") + id, QStringLiteral("!"))
+			% QStringLiteral(" ")
+			% linker.create(id + QStringLiteral("+"), QStringLiteral("+"))
+			% QStringLiteral(")");
 
-        html.replace(pos, id.length(), toReplace);
+		html.replace(pos, id.length(), toReplace);
 		pos += toReplace.length();
 	}
 
 	pos = 0;
 
 	while ((pos = m_juickNick.indexIn(html, pos)) != -1) {
-        const QString id = m_juickNick.cap(1);
-        const QString toReplace = linker.create(id + QLatin1Char('+'), id);
+		const QString id = m_juickNick.cap(1);
+		const QString toReplace = linker.create(id + QLatin1Char('+'), id);
 
-        html.replace(pos, id.length(), toReplace);
+		html.replace(pos, id.length(), toReplace);
 		pos += toReplace.length();
 	}
 
@@ -222,53 +222,53 @@ void BlogImproverHandler::handleJuick(Message &message, const HtmlLinker &linker
 void BlogImproverHandler::handleBnw(Message &message, const HtmlLinker &linker)
 {
 	Q_UNUSED(message);
-    Q_UNUSED(linker);
+	Q_UNUSED(linker);
 	if(!m_enableBnwIntegration)
-        return;
+		return;
 }
 
 BlogImproverHandler::HtmlLinker::HtmlLinker(ChatSession *session)
 {
-    if (!session) {
-        m_valid = false;
-        return;
-    }
+	if (!session) {
+		m_valid = false;
+		return;
+	}
 
-    if (session->property("supportJavaScript").toBool()) {
-        m_valid = true;
-        m_template = QStringLiteral(
-            "<span onclick=\"client.appendText('%1')\" " \
-            "style=\"color:#007FFF; text-decoration: underline; cursor: pointer;\">" \
-            "%2</span>"
-        );
-    } else {
-        const QMetaObject *meta = session->metaObject();
-        int index = meta->indexOfMethod("appendTextUrl(QString)");
-        if (index < 0)
-            return;
-        m_valid = true;
-        m_session = session;
-        m_appendTextUrl = meta->method(index);
-        m_template = QStringLiteral("<a href=\"%1\">%2</a>");
-    }
+	if (session->property("supportJavaScript").toBool()) {
+		m_valid = true;
+		m_template = QStringLiteral(
+			"<span onclick=\"client.appendText('%1')\" " \
+			"style=\"color:#007FFF; text-decoration: underline; cursor: pointer;\">" \
+			"%2</span>"
+		);
+	} else {
+		const QMetaObject *meta = session->metaObject();
+		int index = meta->indexOfMethod("appendTextUrl(QString)");
+		if (index < 0)
+			return;
+		m_valid = true;
+		m_session = session;
+		m_appendTextUrl = meta->method(index);
+		m_template = QStringLiteral("<a href=\"%1\">%2</a>");
+	}
 }
 
 bool BlogImproverHandler::HtmlLinker::isValid() const
 {
-    return m_valid;
+	return m_valid;
 }
 
 QString BlogImproverHandler::HtmlLinker::create(const QString &text, const QString &label) const
 {
-    QString first;
-    if (m_appendTextUrl.isValid()) {
-        QUrl url;
-        m_appendTextUrl.invoke(m_session, Q_RETURN_ARG(QUrl, url), Q_ARG(QString, text));
-        first = QString::fromUtf8(url.toEncoded());
-    } else {
-        first = text;
-    }
-    return m_template.arg(first, label.toHtmlEscaped());
+	QString first;
+	if (m_appendTextUrl.isValid()) {
+		QUrl url;
+		m_appendTextUrl.invoke(m_session, Q_RETURN_ARG(QUrl, url), Q_ARG(QString, text));
+		first = QString::fromUtf8(url.toEncoded());
+	} else {
+		first = text;
+	}
+	return m_template.arg(first, label.toHtmlEscaped());
 }
 
 } // namespace BlogImprover

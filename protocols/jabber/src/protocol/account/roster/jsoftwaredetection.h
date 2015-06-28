@@ -69,7 +69,7 @@ public:
 
 	JSoftwareDetection(JAccount *account);
 	~JSoftwareDetection();
-	
+
 protected:
 	void timerEvent(QTimerEvent *ev);
 protected slots:

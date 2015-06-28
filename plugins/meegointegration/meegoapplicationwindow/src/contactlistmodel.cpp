@@ -52,7 +52,7 @@ ContactListModel::ContactListModel()
 	foreach (Protocol *protocol, Protocol::all()) {
 		QDeclarativeEngine::setObjectOwnership(protocol, QDeclarativeEngine::CppOwnership);
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}
@@ -152,7 +152,7 @@ void ContactListModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	QDeclarativeEngine::setObjectOwnership(account, QDeclarativeEngine::CppOwnership);
 	connect(account, SIGNAL(destroyed(QObject*)),
-	        SLOT(onAccountDeath(QObject*)));
+			SLOT(onAccountDeath(QObject*)));
 
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 				this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
@@ -178,11 +178,11 @@ void ContactListModel::onContactCreated(qutim_sdk_0_3::Contact *contact)
 {
 	QDeclarativeEngine::setObjectOwnership(contact, QDeclarativeEngine::CppOwnership);
 	connect(contact, SIGNAL(destroyed(QObject*)),
-	        SLOT(onContactDeath(QObject*)));
+			SLOT(onContactDeath(QObject*)));
 	connect(contact, SIGNAL(titleChanged(QString,QString)),
-	        SLOT(onContactTitleChanged(QString,QString)));
+			SLOT(onContactTitleChanged(QString,QString)));
 	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-	        SLOT(onContactStatusChanged(qutim_sdk_0_3::Status)));
+			SLOT(onContactStatusChanged(qutim_sdk_0_3::Status)));
 	m_titles.insert(contact, contact->title());
 	checkVisibility(contact);
 }
@@ -274,7 +274,7 @@ bool ContactListModel::isVisible(qutim_sdk_0_3::Contact *contact)
 {
 	if (!m_filter.isEmpty()) {
 		return contact->id().contains(m_filter, Qt::CaseInsensitive)
-		        || contact->name().contains(m_filter, Qt::CaseInsensitive);
+				|| contact->name().contains(m_filter, Qt::CaseInsensitive);
 	} else if (!m_showOffline) {
 		return contact->status() != Status::Offline;
 	} else {
@@ -286,7 +286,7 @@ int ContactListModel::indexOfContact(qutim_sdk_0_3::Contact *contact) const
 {
 	const Item item = { contact->title(), contact };
 	return qLowerBound(m_contacts.begin(), m_contacts.end(), item)
-	        - m_contacts.begin();
+			- m_contacts.begin();
 }
 }
 

@@ -38,7 +38,7 @@ class ScriptSettingsGenerator : public ObjectGenerator
 	Q_DISABLE_COPY(ScriptSettingsGenerator)
 public:
 	ScriptSettingsGenerator(ScriptSettingsItemData *d) : d(d) {}
-	
+
 protected:
 	virtual QObject *generateHelper() const;
 	virtual const QMetaObject *metaObject() const;
@@ -49,13 +49,13 @@ private:
 struct ScriptSettingsItemData
 {
 	typedef QSharedPointer<ScriptSettingsItemData> Ptr;
-	
+
 	ScriptSettingsItemData() : type(Settings::Plugin), item(0), generator(this) {}
 	static Ptr get(const QScriptValue &value)
 	{
 		return value.data().toVariant().value<Ptr>();
 	}
-	
+
 	Settings::Type type;
 	QIcon icon;
 	LocalizedString text;
@@ -92,8 +92,8 @@ ScriptSettingsItem::ScriptSettingsItem(QScriptEngine *engine) : QScriptClass(eng
 }
 
 QScriptClass::QueryFlags ScriptSettingsItem::queryProperty(const QScriptValue &object,
-                                                      const QScriptString &name,
-                                                      QueryFlags flags, uint *id)
+													  const QScriptString &name,
+													  QueryFlags flags, uint *id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);
@@ -118,7 +118,7 @@ QScriptValue ScriptSettingsItem::property(const QScriptValue &object, const QScr
 }
 
 void ScriptSettingsItem::setProperty(QScriptValue &object, const QScriptString &name,
-                                uint id, const QScriptValue &value)
+								uint id, const QScriptValue &value)
 {
 	Q_UNUSED(id);
 	ScriptSettingsItemData::Ptr data = ScriptSettingsItemData::get(object);
@@ -133,7 +133,7 @@ void ScriptSettingsItem::setProperty(QScriptValue &object, const QScriptString &
 }
 
 QScriptValue::PropertyFlags ScriptSettingsItem::propertyFlags(const QScriptValue &object,
-                                                         const QScriptString &name, uint id)
+														 const QScriptString &name, uint id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);

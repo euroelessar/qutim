@@ -43,7 +43,7 @@ public:
 	void setWindowActive(bool active);
 	static void init();
 	static void connect(QuickNoficationManager * manager);
-	
+
 public slots:
 	static QString typeName(int type);
 	static QString typeText(int type);
@@ -54,7 +54,7 @@ public slots:
 signals:
 	void windowActiveChanged(bool active);
 
-private:	
+private:
 	bool m_windowActive;
 	static QuickNoficationManager* m_currentManager;
 };

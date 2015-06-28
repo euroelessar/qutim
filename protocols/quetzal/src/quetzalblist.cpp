@@ -119,8 +119,8 @@ void quetzal_request_add_buddy(PurpleAccount *account, const char *username, con
 		return;
 	Account *genAccount = reinterpret_cast<Account*>(account->ui_data);
 	QMetaObject::invokeMethod(addContact, "show",
-	                          Q_ARG(Account*, genAccount), Q_ARG(QString, username),
-	                          Q_ARG(QString, alias), Q_ARG(QStringList, QStringList(group)));
+							  Q_ARG(Account*, genAccount), Q_ARG(QString, username),
+							  Q_ARG(QString, alias), Q_ARG(QStringList, QStringList(group)));
 }
 
 void quetzal_request_add_chat(PurpleAccount *account, PurpleGroup *group, const char *alias, const char *name)

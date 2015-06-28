@@ -32,7 +32,7 @@ namespace HistoryManager {
 class gajim : public HistoryImporter
 {
 public:
-    gajim();
+	gajim();
 	virtual void loadMessages(const QString &path);
 	virtual bool validate(const QString &path);
 	virtual QString name();

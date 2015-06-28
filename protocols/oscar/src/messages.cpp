@@ -339,7 +339,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 	QString uin = snac.read<QString, quint8>();
 	if (uin.isEmpty()) {
 		qCritical() << "Received a broken message packet";
-        qCritical() << "The packet:" << snac.data().toHex();
+		qCritical() << "The packet:" << snac.data().toHex();
 		return;
 	}
 	IcqContact *contact = account->getContact(uin, true);

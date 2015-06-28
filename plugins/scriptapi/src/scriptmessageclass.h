@@ -33,26 +33,26 @@ class ScriptMessageClass : public QScriptClass
 {
 public:
 	ScriptMessageClass(QScriptEngine *engine);
-	
+
 	virtual QueryFlags queryProperty(const QScriptValue &object,
 									 const QScriptString &name,
 									 QueryFlags flags, uint *id);
-	
+
 	virtual QScriptValue property(const QScriptValue &object,
 								  const QScriptString &name, uint id);
-	
+
 	virtual void setProperty(QScriptValue &object, const QScriptString &name,
 							 uint id, const QScriptValue &value);
-	
+
 	virtual QScriptValue::PropertyFlags propertyFlags(
 			const QScriptValue &object, const QScriptString &name, uint id);
-	
+
 	virtual QScriptClassPropertyIterator *newIterator(const QScriptValue &object);
-	
+
 //	virtual QScriptValue prototype() const;
-	
+
 	virtual QString name() const;
-//	
+//
 //	virtual bool supportsExtension(Extension extension) const;
 //	virtual QVariant extension(Extension extension,
 //							   const QVariant &argument = QVariant());

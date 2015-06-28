@@ -44,7 +44,7 @@ namespace Jabber
 //Jreen
 
 JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account, Jreen::MessageSession *session)
-    : Jreen::MessageFilter(session), m_account(account)
+	: Jreen::MessageFilter(session), m_account(account)
 {
 
 }
@@ -62,7 +62,7 @@ void JMessageReceiptFilter::filter(Jreen::Message &message)
 		if(receipt->type() == Jreen::Receipt::Received) {
 			QString id = receipt->id();
 			if(id.isEmpty())
-				id = message.id(); //for slowpoke client such as Miranda			
+				id = message.id(); //for slowpoke client such as Miranda
 			if(unit)
 				qApp->postEvent(ChatLayer::get(unit),
 								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));

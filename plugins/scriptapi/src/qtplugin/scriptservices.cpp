@@ -29,7 +29,7 @@
 namespace qutim_sdk_0_3
 {
 ScriptServicesPropertyIterator::ScriptServicesPropertyIterator(const QScriptValue &object, const ScriptServiceHash &hash)
-    : QScriptClassPropertyIterator(object), m_it(hash)
+	: QScriptClassPropertyIterator(object), m_it(hash)
 {
 }
 
@@ -83,8 +83,8 @@ ScriptServices::ScriptServices(QScriptEngine *engine) : QScriptClass(engine)
 }
 
 QScriptClass::QueryFlags ScriptServices::queryProperty(const QScriptValue &object,
-                                                      const QScriptString &name,
-                                                      QueryFlags flags, uint *id)
+													  const QScriptString &name,
+													  QueryFlags flags, uint *id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);
@@ -101,7 +101,7 @@ QScriptValue ScriptServices::property(const QScriptValue &object, const QScriptS
 }
 
 void ScriptServices::setProperty(QScriptValue &object, const QScriptString &name,
-                                uint id, const QScriptValue &value)
+								uint id, const QScriptValue &value)
 {
 	Q_UNUSED(id);
 	Q_UNUSED(object);
@@ -110,7 +110,7 @@ void ScriptServices::setProperty(QScriptValue &object, const QScriptString &name
 }
 
 QScriptValue::PropertyFlags ScriptServices::propertyFlags(const QScriptValue &object,
-                                                         const QScriptString &name, uint id)
+														 const QScriptString &name, uint id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);

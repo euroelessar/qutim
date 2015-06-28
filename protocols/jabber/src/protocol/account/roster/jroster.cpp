@@ -60,7 +60,7 @@ public:
 	JRosterPrivate(JRoster *q) : q_ptr(q) {}
 	Contact *addContact(const QString &id, const QVariantMap &data);
 	void serialize(Contact *contact, QVariantMap &data);
-	
+
 	JAccount *account;
 	JRoster *q_ptr;
 	RosterStorage *storage;
@@ -122,7 +122,7 @@ JRoster::JRoster(JAccount *account) :
 	d->atMetaLoad = false;
 	d->atMetaSync = false;
 	connect(d->metaStorage, SIGNAL(metaContactsReceived(Jreen::MetaContactStorage::ItemList)),
-	        SLOT(onMetaContactsReceived(Jreen::MetaContactStorage::ItemList)));
+			SLOT(onMetaContactsReceived(Jreen::MetaContactStorage::ItemList)));
 	connect(d->account->client(),SIGNAL(presenceReceived(Jreen::Presence)),
 			this,SLOT(handleNewPresence(Jreen::Presence)));
 	connect(d->account->client(),SIGNAL(disconnected(Jreen::Client::DisconnectReason)),
@@ -299,7 +299,7 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 
 	const Jreen::JID self = d->account->client()->jid();
 	const Jreen::JID from = presence.from();
-	if (self == from) 
+	if (self == from)
 		d->account->d_func()->setPresence(presence);
 	else if (self.bare() == from.bare())
 		handleSelfPresence(presence);
@@ -363,10 +363,10 @@ void JRoster::onDisconnected()
 void JRoster::onNewMessage(Jreen::Message message)
 {
 	Q_D(JRoster);
-	
+
 	if(message.body().isEmpty())
 		return;
-	
+
 	//temporary
 	ChatUnit *chatUnit = 0;
 	ChatUnit *unitForSession = 0;
@@ -391,8 +391,8 @@ void JRoster::onNewMessage(Jreen::Message message)
 		unitForSession = contact;
 	}
 
-    Q_UNUSED(unitForSession);
-	
+	Q_UNUSED(unitForSession);
+
 //	if (JPGPDecryptReply *reply = JPGPSupport::instance()->decrypt(chatUnit, unitForSession, message)) {
 //		connect(reply, SIGNAL(finished(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)),
 //		        SLOT(onMessageDecrypted(qutim_sdk_0_3::ChatUnit*,qutim_sdk_0_3::ChatUnit*,Jreen::Message)));
@@ -513,18 +513,18 @@ void JRoster::onMetaContactsReceived(const Jreen::MetaContactStorage::ItemList &
 	QSet<QString> removedContacts = QSet<QString>::fromList(d->metacontacts.keys());
 	foreach (const Jreen::MetaContactStorage::Item &item, items) {
 		JContact *contact = d->contacts.value(item.jid().bare());
-        if (!contact)
-            continue;
-        MetaContact *metaContact = qobject_cast<MetaContact*>(contact->metaContact());
+		if (!contact)
+			continue;
+		MetaContact *metaContact = qobject_cast<MetaContact*>(contact->metaContact());
 		removedContacts.remove(item.jid().bare());
-        if (metaContact && metaContact->id() == item.tag())
-            continue;
-        ChatUnit *unit = MetaContactManager::instance()->getUnit(item.tag(), true);
-        metaContact = qobject_cast<MetaContact*>(unit);
-        Q_ASSERT(metaContact);
-        metaContact->addContact(contact);
+		if (metaContact && metaContact->id() == item.tag())
+			continue;
+		ChatUnit *unit = MetaContactManager::instance()->getUnit(item.tag(), true);
+		metaContact = qobject_cast<MetaContact*>(unit);
+		Q_ASSERT(metaContact);
+		metaContact->addContact(contact);
 		d->metacontacts.insert(contact->id(), item);
-    }
+	}
 	foreach (const QString &jid, removedContacts) {
 		JContact *contact = d->contacts.value(jid);
 		MetaContact *metaContact = qobject_cast<MetaContact*>(contact->metaContact());

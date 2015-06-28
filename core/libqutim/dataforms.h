@@ -216,16 +216,16 @@ class DataItemPrivate;
  */
 class LIBQUTIM_EXPORT DataItem
 {
-    Q_GADGET
-    Q_PROPERTY(QString name READ name WRITE setName)
-    Q_PROPERTY(LocalizedString title READ title WRITE setTitle)
-    Q_PROPERTY(QVariantList subItems READ qmlSubItmes)
-    Q_PROPERTY(QVariant data READ data WRITE setData)
-    Q_PROPERTY(int maxSubitemsCount READ maxSubitemsCount)
-    Q_PROPERTY(bool allowedModifySubitems READ isAllowedModifySubitems)
-    Q_PROPERTY(DataItem defaultSubitem READ defaultSubitem)
-    Q_PROPERTY(bool hasSubitems READ hasSubitems)
-    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
+	Q_GADGET
+	Q_PROPERTY(QString name READ name WRITE setName)
+	Q_PROPERTY(LocalizedString title READ title WRITE setTitle)
+	Q_PROPERTY(QVariantList subItems READ qmlSubItmes)
+	Q_PROPERTY(QVariant data READ data WRITE setData)
+	Q_PROPERTY(int maxSubitemsCount READ maxSubitemsCount)
+	Q_PROPERTY(bool allowedModifySubitems READ isAllowedModifySubitems)
+	Q_PROPERTY(DataItem defaultSubitem READ defaultSubitem)
+	Q_PROPERTY(bool hasSubitems READ hasSubitems)
+	Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 public:
 	/**
 	Constructs a null DataItem.
@@ -306,16 +306,16 @@ public:
 	/**
 	Returns the subitem by its \a name.
   */
-    Q_INVOKABLE DataItem subitem(const QString &name, bool recursive = false) const;
+	Q_INVOKABLE DataItem subitem(const QString &name, bool recursive = false) const;
 
-    Q_INVOKABLE int removeSubitems(const QString &name, bool recursive = false);
-    Q_INVOKABLE bool removeSubitem(const QString &name, bool recursive = false);
-    Q_INVOKABLE DataItem takeSubitem(const QString &name, bool recursive = false);
+	Q_INVOKABLE int removeSubitems(const QString &name, bool recursive = false);
+	Q_INVOKABLE bool removeSubitem(const QString &name, bool recursive = false);
+	Q_INVOKABLE DataItem takeSubitem(const QString &name, bool recursive = false);
 	/**
 	Adds new \a subitem to the list of subitems of this data item.
 	\see operator<<()
   */
-    Q_INVOKABLE void addSubitem(const DataItem &subitem);
+	Q_INVOKABLE void addSubitem(const DataItem &subitem);
 	/**
 	Returns true if this data item contains at least one subitem; otherwise returns false.
   */
@@ -380,14 +380,14 @@ public:
 	If no such property exists, \a def will be returned.
 	\see setProperty()
   */
-    Q_INVOKABLE QVariant property(const char *name, const QVariant &def = QVariant()) const;
+	Q_INVOKABLE QVariant property(const char *name, const QVariant &def = QVariant()) const;
 	/**
 	Returns the \a name property converted to the template type \a T. If the value
 	cannot be converted, \a def will be returned.
 	\see setProperty()
   */
 	template<typename T>
-    T property(const char *name, const T &def = T()) const;
+	T property(const char *name, const T &def = T()) const;
 	/**
 	Sets \a name property to be \a value.
 	\see property()
@@ -395,7 +395,7 @@ public:
 	void setProperty(const char *name, const QVariant &value);
 	QList<QByteArray> dynamicPropertyNames() const;
 protected:
-    QVariantList qmlSubItmes() const;
+	QVariantList qmlSubItmes() const;
 #ifndef Q_QDOC
 	friend class DataItemPrivate;
 	QSharedDataPointer<DataItemPrivate> d;
@@ -405,8 +405,8 @@ protected:
 template<typename T>
 T DataItem::property(const char *name, const T &def) const
 {
-    QVariant var = property(name, QVariant::fromValue<T>(def));
-    return var.value<T>();
+	QVariant var = property(name, QVariant::fromValue<T>(def));
+	return var.value<T>();
 }
 
 class LIBQUTIM_EXPORT ReadOnlyDataItem : public DataItem

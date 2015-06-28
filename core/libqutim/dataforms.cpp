@@ -365,15 +365,15 @@ QVariant DataItem::property(const char *name, const QVariant &def) const
 
 QList<QByteArray> DataItem::dynamicPropertyNames() const
 {
-    return d ? d->names : QList<QByteArray>();
+	return d ? d->names : QList<QByteArray>();
 }
 
 QVariantList DataItem::qmlSubItmes() const
 {
-    QVariantList result;
-    foreach (const auto &item, subitems())
-        result << QVariant::fromValue(item);
-    return result;
+	QVariantList result;
+	foreach (const auto &item, subitems())
+		result << QVariant::fromValue(item);
+	return result;
 }
 
 void DataItem::setProperty(const char *name, const QVariant &value)
@@ -612,10 +612,10 @@ void AbstractDataForm::virtual_hook(int id, void *data)
 
 DataFormsBackend *DataFormsBackend::instance()
 {
-    static QPointer<DataFormsBackend> self;
+	static QPointer<DataFormsBackend> self;
 	if(self.isNull() && ObjectGenerator::isInited())
 		self = qobject_cast<DataFormsBackend *>(ServiceManager::getByName("DataFormsBackend"));
-    return self.data();
+	return self.data();
 }
 
 }

@@ -46,7 +46,7 @@ public:
 	{
 
 	}
-	
+
 	MessageHandlerAsyncResult doHandle(Message &message) override
 	{
 		ChatSession *session = messageHookMap()->value(originalMessageId());
@@ -91,12 +91,12 @@ public:
 	MessageHandlerAsyncResult doHandle(Message &message) override
 	{
 		if (!message.isIncoming()
-		        && !message.property("service", false)
-		        && !message.property("history", false)
-		        && !message.property("donotsend", false)) {
-            if (!message.chatUnit()->send(message)) {
+				&& !message.property("service", false)
+				&& !message.property("history", false)
+				&& !message.property("donotsend", false)) {
+			if (!message.chatUnit()->send(message)) {
 				return makeAsyncResult(Error, QString());
-            }
+			}
 		}
 		return makeAsyncResult(Accept, QString());
 	}
@@ -134,37 +134,37 @@ ChatSession::~ChatSession()
 
 void ChatSession::append(const Message &originalMessage, const ChatSession::AppendHandler &handler)
 {
-    Message message = originalMessage;
-    if (!message.chatUnit()) {
+	Message message = originalMessage;
+	if (!message.chatUnit()) {
 		qWarning() << "Message" << message.text() << "must have a chatUnit";
 		message.setChatUnit(getUnit());
 	}
 
-    const quint64 messageId = message.id();
+	const quint64 messageId = message.id();
 	messageHookMap()->insert(messageId, this);
 	MessageHandler::handle(message).connect(this, [messageId, handler] (const Message &message, MessageHandler::Result result, const QString &reason) {
-        messageHookMap()->remove(messageId);
-        
-        if (MessageHandler::Accept != result) {
-            NotificationRequest request(Notification::BlockedMessage);
-            request.setObject(message.chatUnit());
-            request.setText(reason);
+		messageHookMap()->remove(messageId);
+
+		if (MessageHandler::Accept != result) {
+			NotificationRequest request(Notification::BlockedMessage);
+			request.setObject(message.chatUnit());
+			request.setText(reason);
 			request.send();
-            if (handler)
-                handler(-result, message, reason);
-            return;
-        }
-        if (!message.property("service", false) && !message.property("autoreply", false))
-            message.chatUnit()->setLastActivity(message.time());
-        
-        if (handler)
-            handler(messageId, message, reason);
-    });
+			if (handler)
+				handler(-result, message, reason);
+			return;
+		}
+		if (!message.property("service", false) && !message.property("autoreply", false))
+			message.chatUnit()->setLastActivity(message.time());
+
+		if (handler)
+			handler(messageId, message, reason);
+	});
 }
 
 void ChatSession::append(const qutim_sdk_0_3::Message &message)
 {
-    append(message, AppendHandler());
+	append(message, AppendHandler());
 }
 
 void ChatSession::appendMessage(const qutim_sdk_0_3::Message &message)
@@ -223,13 +223,13 @@ ChatLayer::ChatLayer() : d_ptr(new ChatLayerPrivate)
 	p()->historyHook.reset(new HistoryHook);
 
 	MessageHandler::registerHandler(p()->handlerHook.data(),
-	                                QLatin1String("HandlerHook"),
-	                                MessageHandler::ChatInPriority,
-	                                MessageHandler::ChatOutPriority);
+									QLatin1String("HandlerHook"),
+									MessageHandler::ChatInPriority,
+									MessageHandler::ChatOutPriority);
 	MessageHandler::registerHandler(p()->senderHook.data(),
-	                                QLatin1String("SenderHook"),
-	                                MessageHandler::NormalPriortity,
-	                                MessageHandler::SenderPriority);
+									QLatin1String("SenderHook"),
+									MessageHandler::NormalPriortity,
+									MessageHandler::SenderPriority);
 	MessageHandler::registerHandler(p()->historyHook.data(),
 									QLatin1String("HistoryHook"),
 									MessageHandler::HistoryPriority,

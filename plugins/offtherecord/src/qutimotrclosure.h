@@ -80,7 +80,7 @@ class OtrMessaging;
 class OtrClosure : public QObject
 {
 	Q_OBJECT
-	
+
 public:
 	OtrClosure(qutim_sdk_0_3::ChatUnit *unit);
 	~OtrClosure();
@@ -92,7 +92,7 @@ public:
 	int getState(){return m_otr->getMessageStateInt(m_myAccount,m_otherJid,m_item);}
 public slots:
 	void updateState();
-	
+
 private:
 	int m_id;
 	int m_policy;
@@ -103,7 +103,7 @@ private:
 	TreeModelItem m_item;
 	qint16 prevState;
 	QTimer *m_timer;
-	
+
 public slots:
 	void initiateSession(bool b);
 	void endSession(bool b);

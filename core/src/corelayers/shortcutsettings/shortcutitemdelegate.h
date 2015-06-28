@@ -54,7 +54,7 @@ namespace Core
 		int m_vertical_padding;
 		int m_horizontal_padding;
 	};
-	
+
 }
 #endif // SHORTCUTITEMDELEGATE_H
 

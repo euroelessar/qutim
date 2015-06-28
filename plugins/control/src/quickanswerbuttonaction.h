@@ -39,13 +39,13 @@ class QuickAnswerMenu : public QListWidget
 	Q_OBJECT
 public:
 	QuickAnswerMenu(qutim_sdk_0_3::ChatUnit *contact);
-	
+
 	void mousePressEvent(QMouseEvent *);
-	
+
 protected slots:
 	void onAnswersChanged(const QStringList &answers);
 	void onItemClicked(QListWidgetItem *item);
-	
+
 private:
 	qutim_sdk_0_3::ChatUnit *m_contact;
 };
@@ -54,13 +54,13 @@ class QuickAnswerButtonActionGenerator : public qutim_sdk_0_3::ActionGenerator
 {
 public:
 	QuickAnswerButtonActionGenerator(QObject *object, const char *slot);
-	
+
 protected:
 	virtual QObject *generateHelper() const;
 //	virtual void createImpl(QAction *action,QObject *obj) const;
 //	virtual void showImpl(QAction *action,QObject *obj);
 //	virtual void hideImpl(QAction *action,QObject *obj);
-	
+
 private:
 };
 
@@ -69,9 +69,9 @@ class ItemDeledate : public QStyledItemDelegate
 public:
 	ItemDeledate(QObject *parent = 0);
 	void paint(QPainter *painter,
-               const QStyleOptionViewItem &option, const QModelIndex &index) const;
+			   const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+				   const QModelIndex &index) const;
 };
 
 class QuickAnswerButtonAction : public QWidgetAction
@@ -79,14 +79,14 @@ class QuickAnswerButtonAction : public QWidgetAction
 	Q_OBJECT
 public:
 	explicit QuickAnswerButtonAction(QObject *parent = 0);
-	
+
 signals:
-	
+
 public slots:
-	
+
 protected:
 	virtual QWidget *createWidget(QWidget *parent);
-    virtual void deleteWidget(QWidget *widget);
+	virtual void deleteWidget(QWidget *widget);
 };
 
 } // namespace Control

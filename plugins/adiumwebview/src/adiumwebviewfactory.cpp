@@ -37,7 +37,7 @@ using namespace qutim_sdk_0_3;
 WebViewFactory::WebViewFactory()
 {
 	m_appearanceSettings = new GeneralSettingsItem<WebViewAppearance>(
-	            Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat"));
+				Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat"));
 	m_appearanceSettings->connect(SIGNAL(saved()), this, SIGNAL(settingsSaved()));
 	Settings::registerItem(m_appearanceSettings);
 }
@@ -59,6 +59,6 @@ QWidget *WebViewFactory::createViewWidget()
 {
 	return new WebViewWidget();
 }
-	
+
 } // namespace Adium
 

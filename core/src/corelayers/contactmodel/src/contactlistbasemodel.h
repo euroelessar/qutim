@@ -51,11 +51,11 @@ enum ContactListItemRole
 	StatusIconNameRole,
 	ContactRole,
 	AlphabetRole,
-    IdRole,
-    IconSourceRole,
-    CollapsedRole,
-    FirstItemRole,
-    LastItemRole,
+	IdRole,
+	IconSourceRole,
+	CollapsedRole,
+	FirstItemRole,
+	LastItemRole,
 };
 
 enum ContactListItemType
@@ -68,7 +68,7 @@ enum ContactListItemType
 
 class ContactListBaseModel : public QAbstractItemModel, public qutim_sdk_0_3::NotificationBackend
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("Service", "ContactBackendModel")
 	Q_CLASSINFO("RuntimeSwitch", "yes")
 	Q_CLASSINFO("Uses", "ContactComparator")
@@ -78,23 +78,23 @@ class ContactListBaseModel : public QAbstractItemModel, public qutim_sdk_0_3::No
 public:
 	explicit ContactListBaseModel(QObject *parent = 0);
 
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    virtual QModelIndex parent(const QModelIndex &child) const;
+	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+	virtual QModelIndex parent(const QModelIndex &child) const;
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 
 	virtual void timerEvent(QTimerEvent *event);
 
 	QStringList tags() const;
-    void collapse(const QModelIndex &index);
-    void expand(const QModelIndex &index);
-    void setCollapsed(const QModelIndex &index, bool collapsed);
+	void collapse(const QModelIndex &index);
+	void expand(const QModelIndex &index);
+	void setCollapsed(const QModelIndex &index, bool collapsed);
 
 	virtual void updateContactTags(qutim_sdk_0_3::Contact *contact,
 								   const QStringList &current,
@@ -146,9 +146,9 @@ protected:
 		T *m_data;
 	};
 
-    class BaseNode
+	class BaseNode
 	{
-    public:
+	public:
 		inline BaseNode(NodeType type, BaseNode *parent) : m_type(type), m_parent(parent) {}
 
 		inline NodeType type() const { return m_type; }
@@ -182,7 +182,7 @@ protected:
 		inline ContactListNode(NodeType type, BaseNode *parent) : BaseNode(type, parent) {}
 
 		QList<ContactNode> contacts;
-        bool collapsed = false;
+		bool collapsed = false;
 		QHash<qutim_sdk_0_3::Contact*, int> onlineContacts;
 		QHash<qutim_sdk_0_3::Contact*, int> totalContacts;
 	};
@@ -213,8 +213,8 @@ protected:
 	};
 
 	class AccountNode : public TagListNode
-    {
-    public:
+	{
+	public:
 		enum { Type = AccountNodeType };
 
 		explicit inline AccountNode(qutim_sdk_0_3::Account *account, BaseNode &parent)

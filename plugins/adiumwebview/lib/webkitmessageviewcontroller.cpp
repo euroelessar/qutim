@@ -109,7 +109,7 @@ void WebKitMessageViewController::setSession(qutim_sdk_0_3::ChatSession *session
 		m_session.data()->installEventFilter(this);
 		if (qobject_cast<Conference*>(m_session.data()->unit())) {
 			connect(m_session.data()->unit(), SIGNAL(topicChanged(QString,QString)),
-			        this, SLOT(onTopicChanged(QString)));
+					this, SLOT(onTopicChanged(QString)));
 		}
 		connect(session, SIGNAL(javaScriptRequest(QString,QVariant*)),
 				this, SLOT(onJavaScriptRequest(QString,QVariant*)));
@@ -163,7 +163,7 @@ bool WebKitMessageViewController::eventFilter(QObject *obj, QEvent *ev)
 		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
 		QWebFrame *frame = m_page->mainFrame();
 		QWebElement elem = frame->findFirstElement(QLatin1String("#message")
-		                                           + QString::number(msgEvent->id()));
+												   + QString::number(msgEvent->id()));
 		if (!elem.isNull()) {
 			if (msgEvent->success()) {
 				elem.removeClass(QLatin1String("notDelivered"));
@@ -217,7 +217,7 @@ bool WebKitMessageViewController::zoomImage(QWebElement elem)
 	} else {
 		return false;
 	}
-	
+
 	evaluateJavaScript(QLatin1String("alignChat(true);"));
 	return true;
 }
@@ -252,7 +252,7 @@ void WebKitMessageViewController::loadSettings(bool onFly)
 	QString variant = config.value(QLatin1String("variant"), m_style.defaultVariant());
 	m_style.setActiveVariant(variant);
 	m_style.setCustomBackgroundType(config.value(QLatin1String("backgroundType"),
-	                                             WebKitMessageViewStyle::BackgroundNormal));
+												 WebKitMessageViewStyle::BackgroundNormal));
 	if (config.value(QLatin1String("customBackground"), false)) {
 		m_style.setCustomBackgroundPath(config.value(QLatin1String("backgroundPath"), QString()));
 		m_style.setCustomBackgroundColor(config.value(QLatin1String("backgroundColor"), QColor()));
@@ -260,7 +260,7 @@ void WebKitMessageViewController::loadSettings(bool onFly)
 	QString fontFamily = config.value(QLatin1String("fontFamily"), m_style.defaultFontFamily());
 	int fontSize = config.value(QLatin1String("fontSize"), m_style.defaultFontSize());
 	setDefaultFont(fontFamily, fontSize);
-	
+
 	QString css;
 	QString customFile = m_style.pathForResource(QLatin1String("Custom.json"));
 	if (!customFile.isEmpty()) {
@@ -289,7 +289,7 @@ void WebKitMessageViewController::loadHistory()
 {
 	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
 	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
-    MessageList messages = History::instance()->readSync(m_session.data()->unit(), max_num);
+	MessageList messages = History::instance()->readSync(m_session.data()->unit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
 		mess.setProperty("store", false);
@@ -389,10 +389,10 @@ void WebKitMessageViewController::clearFocusClass()
 
 bool WebKitMessageViewController::isContentSimiliar(const Message &a, const Message &b)
 {
-    int flags = 0;
-    if (!m_style.hasAction())
-        flags |= Message::IgnoreActions;
-    return a.isSimiliar(b, flags);
+	int flags = 0;
+	if (!m_style.hasAction())
+		flags |= Message::IgnoreActions;
+	return a.isSimiliar(b, flags);
 }
 
 void WebKitMessageViewController::onContentsChanged()

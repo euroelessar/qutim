@@ -44,8 +44,8 @@ class YandexNarodPlugin : public qutim_sdk_0_3::Plugin
 	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("DebugInfo", "Yandex")
 public:
-    YandexNarodPlugin();
-    ~YandexNarodPlugin();
+	YandexNarodPlugin();
+	~YandexNarodPlugin();
 
 	virtual void init();
 	virtual bool load();
@@ -53,9 +53,9 @@ public:
 private slots:
 	void saveCookies();
 private:
-    void loadCookies();
+	void loadCookies();
 
-    QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settingsItem;
+	QScopedPointer<qutim_sdk_0_3::SettingsItem> m_settingsItem;
 };
 
 class YandexNarodFactory : public qutim_sdk_0_3::FileTransferFactory

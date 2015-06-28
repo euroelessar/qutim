@@ -37,7 +37,7 @@ class StatisticsHelperPrivate;
 
 class LIBQUTIM_EXPORT StatisticsHelper : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_DECLARE_PRIVATE(StatisticsHelper)
 	Q_ENUMS(Action)
 	Q_PROPERTY(QString infoHtml READ infoHtml CONSTANT)
@@ -50,13 +50,13 @@ public:
 		DeniedToSend
 	};
 
-    explicit StatisticsHelper(QObject *parent = 0);
+	explicit StatisticsHelper(QObject *parent = 0);
 	~StatisticsHelper();
-	
+
 	QString infoHtml() const;
 	Action action() const;
 	Q_INVOKABLE void setDecisition(bool denied, bool automatic);
-	
+
 private slots:
 	void _q_on_finished();
 

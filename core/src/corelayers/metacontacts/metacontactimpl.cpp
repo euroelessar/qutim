@@ -120,13 +120,13 @@ void MetaContactImpl::addContact(Contact* contact, bool update)
 	connect(contact, SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)),
 			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatUnit::ChatState,qutim_sdk_0_3::ChatUnit::ChatState)));
 	connect(contact, SIGNAL(destroyed(QObject*)),
-	        SLOT(onContactDeath(QObject*)));
+			SLOT(onContactDeath(QObject*)));
 
 	if (m_name.isEmpty())
 		resetName();
 
 	//setMenuOwner(contact); TODO, implement logic!
-		
+
 	if(update)
 		RosterStorage::instance()->updateContact(this);
 	setActiveContact();

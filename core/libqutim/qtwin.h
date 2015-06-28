@@ -40,7 +40,7 @@ namespace qutim_sdk_0_3
 		* Enables Blur behind on a Widget.
 		*
 		* \a enable tells if the blur should be enabled or not
-		*/		
+		*/
 		LIBQUTIM_EXPORT bool enableBlurBehindWindow(QWidget *widget, bool enable = true);
 		/*!
 		* ExtendFrameIntoClientArea.
@@ -68,16 +68,16 @@ namespace qutim_sdk_0_3
 		*
 		*@return current composition status
 		*
-		*/									
+		*/
 		LIBQUTIM_EXPORT bool isCompositionEnabled();
 		/*!
 		* Returns the current colorizationColor for the window.
 		*
 		* \a enable tells if the blur should be enabled or not
-		*/		
+		*/
 		LIBQUTIM_EXPORT QColor colorizationColor();
 	}
-	
+
 }
 
 #endif // QUTIMWIN_H

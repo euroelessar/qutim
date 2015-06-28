@@ -131,7 +131,7 @@ QByteArray Capability::data() const
 bool Capability::match(const Capability &o, quint8 len) const
 {
 	len = qMin<quint8>(len, Size);
-#if Q_BYTE_ORDER == Q_BIG_ENDIAN 
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 	if (sizeof(qutim_sdk_0_3::oscar::Capability) == 16)
 		return !memcmp(this, &o, len);
 #endif

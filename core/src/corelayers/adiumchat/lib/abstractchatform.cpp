@@ -43,7 +43,7 @@ namespace AdiumChat
 AbstractChatForm::AbstractChatForm()
 {
 	connect(ServiceManager::instance(), &ServiceManager::serviceChanged,
-	        this, &AbstractChatForm::onServiceChanged);
+			this, &AbstractChatForm::onServiceChanged);
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
@@ -102,7 +102,7 @@ void AbstractChatForm::onSettingsChanged()
 
 void AbstractChatForm::onServiceChanged(const QByteArray &name, QObject *newObject, QObject *oldObject)
 {
-    Q_UNUSED(name);
+	Q_UNUSED(name);
 
 	if (this != newObject) {
 		if (ChatViewFactory *factory = qobject_cast<ChatViewFactory*>(newObject)) {

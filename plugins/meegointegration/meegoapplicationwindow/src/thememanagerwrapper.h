@@ -34,7 +34,7 @@ namespace MeegoIntegration
 {
 class ThemeManagerWrapper : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit ThemeManagerWrapper();
 	static void init();

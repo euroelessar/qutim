@@ -75,7 +75,7 @@ class IcqContactPrivate
 {
 public:
 	Q_DECLARE_PUBLIC(IcqContact)
-	
+
 	void clearCapabilities();
 	void requestNick();
 	void setCapabilities(const Capabilities &caps);

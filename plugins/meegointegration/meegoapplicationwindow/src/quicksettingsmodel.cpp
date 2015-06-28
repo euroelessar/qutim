@@ -31,7 +31,7 @@ namespace MeegoIntegration
 using namespace qutim_sdk_0_3;
 
 QuickSettingsModel::QuickSettingsModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
 	QHash<int,QByteArray> roles = roleNames();
 	roles[IsWidget] = "isWidget";

@@ -45,17 +45,17 @@ class ChatSessionAdapter : public QDBusAbstractAdaptor
 public:
 	static const ChatSessionPathHash &hash();
 	static QDBusObjectPath ensurePath(QDBusConnection dbus, ChatSession *session);
-	
-    ChatSessionAdapter(const QDBusConnection &dbus, ChatSession *session);
+
+	ChatSessionAdapter(const QDBusConnection &dbus, ChatSession *session);
 	virtual ~ChatSessionAdapter();
-	
+
 	QDBusObjectPath chatUnit();
 	void setChatUnit(const QDBusObjectPath &unit);
 	inline bool isActive() { return m_session->isActive(); }
 	inline void setActive(bool active) { m_session->setActive(active); }
 	inline MessageList unread() const { return m_session->unread(); }
 	inline const QDBusObjectPath &path() const { return m_path; }
-	
+
 public slots:
 	void addContact(const QDBusObjectPath &buddy);
 	void removeContact(const QDBusObjectPath &buddy);
@@ -63,7 +63,7 @@ public slots:
 	inline qint64 appendMessage(const QString &text);
 	inline void activate() { setActive(true); }
 	inline void markRead(quint64 id) { m_session->markRead(id); }
-	
+
 signals:
 	void messageReceived(const qutim_sdk_0_3::Message &message);
 	void messageSent(const qutim_sdk_0_3::Message &message);
@@ -71,13 +71,13 @@ signals:
 	void contactRemoved(const QDBusObjectPath &buddy, const QString &id);
 	void activated(bool active);
 	void unreadChanged(const qutim_sdk_0_3::MessageList &messages);
-	
+
 private slots:
 	void onMessageReceived(qutim_sdk_0_3::Message *message);
 	void onMessageSent(qutim_sdk_0_3::Message *message);
 	void onContactAdded(qutim_sdk_0_3::Buddy *c);
 	void onContactRemoved(qutim_sdk_0_3::Buddy *c);
-	
+
 private:
 	ChatSession *m_session;
 	QDBusConnection m_dbus;

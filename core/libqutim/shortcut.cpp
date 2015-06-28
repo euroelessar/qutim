@@ -59,7 +59,7 @@ namespace qutim_sdk_0_3
 		QList<int> contexts;
 		QSet<GlobalShortcut*> shortcuts;
 	};
-	
+
 	void GlobalShortcutInfo::update(const QKeySequence &from, const QKeySequence &to)
 	{
 		contexts.clear();
@@ -67,7 +67,7 @@ namespace qutim_sdk_0_3
 			QString str = QKeySequence(from[i]).toString();
 			dGlobalHotKey::instance()->shortcut(str, false);
 		}
-		
+
 		for (uint i = 0, count = to.count(); i < count; i++) {
 			QString str = QKeySequence(to[i]).toString();
 			int nativeKey = dGlobalHotKey::instance()->id(str);
@@ -75,9 +75,9 @@ namespace qutim_sdk_0_3
 				contexts.append(nativeKey);
 		}
 	}
-	
+
 	Q_GLOBAL_STATIC(ShortcutSelf, __self)
-	
+
 	ShortcutSelf *self()
 	{
 		ShortcutSelf *me = __self();
@@ -94,8 +94,8 @@ namespace qutim_sdk_0_3
 		}
 		return me;
 	}
-	
-    ShortcutSelf::ShortcutSelf() : inited(false)
+
+	ShortcutSelf::ShortcutSelf() : inited(false)
 	{
 		struct _Info
 		{
@@ -184,7 +184,7 @@ namespace qutim_sdk_0_3
 			hash.insert(QLatin1String(it.id), info);
 		}
 	}
-	
+
 	void ShortcutSelf::updateSequence(const QString &id, const QKeySequence &sequence)
 	{
 		GeneralShortcutInfo *generalInfo = hash.value(id);
@@ -203,13 +203,13 @@ namespace qutim_sdk_0_3
 			info->update(oldKey, info->key);
 		}
 	}
-	
+
 	void ShortcutSelf::addUpdateHandler(ShortcutHandler handler)
 	{
 		if (!self()->handlers.contains(handler))
 			self()->handlers.append(handler);
 	}
-	
+
 	void ShortcutSelf::removeUpdateHandler(ShortcutHandler handler)
 	{
 		self()->handlers.removeOne(handler);

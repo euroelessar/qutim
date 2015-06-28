@@ -62,8 +62,8 @@ public:
 		QMenu *menu = contact->menu(false);
 		m_contactActionsBtn->setMenu(menu);
 
-                m_contactActionsBtn->connect(m_contactActionsBtn, SIGNAL(destroyed()),
-                                             menu, SLOT(deleteLater()));
+				m_contactActionsBtn->connect(m_contactActionsBtn, SIGNAL(destroyed()),
+											 menu, SLOT(deleteLater()));
 
 		ui->requestMessage->setText(text);
 		QString title;

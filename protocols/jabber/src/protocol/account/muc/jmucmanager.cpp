@@ -72,7 +72,7 @@ public:
 	{
 	}
 	void _q_status_changed(qutim_sdk_0_3::Status status)
-	{		
+	{
 		if (status == Status::Offline)
 			leaveAll();
 		else if (status != Status::Connecting)
@@ -248,11 +248,11 @@ void JMUCManager::setPresenceToRooms(const Jreen::Presence &presence)
 	Q_D(JMUCManager);
 	if (presence.subtype() == Presence::Unavailable)
 		return;
-	
+
 	foreach (JMUCSession *room, d->rooms) {
 		if (room->isJoined()) {
 			room->room()->setPresence(presence.subtype(), presence.status(),
-			                          presence.priority());
+									  presence.priority());
 		}
 	}
 

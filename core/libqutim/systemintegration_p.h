@@ -35,19 +35,19 @@ namespace qutim_sdk_0_3
 	public:
 		DefaultSystemIntegration();
 		virtual ~DefaultSystemIntegration();
-		
+
 		virtual void init();
 		virtual bool isAvailable() const;
-		
+
 		virtual int priority();
-		
-		
+
+
 	protected:
 		virtual QVariant doGetValue(Attribute attr, const QVariant &data) const;
 		virtual QVariant doProcess(Operation act, const QVariant &data) const;
 		virtual bool canHandle(Attribute attribute) const;
 		virtual bool canHandle(Operation operation) const;
-		
+
 	private:
 		QList<SystemIntegration*> m_integrations;
 	};

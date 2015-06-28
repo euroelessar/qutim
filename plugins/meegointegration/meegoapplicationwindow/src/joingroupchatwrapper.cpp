@@ -50,7 +50,7 @@ JoinGroupChatWrapper::JoinGroupChatWrapper()
 	m_managers()->append(this);
 	foreach (Protocol *protocol, Protocol::all()) {
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}
@@ -292,7 +292,7 @@ void JoinGroupChatWrapper::onAccountCreated(qutim_sdk_0_3::Account *account, boo
 {
 	if (first) {
 		connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
-		        SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+				SLOT(onManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
 		connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDeath(QObject*)));
 	}
 	if (!account->groupChatManager())

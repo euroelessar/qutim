@@ -36,9 +36,9 @@ ContactModelPlugin::ContactModelPlugin()
 
 void ContactModelPlugin::init()
 {
-    addAuthor("euroelessar");
-    setInfo(QT_TRANSLATE_NOOP("Plugin", "Contact list model set"),
-            QT_TRANSLATE_NOOP("Plugin", "Full-featured contact list model set"),
+	addAuthor("euroelessar");
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Contact list model set"),
+			QT_TRANSLATE_NOOP("Plugin", "Full-featured contact list model set"),
 			QUTIM_VERSION);
 	addExtension<ContactListFrontModel>(QT_TRANSLATE_NOOP("Plugin", "Contact list model"),
 				 QT_TRANSLATE_NOOP("Plugin", "Full-featured contact list model"));
@@ -54,12 +54,12 @@ void ContactModelPlugin::init()
 
 bool ContactModelPlugin::load()
 {
-    return false;
+	return false;
 }
 
 bool ContactModelPlugin::unload()
 {
-    return true;
+	return true;
 }
 
 QUTIM_EXPORT_PLUGIN(ContactModelPlugin)

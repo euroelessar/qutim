@@ -69,12 +69,12 @@ class JingleButton : public ActionGenerator
 {
 public:
 	JingleButton()
-	    : ActionGenerator(Icon("voicecall"), QT_TRANSLATE_NOOP("Jabber", "Voice call"),
-	          globalSupport(), SLOT(onCallAction(QAction*,QObject*)))
+		: ActionGenerator(Icon("voicecall"), QT_TRANSLATE_NOOP("Jabber", "Voice call"),
+			  globalSupport(), SLOT(onCallAction(QAction*,QObject*)))
 	{
 		setType(ActionTypeChatButton | ActionTypeContactList);
 	}
-	
+
 	virtual void createImpl(QAction *action, QObject *obj) const
 	{
 		action->setCheckable(true);
@@ -97,7 +97,7 @@ public:
 //			action->setDisabled(true);
 //		}
 	}
-	
+
 	virtual void showImpl(QAction *action, QObject *obj)
 	{
 		bool hasFeature = false;
@@ -131,7 +131,7 @@ public:
 };
 
 JingleHelper::JingleHelper(Jreen::JingleAudioContent *content)
-    : QObject(content)
+	: QObject(content)
 {
 	qDebug() << Q_FUNC_INFO;
 	QIODevice *device = content->audioDevice();
@@ -144,15 +144,15 @@ JingleHelper::JingleHelper(Jreen::JingleAudioContent *content)
 	format.setSampleType(QAudioFormat::SignedInt);
 	format.setSampleSize(16);
 	format.setSampleRate(payload.clockRate());
-	
+
 	const int bufferSize = payload.clockRate() * payload.channelCount() * 2 * 160 / 1000;
 //	const int bufferSize = content->currentPayloadFrameSize();
-	
+
 	QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
 	QAudioInput *input = new QAudioInput(info, format, this);
 	input->setBufferSize(bufferSize);
 	input->start(device);
-	
+
 	info = QAudioDeviceInfo::defaultOutputDevice();
 	QAudioOutput *output = new QAudioOutput(info, format, this);
 	output->setBufferSize(bufferSize);
@@ -187,7 +187,7 @@ void JingleSupport::init(qutim_sdk_0_3::Account *account)
 	m_account = static_cast<JAccount*>(account);
 	m_client = m_account->client();
 	connect(m_client->jingleManager(), SIGNAL(sessionCreated(Jreen::JingleSession*)),
-	        SLOT(onSessionCreated(Jreen::JingleSession*)));
+			SLOT(onSessionCreated(Jreen::JingleSession*)));
 	jingleMap()->insert(m_account, this);
 }
 
@@ -243,7 +243,7 @@ void JingleSupport::onSessionCreated(Jreen::JingleSession *session)
 		}
 	}
 	connect(session, SIGNAL(contentAdded(Jreen::JingleContent*)),
-	        SLOT(onContentAdded(Jreen::JingleContent*)));
+			SLOT(onContentAdded(Jreen::JingleContent*)));
 	connect(session, SIGNAL(terminated()), SLOT(onSessionTerminated()));
 	foreach (const QString &name, session->contents())
 		onContentAdded(session->content(name));
@@ -266,7 +266,7 @@ void JingleSupport::onContentAdded(Jreen::JingleContent *content)
 		return;
 
 	connect(content, SIGNAL(stateChanged(Jreen::JingleContent::State)),
-	        SLOT(onStateChanged(Jreen::JingleContent::State)));
+			SLOT(onStateChanged(Jreen::JingleContent::State)));
 }
 
 void JingleSupport::onStateChanged(Jreen::JingleContent::State state)

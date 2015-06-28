@@ -261,7 +261,7 @@ void Shoter::shot(WId pwid)
 	m_screenshot = QPixmap::grabWindow(pwid);
 #elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 	m_screenshot = QGuiApplication::primaryScreen()->grabWindow(pwid);
-#endif 
+#endif
 	setScreenShot();
 }
 

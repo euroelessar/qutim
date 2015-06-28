@@ -34,7 +34,7 @@ Q_GLOBAL_STATIC(Speller, speller)
 KdeSpellerLayer::KdeSpellerLayer()
 {
 	m_settingsItem = new GeneralSettingsItem<KdeSpellerSettings>(
-	            Settings::General,
+				Settings::General,
 				KIcon("tools-check-spelling"),
 				QT_TRANSLATE_NOOP("Settings", "Spell checker"));
 	Settings::registerItem(m_settingsItem);

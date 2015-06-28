@@ -15,28 +15,28 @@ Plugin::Plugin()
 
 void Plugin::init()
 {
-    setCapabilities(Loadable);
+	setCapabilities(Loadable);
 }
 
 bool Plugin::load()
 {
-    QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
-    path += QStringLiteral("/qml/quickcontactlist/main.qml");
+	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
+	path += QStringLiteral("/qml/quickcontactlist/main.qml");
 
-    QFileSelector selector;
-    QString selectedPath = selector.select(path);
+	QFileSelector selector;
+	QString selectedPath = selector.select(path);
 
-    QQuickView *window = new DeclarativeView;
-    window->setResizeMode(QQuickView::SizeRootObjectToView);
-    window->setSource(QUrl::fromLocalFile(selectedPath));
-    window->show();
-    
-    return true;
+	QQuickView *window = new DeclarativeView;
+	window->setResizeMode(QQuickView::SizeRootObjectToView);
+	window->setSource(QUrl::fromLocalFile(selectedPath));
+	window->show();
+
+	return true;
 }
 
 bool Plugin::unload()
 {
-    return false;
+	return false;
 }
 
 } // namespace QuickChat

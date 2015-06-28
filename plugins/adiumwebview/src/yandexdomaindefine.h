@@ -25,7 +25,7 @@
 #pragma once
 #include <QLocale>
 
-struct YandexDomainDefine 
+struct YandexDomainDefine
 {
 	YandexDomainDefine(){}
 	~YandexDomainDefine(){}

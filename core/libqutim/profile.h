@@ -36,10 +36,10 @@ class ProfilePrivate;
 
 class LIBQUTIM_EXPORT Profile : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	virtual ~Profile();
-	
+
 	static Profile *instance();
 
 	Config config();
@@ -59,7 +59,7 @@ signals:
 	void error(const QString &text);
 
 private:
-    explicit Profile();
+	explicit Profile();
 	QScopedPointer<ProfilePrivate> d_ptr;
 	QString _customProfilePath;
 };

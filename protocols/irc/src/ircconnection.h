@@ -40,7 +40,7 @@ namespace qutim_sdk_0_3 {
 class PasswordDialog;
 
 namespace irc {
-	
+
 struct IrcServer
 {
 	QString hostName;

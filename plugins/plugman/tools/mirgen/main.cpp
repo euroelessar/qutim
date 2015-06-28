@@ -29,7 +29,7 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+	QCoreApplication a(argc, argv);
 	QStringList args = a.arguments();
 	QDomDocument doc;
 	QDomElement packages = doc.createElement("packages");

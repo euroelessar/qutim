@@ -29,9 +29,9 @@ namespace qutim_sdk_0_3
 {
 
 GroupChatManager::GroupChatManager(Account *account) :
-    d(new GroupChatManagerPrivate)
+	d(new GroupChatManagerPrivate)
 {
-    d->account = account;
+	d->account = account;
 }
 
 GroupChatManager::~GroupChatManager()
@@ -40,7 +40,7 @@ GroupChatManager::~GroupChatManager()
 
 Account *GroupChatManager::account() const
 {
-    return d->account;
+	return d->account;
 }
 
 QList<GroupChatManager*> GroupChatManager::allManagers()

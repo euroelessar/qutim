@@ -72,12 +72,12 @@ void PluginChoooserWidget::loadImpl()
 	Config group = Config().group("plugins/list");
 	QStandardItem *parent_item = m_model->invisibleRootItem();
 
-    QList<QPointer<Plugin> > plugins = pluginsList();
+	QList<QPointer<Plugin> > plugins = pluginsList();
 	QStringList helper;
-    for (int i = 0; i < plugins.size(); i++) {
-        const PluginInfo &info = plugins.at(i).data()->info();
-        QLatin1String class_name(plugins.at(i).data()->metaObject()->className());
-        if (!m_plugin_items.contains(info.name())) {
+	for (int i = 0; i < plugins.size(); i++) {
+		const PluginInfo &info = plugins.at(i).data()->info();
+		QLatin1String class_name(plugins.at(i).data()->metaObject()->className());
+		if (!m_plugin_items.contains(info.name())) {
 			QIcon icon = info.icon();
 			if (icon.isNull() || !icon.availableSizes().count())
 				icon = Icon("applications-system");
@@ -92,7 +92,7 @@ void PluginChoooserWidget::loadImpl()
 			item->setCheckState((group.value(class_name, true) ? Qt::Checked : Qt::Unchecked));
 			parent_item->insertRow(index, item);
 			m_plugin_items.insert(class_name, item);
-            m_plugins.insert(class_name, plugins.at(i).data());
+			m_plugins.insert(class_name, plugins.at(i).data());
 		}
 	}
 }

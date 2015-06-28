@@ -28,18 +28,18 @@
 #include <QWidget>
 
 ChatWindowController::ChatWindowController(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
 }
 
 bool ChatWindowController::eventFilter(QObject *obj, QEvent *event)
 {
-    if(event->type()==QEvent::Close || event->type()==QEvent::Hide)
-    {
-        event->ignore();
-        (static_cast<QWidget*>(obj))->setWindowState(Qt::WindowMinimized);
-        return true;
-    }
-    return QObject::eventFilter(obj,event);
+	if(event->type()==QEvent::Close || event->type()==QEvent::Hide)
+	{
+		event->ignore();
+		(static_cast<QWidget*>(obj))->setWindowState(Qt::WindowMinimized);
+		return true;
+	}
+	return QObject::eventFilter(obj,event);
 }
 

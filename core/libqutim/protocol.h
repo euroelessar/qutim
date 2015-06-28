@@ -43,64 +43,64 @@ typedef QHash<QString, Protocol *> ProtocolHash;
 
 class LIBQUTIM_EXPORT AccountCreationWizard : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AccountCreationWizard(Protocol *protocol);
-    virtual ~AccountCreationWizard();
-    virtual QList<QWizardPage *> createPages(QWidget *parent) = 0;
-    ExtensionInfo info() const;
+	AccountCreationWizard(Protocol *protocol);
+	virtual ~AccountCreationWizard();
+	virtual QList<QWizardPage *> createPages(QWidget *parent) = 0;
+	ExtensionInfo info() const;
 protected:
-    void setInfo(const ExtensionInfo &info);
-    virtual void virtual_hook(int id, void *data);
+	void setInfo(const ExtensionInfo &info);
+	virtual void virtual_hook(int id, void *data);
 };
 
 class LIBQUTIM_EXPORT Protocol : public QObject
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(Protocol)
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(Protocol)
 	Q_PROPERTY(QString id READ id CONSTANT)
-    //		Q_FLAGS(DataType DataTypes)
-    //		Q_FLAGS(RemoveFlag RemoveFlags)
+	//		Q_FLAGS(DataType DataTypes)
+	//		Q_FLAGS(RemoveFlag RemoveFlags)
 public:
-    enum DataType {
-        ProtocolIdName,
-        ProtocolContainsContacts
-    };
-    enum RemoveFlag {
-        DeleteAccount = 0x01
-    };
+	enum DataType {
+		ProtocolIdName,
+		ProtocolContainsContacts
+	};
+	enum RemoveFlag {
+		DeleteAccount = 0x01
+	};
 	enum ProtocolHook {
-    };
+	};
 
-    //		Q_DECLARE_FLAGS(RemoveFlags, RemoveFlag)
-    //		Q_DECLARE_FLAGS(DataTypes, DataType)
-    Protocol();
-    Protocol(ProtocolPrivate &p);
-    virtual ~Protocol();
-    Config config();
-    ConfigGroup config(const QString &group);
+	//		Q_DECLARE_FLAGS(RemoveFlags, RemoveFlag)
+	//		Q_DECLARE_FLAGS(DataTypes, DataType)
+	Protocol();
+	Protocol(ProtocolPrivate &p);
+	virtual ~Protocol();
+	Config config();
+	ConfigGroup config(const QString &group);
 	QString id() const;
 
-    Q_INVOKABLE virtual QList<qutim_sdk_0_3::Account*> accounts() const = 0;
-    Q_INVOKABLE virtual qutim_sdk_0_3::Account *account(const QString &id) const = 0;
-    virtual QVariant data(DataType type);
-    /*!
-          Remove account from qutIM, protocols can reimplement this method.
-          Be careful, this method actually delete your account.
-          It is recommended to display a confirmation dialog box.
-        */
-    Q_INVOKABLE virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
-    static ProtocolHash all();
+	Q_INVOKABLE virtual QList<qutim_sdk_0_3::Account*> accounts() const = 0;
+	Q_INVOKABLE virtual qutim_sdk_0_3::Account *account(const QString &id) const = 0;
+	virtual QVariant data(DataType type);
+	/*!
+		  Remove account from qutIM, protocols can reimplement this method.
+		  Be careful, this method actually delete your account.
+		  It is recommended to display a confirmation dialog box.
+		*/
+	Q_INVOKABLE virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
+	static ProtocolHash all();
 signals:
-    void accountCreated(qutim_sdk_0_3::Account *);
-    void accountRemoved(qutim_sdk_0_3::Account *);
+	void accountCreated(qutim_sdk_0_3::Account *);
+	void accountRemoved(qutim_sdk_0_3::Account *);
 protected:
-    virtual void virtual_hook(int id, void *data);
+	virtual void virtual_hook(int id, void *data);
 private:
-    virtual void loadAccounts() = 0;
-    friend class ModuleManager;
+	virtual void loadAccounts() = 0;
+	friend class ModuleManager;
 protected:
-    QScopedPointer<ProtocolPrivate> d_ptr;
+	QScopedPointer<ProtocolPrivate> d_ptr;
 };
 }
 

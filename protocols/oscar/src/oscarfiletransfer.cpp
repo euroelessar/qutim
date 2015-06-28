@@ -749,7 +749,7 @@ void OftConnection::onError(QAbstractSocket::SocketError error)
 	bool connClosed = error == QAbstractSocket::RemoteHostClosedError;
 	if (m_stage == 1 && direction() == Incoming && !connClosed) {
 		startNextStage();
-    } else if (m_stage == 2 && direction() != Outgoing && !connClosed) {
+	} else if (m_stage == 2 && direction() != Outgoing && !connClosed) {
 		startNextStage();
 	} else {
 		if (connClosed && m_header.bytesReceived == m_header.size && m_header.filesLeft <= 1) {

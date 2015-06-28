@@ -36,7 +36,7 @@ namespace AesCrypto
 		addAuthor(QLatin1String("euroelessar"));
 		addExtension<AesCryptoService>(QT_TRANSLATE_NOOP("Plugin", "AES crypto"),
 									   QT_TRANSLATE_NOOP("Plugin", "Default qutIM crypto implementation. Based on algorithm aes256")
-									   );	
+									   );
 	}
 
 	bool AesCryptoModule::load()

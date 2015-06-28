@@ -40,13 +40,13 @@ class IconLoaderImpl : public IconLoader
 	Q_OBJECT
 public:
 	IconLoaderImpl();
-    ~IconLoaderImpl();
+	~IconLoaderImpl();
 
 protected:
 	QIcon doLoadIcon(const QString &name);
 	QMovie *doLoadMovie(const QString &name);
 	QString doIconPath(const QString &name, uint iconSize);
-    QString doMoviePath(const QString &name, uint iconSize);
+	QString doMoviePath(const QString &name, uint iconSize);
 };
 }
 

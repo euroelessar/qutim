@@ -35,7 +35,7 @@ namespace Core {
 namespace MetaContacts {
 
 using namespace qutim_sdk_0_3;
-	
+
 Factory::Factory(Manager *manager) : m_manager(manager)
 {
 }
@@ -82,7 +82,7 @@ void Factory::serialize(Contact* contact, QVariantMap& data)
 	data.insert(QLatin1String("avatar"), metaContact->avatar());
 	data.insert(QLatin1String("name"),metaContact->name());
 	data.insert(QLatin1String("tags"),metaContact->tags());
-	
+
 	QVariantList contacts;
 	foreach(Contact *contact,metaContact->contacts()) {
 		QVariantMap item;

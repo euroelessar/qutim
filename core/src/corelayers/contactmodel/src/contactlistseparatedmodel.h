@@ -30,18 +30,18 @@
 
 class ContactListSeparatedModel : public ContactListBaseModel
 {
-    Q_OBJECT
-    Q_CLASSINFO("SettingsDescription", "Show accounts, tags and contacts")
+	Q_OBJECT
+	Q_CLASSINFO("SettingsDescription", "Show accounts, tags and contacts")
 public:
-    explicit ContactListSeparatedModel(QObject *parent = 0);
+	explicit ContactListSeparatedModel(QObject *parent = 0);
 
-    virtual void updateContactTags(qutim_sdk_0_3::Contact *contact,
-                                   const QStringList &current,
-                                   const QStringList &previous);
-    virtual void addAccount(qutim_sdk_0_3::Account *account);
-    virtual void removeAccount(qutim_sdk_0_3::Account *account);
-    virtual void addContact(qutim_sdk_0_3::Contact *contact);
-    virtual void removeContact(qutim_sdk_0_3::Contact *contact);
+	virtual void updateContactTags(qutim_sdk_0_3::Contact *contact,
+								   const QStringList &current,
+								   const QStringList &previous);
+	virtual void addAccount(qutim_sdk_0_3::Account *account);
+	virtual void removeAccount(qutim_sdk_0_3::Account *account);
+	virtual void addContact(qutim_sdk_0_3::Contact *contact);
+	virtual void removeContact(qutim_sdk_0_3::Contact *contact);
 };
 
 #endif // CONTACTLISTSEPARATEDMODEL_H

@@ -32,7 +32,7 @@ namespace HistoryManager {
 class psi : public HistoryImporter
 {
 public:
-    psi();
+	psi();
 	QString decode(const QString &jid);
 	QString logdecode(const QString &str);
 	virtual void loadMessages(const QString &path);

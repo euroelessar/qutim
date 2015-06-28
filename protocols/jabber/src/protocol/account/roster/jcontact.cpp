@@ -165,7 +165,7 @@ void JContact::setInList(bool inList)
 {
 	Q_D(JContact);
 	if (d->inList == inList)
-		return;	
+		return;
 	if(inList)
 		d->account->roster()->addContact(this);
 	else

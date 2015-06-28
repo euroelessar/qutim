@@ -37,22 +37,22 @@ struct MrimContactPrivate
 {
 	MrimContactPrivate()
 		: id(-1), groupId(-1), serverFlags(0), inList(true), contactFlags(0), featureFlags(0) {}
-    qint32 id;
-    QString name;
-    QString email;
+	qint32 id;
+	QString name;
+	QString email;
 	QBasicTimer composingTimer;
 	QBasicTimer incomingComposingTimer;
-    qint32 groupId;
-    quint32 serverFlags;
+	qint32 groupId;
+	quint32 serverFlags;
 	bool inList;
-    MrimContact::ContactFlags contactFlags;
-    MrimConnection::FeatureFlags featureFlags;
-    MrimUserAgent userAgent;
-    MrimStatus status;
+	MrimContact::ContactFlags contactFlags;
+	MrimConnection::FeatureFlags featureFlags;
+	MrimUserAgent userAgent;
+	MrimStatus status;
 };
 
 MrimContact::MrimContact(const QString &email, MrimAccount *account)
-    : Contact(account), p(new MrimContactPrivate)
+	: Contact(account), p(new MrimContactPrivate)
 {
 	p->email = email;
 }
@@ -95,15 +95,15 @@ QStringList MrimContact::tags() const
 
 void MrimContact::setTags(const QStringList &tags)
 {
-    Q_UNUSED(tags);
-    //do nothing
+	Q_UNUSED(tags);
+	//do nothing
 }
 
 bool MrimContact::sendMessage(const Message &message)
 {
 	if (account()->status() == Status::Offline)
 		return false;
-    account()->connection()->messages()->send(this, message);
+	account()->connection()->messages()->send(this, message);
 	return true;
 }
 
@@ -155,9 +155,9 @@ quint32 MrimContact::groupId() const
 
 void MrimContact::setGroupId(quint32 id)
 {
-    if (id > MRIM_MAX_GROUPS && id != MRIM_PHONE_GROUP_ID) {
-        id = MRIM_DEFAULT_GROUP_ID;
-    }
+	if (id > MRIM_MAX_GROUPS && id != MRIM_PHONE_GROUP_ID) {
+		id = MRIM_DEFAULT_GROUP_ID;
+	}
 	QStringList oldTags = tags();
 	p->groupId = id;
 	emit tagsChanged(tags(), oldTags);
@@ -212,7 +212,7 @@ MrimStatus MrimContact::mrimStatus() const
 void MrimContact::setStatus(const MrimStatus& status)
 {
 	MrimStatus previous = p->status;
-    p->status = status;
+	p->status = status;
 	NotificationRequest request(this, status, previous);
 	request.send();
 	emit statusChanged(p->status, previous);

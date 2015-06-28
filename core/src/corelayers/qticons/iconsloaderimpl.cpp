@@ -41,14 +41,14 @@ namespace Core
 
 IconLoaderImpl::IconLoaderImpl()
 {
-    QStringList themeSearchPaths = QIcon::themeSearchPaths();
-    themeSearchPaths << QCoreApplication::applicationDirPath() + QStringLiteral("/icons");
-    themeSearchPaths << (SystemInfo::getPath(SystemInfo::ShareDir) + QStringLiteral("/icons"));
-    themeSearchPaths << (SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/icons"));
-    QIcon::setThemeSearchPaths(themeSearchPaths);
+	QStringList themeSearchPaths = QIcon::themeSearchPaths();
+	themeSearchPaths << QCoreApplication::applicationDirPath() + QStringLiteral("/icons");
+	themeSearchPaths << (SystemInfo::getPath(SystemInfo::ShareDir) + QStringLiteral("/icons"));
+	themeSearchPaths << (SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/icons"));
+	QIcon::setThemeSearchPaths(themeSearchPaths);
 
 #if defined(Q_OS_MAC) || defined(Q_OS_WIN)
-    QIcon::setThemeName(QStringLiteral("qutim-default"));
+	QIcon::setThemeName(QStringLiteral("qutim-default"));
 #endif
 }
 
@@ -58,7 +58,7 @@ IconLoaderImpl::~IconLoaderImpl()
 
 QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 {
-    return QIcon::fromTheme(name);
+	return QIcon::fromTheme(name);
 }
 
 QMovie *IconLoaderImpl::doLoadMovie(const QString &name)
@@ -69,21 +69,21 @@ QMovie *IconLoaderImpl::doLoadMovie(const QString &name)
 
 QString IconLoaderImpl::doIconPath(const QString &name, uint iconSize)
 {
-    QIcon icon = doLoadIcon(name);
+	QIcon icon = doLoadIcon(name);
 
-    QByteArray data;
-    QBuffer buffer(&data);
-    buffer.open(QBuffer::WriteOnly);
+	QByteArray data;
+	QBuffer buffer(&data);
+	buffer.open(QBuffer::WriteOnly);
 
-    QPixmap pixmap = icon.pixmap(iconSize);
-    QImage image = pixmap.toImage();
+	QPixmap pixmap = icon.pixmap(iconSize);
+	QImage image = pixmap.toImage();
 
-    QImageWriter writer(&buffer, "png");
-    writer.write(image);
+	QImageWriter writer(&buffer, "png");
+	writer.write(image);
 
-    buffer.close();
+	buffer.close();
 
-    return QStringLiteral("data:image/png;base64,") + QString::fromLatin1(data.toBase64());
+	return QStringLiteral("data:image/png;base64,") + QString::fromLatin1(data.toBase64());
 }
 
 QString IconLoaderImpl::doMoviePath(const QString &name, uint iconSize)

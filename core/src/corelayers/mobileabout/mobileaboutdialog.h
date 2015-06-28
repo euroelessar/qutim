@@ -29,21 +29,21 @@
 #include <QDialog>
 
 namespace Ui {
-    class MobileAboutDialog;
+	class MobileAboutDialog;
 }
 
 namespace Core
 {
 class MobileAboutDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit MobileAboutDialog(QWidget *parent = 0);
-    ~MobileAboutDialog();
+	explicit MobileAboutDialog(QWidget *parent = 0);
+	~MobileAboutDialog();
 
 private:
-    Ui::MobileAboutDialog *ui;
+	Ui::MobileAboutDialog *ui;
 };
 }
 

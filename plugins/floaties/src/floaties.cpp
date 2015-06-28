@@ -60,7 +60,7 @@ bool FloatiesPlugin::load()
 	if (!m_view)
 		return false;
 	m_model = new FloatiesItemModel(this);
-	
+
 	Config cfg;
 	cfg.beginGroup("floaties");
 	int size = cfg.beginArray("entities");
@@ -80,7 +80,7 @@ bool FloatiesPlugin::load()
 		widget->restoreGeometry(cfg.value("geometry", QByteArray()));
 		widget->show();
 	}
-	
+
 	Event::eventManager()->installEventFilter(this);
 	return true;
 }

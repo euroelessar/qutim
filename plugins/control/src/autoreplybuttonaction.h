@@ -41,13 +41,13 @@ class AutoReplyButtonActionGenerator : public qutim_sdk_0_3::ActionGenerator
 {
 public:
 	AutoReplyButtonActionGenerator(QObject *object, const char *slot);
-	
+
 protected:
 	virtual QObject *generateHelper() const;
 	virtual void createImpl(QAction *action,QObject *obj) const;
 	virtual void showImpl(QAction *action,QObject *obj);
 	virtual void hideImpl(QAction *action,QObject *obj);
-	
+
 private:
 };
 
@@ -56,14 +56,14 @@ class AutoReplyButtonAction : public QWidgetAction
 	Q_OBJECT
 public:
 	explicit AutoReplyButtonAction(QObject *parent = 0);
-	
+
 	void setController(QObject *controller);
 signals:
-	
+
 protected:
 	virtual QWidget *createWidget(QWidget *parent);
-    virtual void deleteWidget(QWidget *widget);
-	
+	virtual void deleteWidget(QWidget *widget);
+
 private:
 	QWeakPointer<qutim_sdk_0_3::Contact> m_controller;
 };
@@ -74,10 +74,10 @@ class AutoReplyButton : public QWidget
 public:
 	AutoReplyButton(QAction *action, QWidget *parent);
 	~AutoReplyButton();
-	
+
 protected slots:
 	void onButtonClicked();
-	
+
 private:
 	QAction *m_action;
 	QSpinBox *m_spinBox;

@@ -65,7 +65,7 @@ public:
 	};
 
 	explicit PackageModel(QObject *parent = 0);
-	
+
 	void setFilter(const QString &filter);
 	QString filter() const;
 	void setSortMode(SortMode mode);
@@ -79,10 +79,10 @@ public:
 	PackageEngine *engine() const;
 
 	void reset();
-	
+
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	
+
 public slots:
 	void requestNextPage();
 	void remove(int index);
@@ -94,14 +94,14 @@ signals:
 	void pathChanged(const QString &path);
 	void categoriesChanged(const QStringList &categories);
 	void isLoadingChanged(bool);
-	
+
 private slots:
 	void onContentsReceived(const PackageEntry::List &list, qint64 id);
 	void onEntryChanged(const QString &id);
 
 protected:
 	void setIsLoading(bool isLoading);
-	
+
 private:
 	PackageEngine *m_engine;
 	QString m_filter;

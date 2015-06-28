@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
+	Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
 
  ***************************************************************************
  *                                                                         *
@@ -53,7 +53,7 @@ Q_DECLARE_METATYPE(OtrActionInfo)
 static OTRCrypt *self = NULL;
 
 OtrActionGenerator::OtrActionGenerator()
-    : ActionGenerator(Icon("dialog-password"), QT_TRANSLATE_NOOP("OTRCrypt", "OTR"), 0)
+	: ActionGenerator(Icon("dialog-password"), QT_TRANSLATE_NOOP("OTRCrypt", "OTR"), 0)
 {
 }
 
@@ -114,20 +114,20 @@ void OtrActionGenerator::showImpl(QAction *action, QObject *obj)
 {
 	OtrActionInfo info = action->data().value<OtrActionInfo>();
 	Q_ASSERT(obj == info.unit);
-	
+
 	OtrClosure *closure = OTRCrypt::instance()->getClosure(info.unit);
 	OtrMessaging *otr = closure->getMessaging();
 	TreeModelItem item(info.unit);
 	QString stateString(OTRCrypt::tr("OTR Plugin [%1]").arg(
-	                        otr->getMessageStateString(item.m_account_name,
-	                                                   item.m_item_name,
-	                                                   item)
-	                        ));
+							otr->getMessageStateString(item.m_account_name,
+													   item.m_item_name,
+													   item)
+							));
 	action->setText(stateString);
-	
+
 	MessageState state = otr->getMessageState(item.m_account_name,
-	                                          item.m_item_name,
-	                                          item);
+											  item.m_item_name,
+											  item);
 
 	QList<QAction*> actions = action->menu()->actions();
 	QAction *verifyAction = actions.at(VerifyFingerprint);
@@ -150,7 +150,7 @@ void OtrActionGenerator::showImpl(QAction *action, QObject *obj)
 		verifyAction->setEnabled(false);
 		sessionIdAction->setEnabled(false);
 	}
-	
+
 	const int policy = closure->getPolicy();
 	foreach(QAction *act, info.group->actions()) {
 		OtrPolicyActionInfo info = act->data().value<OtrPolicyActionInfo>();
@@ -193,30 +193,30 @@ bool OTRCrypt::load()
 	m_notify = config.value("notify", true);
 	m_state = otrl_userstate_create();
 	Policy policies[] = {
-	    PolicyOff,
-	    PolicyEnabled,
-	    PolicyAuto,
-	    PolicyRequire,
-	    policy
+		PolicyOff,
+		PolicyEnabled,
+		PolicyAuto,
+		PolicyRequire,
+		policy
 	};
 	for (size_t i = 0; i < sizeof(policies) / sizeof(policies[0]); ++i)
 		m_connections << new OtrMessaging(policies[i], m_state);
 	m_action.reset(new OtrActionGenerator);
 	m_preHandler.reset(new OtrMessagePreHandler);
 	MessageHandler::registerHandler(m_preHandler.data(),
-	                                QLatin1String("PreOTR"),
-	                                MessageHandler::HighPriority + 0x1000,
-	                                MessageHandler::SenderPriority + 0x1000);
+									QLatin1String("PreOTR"),
+									MessageHandler::HighPriority + 0x1000,
+									MessageHandler::SenderPriority + 0x1000);
 	m_postHandler.reset(new OtrMessagePostHandler);
 	MessageHandler::registerHandler(m_postHandler.data(),
-	                                QLatin1String("PostOTR"),
-	                                MessageHandler::HighPriority - 0x1000,
-	                                MessageHandler::SenderPriority - 0x1000);
+									QLatin1String("PostOTR"),
+									MessageHandler::HighPriority - 0x1000,
+									MessageHandler::SenderPriority - 0x1000);
 	MenuController::addAction<Contact>(m_action.data());
 	m_settingsItem.reset(new GeneralSettingsItem<OtrSettingsWidget>(
-	                         Settings::Plugin,
-	                         Icon("dialog-password"),
-	                         QT_TRANSLATE_NOOP("OTRCrypt", "OTR Messaging")));
+							 Settings::Plugin,
+							 Icon("dialog-password"),
+							 QT_TRANSLATE_NOOP("OTRCrypt", "OTR Messaging")));
 	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
 	Settings::registerItem(m_settingsItem.data());
 	return true;
@@ -268,15 +268,15 @@ OtrClosure *OTRCrypt::getClosure(ChatUnit *unit)
 OtrMessaging *OTRCrypt::connectionForPolicy(int policy)
 {
 	switch (policy) {
-    case OTRL_POLICY_NEVER:
+	case OTRL_POLICY_NEVER:
 		return m_connections[PolicyOff];
-    case OTRL_POLICY_MANUAL:
+	case OTRL_POLICY_MANUAL:
 		return m_connections[PolicyEnabled];
-    case OTRL_POLICY_OPPORTUNISTIC:
+	case OTRL_POLICY_OPPORTUNISTIC:
 		return m_connections[PolicyAuto];
-    case OTRL_POLICY_ALWAYS:
+	case OTRL_POLICY_ALWAYS:
 		return m_connections[PolicyRequire];
-    default:
+	default:
 		return m_connections.last();
 	}
 }
@@ -319,25 +319,25 @@ void OTRCrypt::onActionTriggered(QAction *action)
 		OtrStateActionInfo info = data.value<OtrStateActionInfo>();
 		qDebug() << "setting state:" << info.state;
 		OtrClosure *closure = ensureClosure(info.unit);
-	    switch (info.state) {
-	    case StartConversation:
-	        closure->initiateSession(true);
-	        break;
-	    case EndConversation:
-	        closure->endSession(true);
-	        break;
-	    case VerifyFingerprint:
-	        closure->verifyFingerprint(true);
-	        break;
-	    case ShowSessionID:
-	        closure->sessionID(true);
-	        break;
-	    case ShowFingerprint:
-	        closure->fingerprint(true);
-	        break;
-	    default:
-	        qDebug() << "Wow, it is interesting!";
-	    }
+		switch (info.state) {
+		case StartConversation:
+			closure->initiateSession(true);
+			break;
+		case EndConversation:
+			closure->endSession(true);
+			break;
+		case VerifyFingerprint:
+			closure->verifyFingerprint(true);
+			break;
+		case ShowSessionID:
+			closure->sessionID(true);
+			break;
+		case ShowFingerprint:
+			closure->fingerprint(true);
+			break;
+		default:
+			qDebug() << "Wow, it is interesting!";
+		}
 	}
 }
 

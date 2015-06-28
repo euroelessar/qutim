@@ -39,7 +39,7 @@ using namespace qutim_sdk_0_3;
 
 void VkontaktePlugin::init()
 {
-    qDebug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Vkontakte"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on vk.com/developers api"),
 			PLUGIN_VERSION(1, 6, 0, 0));

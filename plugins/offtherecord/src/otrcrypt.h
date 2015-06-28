@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
+	Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
 
  ***************************************************************************
  *                                                                         *
@@ -40,19 +40,19 @@ public:
 
 class OTRCrypt : public qutim_sdk_0_3::Plugin
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("DebugName", "OTR")
-    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
 	OTRCrypt();
 	~OTRCrypt();
-	
+
 	virtual void init();
-    virtual bool load();
-    virtual bool unload();
-	
+	virtual bool load();
+	virtual bool unload();
+
 	static OTRCrypt *instance();
-	
+
 	OtrClosure *ensureClosure(qutim_sdk_0_3::ChatUnit *unit);
 	OtrClosure *getClosure(qutim_sdk_0_3::ChatUnit *unit);
 	OtrMessaging *connectionForPolicy(int policy);
@@ -61,7 +61,7 @@ public:
 	void disableAccount(qutim_sdk_0_3::Account *account);
 	void enableAccount(qutim_sdk_0_3::Account *account);
 	bool isEnabledAccount(qutim_sdk_0_3::Account *account);
-	
+
 signals:
 
 public slots:

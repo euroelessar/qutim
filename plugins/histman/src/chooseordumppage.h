@@ -30,27 +30,27 @@
 #include "historymanagerwindow.h"
 
 namespace Ui {
-    class ChooseOrDumpPage;
+	class ChooseOrDumpPage;
 }
 
 namespace HistoryManager {
 
 class ChooseOrDumpPage : public QWizardPage {
-    Q_OBJECT
-    Q_DISABLE_COPY(ChooseOrDumpPage)
+	Q_OBJECT
+	Q_DISABLE_COPY(ChooseOrDumpPage)
 public:
 	explicit ChooseOrDumpPage(HistoryManagerWindow *parent = 0);
-    virtual ~ChooseOrDumpPage();
+	virtual ~ChooseOrDumpPage();
 
 protected:
-    virtual void changeEvent(QEvent *e);
+	virtual void changeEvent(QEvent *e);
 	virtual void initializePage();
 	virtual void cleanupPage();
 	virtual bool validatePage();
 	virtual int nextId() const;
 
 private:
-    Ui::ChooseOrDumpPage *m_ui;
+	Ui::ChooseOrDumpPage *m_ui;
 	HistoryManagerWindow *m_parent;
 };
 

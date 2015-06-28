@@ -30,11 +30,11 @@
 
 class ChatWindowController : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit ChatWindowController(QObject *parent = 0);
+	explicit ChatWindowController(QObject *parent = 0);
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+	bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // CHATWINDOWCONTROLLER_H

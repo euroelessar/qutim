@@ -7,9 +7,9 @@ namespace qutim_sdk_0_3 {
 
 class QuickActionGenerator : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit QuickActionGenerator(QObject *parent = 0);
+	explicit QuickActionGenerator(QObject *parent = 0);
 
 signals:
 

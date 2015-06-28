@@ -29,7 +29,7 @@
 #include <qutim/settingswidget.h>
 
 namespace Ui {
-    class ShortcutSettingsWidget;
+	class ShortcutSettingsWidget;
 }
 class QStandardItemModel;
 class QStandardItem;

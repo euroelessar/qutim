@@ -35,16 +35,16 @@ namespace qutim_sdk_0_3
 class ScriptMessageHandler : public QScriptClass
 {
 public:
-    ScriptMessageHandler(QScriptEngine *engine);
+	ScriptMessageHandler(QScriptEngine *engine);
 	virtual QueryFlags queryProperty(const QScriptValue &object, const QScriptString &name,
 									 QueryFlags flags, uint *id);
 	virtual QScriptValue property(const QScriptValue &object, const QScriptString &name, uint id);
 	virtual void setProperty(QScriptValue &object, const QScriptString &name,
 							 uint id, const QScriptValue &value);
 	virtual QScriptValue::PropertyFlags propertyFlags(const QScriptValue &object,
-	                                                  const QScriptString &name, uint id);
+													  const QScriptString &name, uint id);
 	virtual QScriptClassPropertyIterator *newIterator(const QScriptValue &object);
-    virtual QScriptValue prototype() const;
+	virtual QScriptValue prototype() const;
 	virtual QString name() const;
 
 private:

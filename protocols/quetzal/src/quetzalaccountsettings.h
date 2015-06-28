@@ -37,7 +37,7 @@ class QuetzalAccountSettings : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
 public:
-    QuetzalAccountSettings();
+	QuetzalAccountSettings();
 	virtual ~QuetzalAccountSettings();
 	virtual void loadImpl();
 	virtual void cancelImpl();
@@ -48,7 +48,7 @@ protected slots:
 	void onChanged();
 private:
 	QVariant fromOption(PurpleAccountOption *option);
-	
+
 	QScopedPointer<qutim_sdk_0_3::AbstractDataForm> m_form;
 	QVBoxLayout *m_layout;
 	PurpleAccount *m_account;

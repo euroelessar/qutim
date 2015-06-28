@@ -7,13 +7,13 @@ namespace qutim_sdk_0_3 {
 
 class QuickThemeManager : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit QuickThemeManager(QObject *parent = 0);
+	explicit QuickThemeManager(QObject *parent = 0);
 
 public slots:
-    QString path(const QString &category, const QString &themeName);
-    QStringList list(const QString &category);
+	QString path(const QString &category, const QString &themeName);
+	QStringList list(const QString &category);
 
 };
 

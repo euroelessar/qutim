@@ -45,7 +45,7 @@ class Buddy;
 
 class LIBQUTIM_EXPORT Notification : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_DECLARE_PRIVATE(Notification)
 	Q_ENUMS(Type)
 public:
@@ -166,7 +166,7 @@ public:
 	bool isBackendBlocked(const QByteArray &backendType);
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
-    T property(const char *name, const T &def) const;
+	T property(const char *name, const T &def) const;
 	void setProperty(const char *name, const QVariant &value);
 	void addAction(const NotificationAction &action);
 	static void addAction(Notification::Type type, const NotificationAction &action);
@@ -179,8 +179,8 @@ private:
 template<typename T>
 T NotificationRequest::property(const char *name, const T &def) const
 {
-    QVariant var = property(name, QVariant::fromValue<T>(def));
-    return var.value<T>();
+	QVariant var = property(name, QVariant::fromValue<T>(def));
+	return var.value<T>();
 }
 
 class LIBQUTIM_EXPORT NotificationFilter

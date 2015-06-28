@@ -199,7 +199,7 @@ void TabBar::setClosableActiveTab(bool state)
 {
 	p->closableActiveTab = state;
 	setTabsClosable(tabsClosable() | state);
-} 
+}
 
 bool TabBar::closableActiveTab()
 {

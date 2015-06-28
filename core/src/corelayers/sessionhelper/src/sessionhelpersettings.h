@@ -52,7 +52,7 @@ private:
 	Ui::SessionHelperSettings *ui;
 	void reloadCombobox();
 };
-	
+
 }
 
 

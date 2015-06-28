@@ -71,7 +71,7 @@ private slots:
 	void searchFinished(QNetworkReply *reply);
 
 	void on_searchEdit_activated(int index);
-	
+
 private:
 	Ui::WSettingsClass ui;
 

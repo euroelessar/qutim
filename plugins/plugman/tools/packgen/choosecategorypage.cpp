@@ -29,17 +29,17 @@
 #include <QLibrary>
 
 ChooseCategoryPage::ChooseCategoryPage(GeneratorWindow *parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::ChooseCategoryPage)
+	QWizardPage(parent),
+	m_ui(new Ui::ChooseCategoryPage)
 {
 	m_parent = parent;
-    m_ui->setupUi(this);
+	m_ui->setupUi(this);
 	registerField("path", m_ui->filenameEdit);
 }
 
 ChooseCategoryPage::~ChooseCategoryPage()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 int ChooseCategoryPage::nextId () const
@@ -91,13 +91,13 @@ void ChooseCategoryPage::on_browseButton_clicked()
 
 void ChooseCategoryPage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 

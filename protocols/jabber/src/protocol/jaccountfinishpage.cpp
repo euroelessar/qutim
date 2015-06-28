@@ -34,8 +34,8 @@ namespace Jabber
 using namespace qutim_sdk_0_3;
 
 JAccountFinishPage::JAccountFinishPage(JAccountWizard *accountWizard, QWidget *parent) :
-    QWizardPage(parent),
-    ui(new Ui::JAccountFinishPage), m_accountWizard(accountWizard)
+	QWizardPage(parent),
+	ui(new Ui::JAccountFinishPage), m_accountWizard(accountWizard)
 {
 	ui->setupUi(this);
 	setFinalPage(true);

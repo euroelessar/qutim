@@ -59,7 +59,7 @@ class JPasswordValidator : public QValidator
 {
 public:
 	JPasswordValidator(QObject *parent = 0) : QValidator(parent) {}
-	
+
 	State validate(QString &input, int &pos) const
 	{
 		Q_UNUSED(pos);
@@ -91,16 +91,16 @@ void JAccountPrivate::applyStatus(const Status &status)
 		if (privacyManager->activeList() == invisible)
 			privacyManager->desetActiveList();
 	}
-    // FIXME: Return GPG support
-    {
-        Presence::Type type = JStatus::statusToPresence(status);
-        client->setPresence(type, status.text(), priority);
-        const Presence presence = client->presence();
-        // We need this for peps
-        Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
-        client->send(copy);
-        q->conferenceManager()->setPresenceToRooms(presence);
-    }
+	// FIXME: Return GPG support
+	{
+		Presence::Type type = JStatus::statusToPresence(status);
+		client->setPresence(type, status.text(), priority);
+		const Presence presence = client->presence();
+		// We need this for peps
+		Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
+		client->send(copy);
+		q->conferenceManager()->setPresenceToRooms(presence);
+	}
 //	JPGPSupport::instance()->send(q, status, priority);
 
 	q->setState(Account::Connected);
@@ -125,14 +125,14 @@ void JAccountPrivate::_q_connected()
 //	}
 	applyStatus(q->userStatus());
 	conferenceManager.data()->syncBookmarks();
-	q->resetGroupChatManager(conferenceManager.data()->bookmarkManager());	
+	q->resetGroupChatManager(conferenceManager.data()->bookmarkManager());
 	client->setPingInterval(q->config().group("general").value("pingInterval", 30000));
 }
 
 void JAccountPrivate::onPasswordReceived(const QString &password)
 {
-    client->setPassword(password);
-    client->connectToServer();
+	client->setPassword(password);
+	client->connectToServer();
 }
 
 void JAccountPrivate::_q_on_module_loaded(int i)
@@ -157,7 +157,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 {
 	Q_Q(JAccount);
 
-    Status::ChangeReason statusReason = Status::ByUnknown;
+	Status::ChangeReason statusReason = Status::ByUnknown;
 
 	switch(reason) {
 	case Client::User:
@@ -165,7 +165,7 @@ void JAccountPrivate::_q_disconnected(Jreen::Client::DisconnectReason reason)
 	case Client::AuthorizationError: {
 		statusReason = Status::ByAuthorizationFailed;
 		keyChain->remove(q);
-        client->setPassword(QString());
+		client->setPassword(QString());
 		break;
 	}
 	case Client::HostUnknown:
@@ -243,14 +243,14 @@ JAccount::JAccount(const QString &id) :
 	QString lang = tr("en", "Default language");
 	if(qutim != QLatin1String("qutIM") && lang != QLatin1String("en"))
 		disco->addIdentity(Jreen::Disco::Identity(QLatin1String("client"), QLatin1String("type"),qutim,lang));
-	
+
 	connect(d->roster, SIGNAL(loaded()), &d->signalMapper, SLOT(map()));
 	connect(d->privacyManager, SIGNAL(listsReceived()), &d->signalMapper, SLOT(map()));
 	d->signalMapper.setMapping(d->roster, 1);
 	d->signalMapper.setMapping(d->privacyManager, 2);
 	connect(d->client.data(), SIGNAL(connected()), d->privacyManager, SLOT(request()));
 	connect(&d->signalMapper, SIGNAL(mapped(int)), this, SLOT(_q_on_module_loaded(int)));
-	
+
 	d->roster->loadFromStorage();
 
 	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
@@ -412,20 +412,20 @@ Jreen::PubSub::Manager *JAccount::pubSubManager()
 
 void JAccount::doConnectToServer()
 {
-    Q_D(JAccount);
+	Q_D(JAccount);
 
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(this));
 	d->client->setProxy(proxy);
-    if (d->passwordDialog) {
+	if (d->passwordDialog) {
 		/* nothing */
-    } else if(d->client->password().isEmpty()) {
-        d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
-            if (result.error == KeyChain::NoError) {
+	} else if(d->client->password().isEmpty()) {
+		d->keyChain->read(this).connect(this, [this, d] (const KeyChain::ReadResult &result) {
+			if (result.error == KeyChain::NoError) {
 				d->onPasswordReceived(result.textData);
-            } else if (!d->passwordDialog) {
+			} else if (!d->passwordDialog) {
 				d->passwordDialog = PasswordDialog::request(this);
 
-                connect(d->passwordDialog.data(), &PasswordDialog::finished, this, [this, d] (int result) {
+				connect(d->passwordDialog.data(), &PasswordDialog::finished, this, [this, d] (int result) {
 					Q_ASSERT(sender() == d->passwordDialog.data());
 					d->passwordDialog->deleteLater();
 
@@ -442,8 +442,8 @@ void JAccount::doConnectToServer()
 				});
 			}
 		});
-    } else {
-        d->client->connectToServer();
+	} else {
+		d->client->connectToServer();
 	}
 }
 

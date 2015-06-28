@@ -61,7 +61,7 @@ JContactResource::JContactResource(ChatUnit *parent, JContactResourcePrivate &pt
 }
 
 JContactResource::JContactResource(JAccount *account, const QString &name) :
-    Buddy(account), d_ptr(new JContactResourcePrivate(0))
+	Buddy(account), d_ptr(new JContactResourcePrivate(0))
 {
 	Q_D(JContactResource);
 	d->name = name;

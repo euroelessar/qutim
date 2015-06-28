@@ -31,32 +31,32 @@
 #include "webkitpreviewloader.h"
 
 namespace Ui {
-    class Widget;
+	class Widget;
 }
 
 class QWebPage;
 
 class Widget : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit Widget(QWidget *parent = 0);
-    ~Widget();
-	
+	explicit Widget(QWidget *parent = 0);
+	~Widget();
+
 public slots:
 	void onLoad();
 	void onTimer();
 
 private slots:
 	void on_comboBox_currentIndexChanged(const QString &arg1);
-	
+
 private:
 	void fillPage(QWebPage *page);
 	QStringList contentScripts();
-	
+
 private:
-    Ui::Widget *ui;
+	Ui::Widget *ui;
 	WebKitMessageViewStyle m_style;
 	IPreview::Ptr m_preview;
 };

@@ -35,9 +35,9 @@ class ScriptPluginWrapper : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
 public:
-    explicit ScriptPluginWrapper(const QString &name);
+	explicit ScriptPluginWrapper(const QString &name);
 	virtual ~ScriptPluginWrapper();
-	
+
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();

@@ -40,7 +40,7 @@ class AddContact : public QDialog
 public:
 	AddContact(Account *account = 0, QWidget *parent = 0);
 	~AddContact();
-	
+
 	void setContactId(const QString &id);
 	void setContactName(const QString &name);
 	void setContactTags(const QStringList &tags);
@@ -70,7 +70,7 @@ public:
 	~AddContactModule();
 public slots:
 	void show(qutim_sdk_0_3::Account *account, const QString &id = QString(),
-	          const QString &name = QString(), const QStringList &tags = QStringList());
+			  const QString &name = QString(), const QStringList &tags = QStringList());
 private slots:
 	void show();
 private:

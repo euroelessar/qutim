@@ -30,7 +30,7 @@
 namespace qutim_sdk_0_3 {
 
 namespace nowplaying {
-	
+
 	MprisPlayer::MprisPlayer(const QString &id) : m_service(id)
 	{
 		m_version = id.startsWith(QLatin1String("org.mpris.MediaPlayer2.")) ? 2 : 1;
@@ -38,7 +38,7 @@ namespace nowplaying {
 
 	void MprisPlayer::init()
 	{
-        qDBusRegisterMetaType<DBusMprisPlayerStatus>();
+		qDBusRegisterMetaType<DBusMprisPlayerStatus>();
 		if (m_version == 1) {
 			m_dbus_interface = new QDBusInterface(m_service, "/Player",
 												  "org.freedesktop.MediaPlayer",
@@ -48,8 +48,8 @@ namespace nowplaying {
 												  "org.mpris.MediaPlayer2.Player",
 												  QDBusConnection::sessionBus(), this);
 		}
-    }
-	
+	}
+
 	void MprisPlayer::requestState()
 	{
 		QScopedPointer<QDBusPendingCall> call;
@@ -63,7 +63,7 @@ namespace nowplaying {
 		connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
 				this, SLOT(onStatusChanged(QDBusPendingCallWatcher*)));
 	}
-	
+
 	void MprisPlayer::requestTrackInfo()
 	{
 		QScopedPointer<QDBusPendingCall> call;
@@ -80,7 +80,7 @@ namespace nowplaying {
 
 	void MprisPlayer::startWatching()
 	{
-        m_is_playing = false;
+		m_is_playing = false;
 		QDBusConnection bus = QDBusConnection::sessionBus();
 		if (m_version == 1) {
 			bus.connect(m_service,
@@ -100,7 +100,7 @@ namespace nowplaying {
 						QLatin1String("PropertiesChanged"),
 						this, SLOT(onPropertiesChanged(QDBusMessage)));
 		}
-    }
+	}
 
 	void MprisPlayer::stopWatching()
 	{
@@ -123,8 +123,8 @@ namespace nowplaying {
 						   QLatin1String("PropertiesChanged"),
 						   this, SLOT(onPropertiesChanged(QDBusMessage)));
 		}
-    }
-	
+	}
+
 	QDBusMessage MprisPlayer::requestPropertyMessage(const QString &property)
 	{
 		QDBusMessage msg;
@@ -137,10 +137,10 @@ namespace nowplaying {
 						 << property);
 		return msg;
 	}
-	
+
 	TrackInfo MprisPlayer::convertInfo(const QVariantMap &map)
 	{
-        TrackInfo info;
+		TrackInfo info;
 		bool ok;
 		if (m_version == 1) {
 			info.album = map.value("album").toString();
@@ -167,7 +167,7 @@ namespace nowplaying {
 		}
 		return info;
 	}
-	
+
 	void MprisPlayer::onTrackChanged(QDBusPendingCallWatcher *watcher)
 	{
 		watcher->deleteLater();
@@ -183,7 +183,7 @@ namespace nowplaying {
 		TrackInfoEvent event(info);
 		qApp->sendEvent(this, &event);
 	}
-	
+
 	void MprisPlayer::onStatusChanged(QDBusPendingCallWatcher *watcher)
 	{
 		watcher->deleteLater();
@@ -202,23 +202,23 @@ namespace nowplaying {
 
 	void MprisPlayer::onTrackChanged(const QVariantMap &map)
 	{
-        TrackInfo info = convertInfo(map);
-        if (!info.location.isEmpty() && info.time > 0) {
+		TrackInfo info = convertInfo(map);
+		if (!info.location.isEmpty() && info.time > 0) {
 			TrackInfoEvent event(info);
 			qApp->sendEvent(this, &event);
-        }
-    }
+		}
+	}
 
-    void MprisPlayer::onStatusChanged(const DBusMprisPlayerStatus &status)
+	void MprisPlayer::onStatusChanged(const DBusMprisPlayerStatus &status)
 	{
-        bool is_playing = status.Play == 0;
+		bool is_playing = status.Play == 0;
 		if (m_is_playing != is_playing) {
 			m_is_playing = is_playing;
 			StateEvent event(m_is_playing);
 			qApp->sendEvent(this, &event);
 		}
-    }
-	
+	}
+
 	void MprisPlayer::onPropertiesChanged(const QDBusMessage &msg)
 	{
 		QDBusArgument arg = msg.arguments().at(1).value<QDBusArgument>();
@@ -239,17 +239,17 @@ namespace nowplaying {
 
 const QDBusArgument & operator<<(QDBusArgument &arg, const DBusMprisPlayerStatus& status)
 {
-    arg.beginStructure();
-    arg << status.Play << status.Random << status.Repeat << status.RepeatPlaylist;
-    arg.endStructure();
-    return arg;
+	arg.beginStructure();
+	arg << status.Play << status.Random << status.Repeat << status.RepeatPlaylist;
+	arg.endStructure();
+	return arg;
 }
 
 const QDBusArgument & operator>>(const QDBusArgument& arg, DBusMprisPlayerStatus& status)
 {
-    arg.beginStructure();
-    arg >> status.Play >> status.Random >> status.Repeat >> status.RepeatPlaylist;
-    arg.endStructure();
-    return arg;
+	arg.beginStructure();
+	arg >> status.Play >> status.Random >> status.Repeat >> status.RepeatPlaylist;
+	arg.endStructure();
+	return arg;
 }
 

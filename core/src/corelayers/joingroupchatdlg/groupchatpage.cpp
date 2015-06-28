@@ -29,7 +29,7 @@
 namespace Core {
 
 GroupChatPage::GroupChatPage(QWidget *parent) :
-    QScrollArea(parent)
+	QScrollArea(parent)
 {
 	QWidget *widget = new QWidget(this);
 	setWidget(widget);

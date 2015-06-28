@@ -110,10 +110,10 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		message.setChatUnit(getUnit());
 	}
 
-    if (message.isIncoming())
-        emit messageReceived(&message);
-    else
-        emit messageSent(&message);
+	if (message.isIncoming())
+		emit messageReceived(&message);
+	else
+		emit messageSent(&message);
 
 	if (message.property("spam", false) || message.property("hide", false))
 		return message.id();
@@ -122,7 +122,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 			&& message.isIncoming()
 			&& !message.property("history", false)) {
 		d->unread.append(message);
-        emit unreadChanged(d->unread);
+		emit unreadChanged(d->unread);
 	}
 
 	//if (!message.isIncoming())
@@ -142,12 +142,12 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 			&& (!conf || message.property("mention", false))
 			&& message.isIncoming()
 			&& !message.property("history", false)) {
-        ChatLayer::instance()->alert(300);
+		ChatLayer::instance()->alert(300);
 		if (conf) {
 			ServicePointer<AbstractChatForm> form("ChatForm");
 			if (form) {
 				if (QWidget *widget = form->chatWidget(this)) {
-                    QApplication::alert(widget, 300);
+					QApplication::alert(widget, 300);
 				}
 			}
 		}
@@ -396,7 +396,7 @@ void ChatSessionImplPrivate::onResourceChosen(bool active)
 		return;
 	Q_ASSERT(qobject_cast<QAction*>(sender()));
 	QAction *action = reinterpret_cast<QAction*>(sender());
-    current_unit = action->data().value<ChatUnit*>();
+	current_unit = action->data().value<ChatUnit*>();
 }
 
 void ChatSessionImplPrivate::onSendToLastActiveResourceActivated(bool active)

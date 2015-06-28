@@ -46,7 +46,7 @@
 namespace Core
 {
 ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
-    ui(new Ui::ProfileDialog)
+	ui(new Ui::ProfileDialog)
 {
 	m_manager = parent;
 	ui->setupUi(this);
@@ -60,7 +60,7 @@ ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
 	ui->profileList->setGridSize(QSize(0, itemHeight));
 	ui->profileList->setFrameStyle(QFrame::NoFrame);
 	ui->profileList->setMinimumSize(ui->profileList->minimumSize().width(), itemHeight);
-	
+
 	if (size == 0) {
 		// TODO
 	} else {
@@ -90,7 +90,7 @@ ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
 
 ProfileDialog::~ProfileDialog()
 {
-    delete ui;
+	delete ui;
 }
 
 Config ProfileDialog::profilesInfo()
@@ -121,7 +121,7 @@ void ProfileDialog::login(const QString &password)
 	QVariantMap varMap;
 	file.load(var);
 	varMap = var.toMap();
-    varMap["current"] = varMap.value("id").toString();
+	varMap["current"] = varMap.value("id").toString();
 	file.save(varMap);
 	if (acceptProfileInfo(config, password)) {
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
@@ -163,14 +163,14 @@ void ProfileDialog::on_profilesButton_clicked()
 
 void ProfileDialog::changeEvent(QEvent *e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QDialog::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 void ProfileDialog::currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)

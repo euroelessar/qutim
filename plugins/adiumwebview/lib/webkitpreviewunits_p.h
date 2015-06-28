@@ -38,12 +38,12 @@ class WebKitPreviewChatUnit : public qutim_sdk_0_3::ChatUnit
 public:
 	WebKitPreviewChatUnit(const QVariantMap &data, qutim_sdk_0_3::Account *account);
 	~WebKitPreviewChatUnit();
-	
+
 	QString id() const;
 	QString title() const;
 	QString avatar() const;
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
-	
+
 private:
 	QVariantMap m_data;
 };
@@ -84,7 +84,7 @@ class WebKitPreviewProtocol : public qutim_sdk_0_3::Protocol
 public:
 	WebKitPreviewProtocol(QObject *parent);
 	~WebKitPreviewProtocol();
-	
+
 	QList<qutim_sdk_0_3::Account*> accounts() const;
 	qutim_sdk_0_3::Account *account(const QString &id) const;
 	void loadAccounts();
@@ -98,7 +98,7 @@ class WebKitPreviewSession : public qutim_sdk_0_3::ChatSession
 public:
 	WebKitPreviewSession();
 	~WebKitPreviewSession();
-	
+
 	qutim_sdk_0_3::ChatUnit *getUnit() const;
 	void setChatUnit(qutim_sdk_0_3::ChatUnit* unit);
 	QTextDocument *getInputField();
@@ -106,11 +106,11 @@ public:
 	qutim_sdk_0_3::MessageList unread() const;
 	void addContact(qutim_sdk_0_3::Buddy *c);
 	void removeContact(qutim_sdk_0_3::Buddy *c);
-	
+
 protected:
 	void doSetActive(bool active);
 	qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
-	
+
 private:
 	qutim_sdk_0_3::ChatUnit *m_unit;
 };

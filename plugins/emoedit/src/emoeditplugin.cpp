@@ -41,12 +41,12 @@ public:
 			IconPath = QTextFormat::UserProperty + 1,
 			IconText = QTextFormat::UserProperty + 2
 	};
-	
+
 	EmoEditTextIconFormat(const EmoticonsTheme::Token &token)
 	{
-        setObjectType(emoticonsObjectType);
-        QTextFormat::setProperty(IconPath, token.imgPath);
-        QTextFormat::setProperty(IconText, token.text);
+		setObjectType(emoticonsObjectType);
+		QTextFormat::setProperty(IconPath, token.imgPath);
+		QTextFormat::setProperty(IconText, token.text);
 		setToolTip(token.text);
 	}
 };
@@ -104,7 +104,7 @@ void EmoEditPlugin::drawObject(QPainter *painter, const QRectF &rect, QTextDocum
 	Q_UNUSED(posInDocument);
 	const QTextCharFormat charFormat = format.toCharFormat();
 	const QPixmap pixmap = QPixmap(charFormat.stringProperty(EmoEditTextIconFormat::IconPath));
-	
+
 	painter->drawPixmap(rect, pixmap, pixmap.rect());
 }
 
@@ -139,7 +139,7 @@ void EmoEditPlugin::onDocumentContentsChanged(QTextDocument *doc)
 	while (block.length() > 0) {
 		QString text = block.text();
 		const QList<EmoticonsTheme::Token> tokens = m_theme->tokenize(text);
-		if (tokens.isEmpty() 
+		if (tokens.isEmpty()
 			|| (tokens.size() == 1 && tokens.at(0).type == EmoticonsTheme::Text)) {
 			block = block.next();
 			continue;
@@ -151,11 +151,11 @@ void EmoEditPlugin::onDocumentContentsChanged(QTextDocument *doc)
 			if (token.type == EmoticonsTheme::Image) {
 				QTextCharFormat format = cursor.charFormat();
 				cursor = doc->find(token.text, cursor, QTextDocument::FindCaseSensitively);
-				
+
 				EmoEditTextIconFormat icon(token);
 				cursor.insertText(QString(QChar::ObjectReplacementCharacter), icon);
 				cursor.clearSelection();
-		
+
 				cursor.setCharFormat(format);
 			} else if (token.type == EmoticonsTheme::Text) {
 				cursor.setPosition(cursor.position() + token.text.size(), QTextCursor::KeepAnchor);

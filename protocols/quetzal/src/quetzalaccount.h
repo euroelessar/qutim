@@ -75,7 +75,7 @@ public:
 							 PurpleRequestFieldsCb cancelCb, void *userData);
 	PurpleAccount *purple();
 	Q_INVOKABLE int sendRawData(const QByteArray &data);
-	
+
 	void timerEvent(QTimerEvent *);
 protected:
 	void fillStatusActions();

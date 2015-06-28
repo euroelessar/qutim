@@ -53,20 +53,20 @@ public:
 	};
 
 	virtual ~MessageHandler();
-	
+
 	static void registerHandler(MessageHandler *handler,
-	                            int incomingPriority = NormalPriortity,
-	                            int outgoingPriority = NormalPriortity);
+								int incomingPriority = NormalPriortity,
+								int outgoingPriority = NormalPriortity);
 	static void registerHandler(MessageHandler *handler, const QString &name,
-	                            int incomingPriority = NormalPriortity,
-	                            int outgoingPriority = NormalPriortity);
+								int incomingPriority = NormalPriortity,
+								int outgoingPriority = NormalPriortity);
 	static void unregisterHandler(MessageHandler *handler);
 	static AsyncResult<Message, Result, QString> handle(const Message &message);
 	static void traceHandlers();
-    static quint64 originalMessageId();
-	
+	static quint64 originalMessageId();
+
 protected:
-    struct StateType;
+	struct StateType;
 	virtual AsyncResult<MessageHandler::Result, QString> doHandle(Message &message) = 0;
 };
 

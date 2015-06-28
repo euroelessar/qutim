@@ -49,7 +49,7 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 {
 	Q_DECLARE_PRIVATE(ChatUnit)
 	Q_OBJECT
-    Q_ENUMS(ChatState)
+	Q_ENUMS(ChatState)
 	Q_PROPERTY(QString id READ id CONSTANT)
 	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 	Q_PROPERTY(ChatState chatState READ chatState WRITE setChatState NOTIFY chatStateChanged)
@@ -57,14 +57,14 @@ class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
 	Q_PROPERTY(bool conference READ isConference CONSTANT)
 public:
-    enum ChatState
-    {
-        ChatStateActive = 0,    // User is actively participating in the chat session.
-        ChatStateInActive,      // User has not been actively participating in the chat session.
-        ChatStateGone,          // User has effectively ended their participation in the chat session.
-        ChatStateComposing,     // User is composing a message.
-        ChatStatePaused         // User had been composing but now has stopped.
-    };
+	enum ChatState
+	{
+		ChatStateActive = 0,    // User is actively participating in the chat session.
+		ChatStateInActive,      // User has not been actively participating in the chat session.
+		ChatStateGone,          // User has effectively ended their participation in the chat session.
+		ChatStateComposing,     // User is composing a message.
+		ChatStatePaused         // User had been composing but now has stopped.
+	};
 	/**
 	* @brief default ChatUnit's contructor
 	*

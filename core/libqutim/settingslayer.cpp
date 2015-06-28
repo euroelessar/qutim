@@ -490,7 +490,7 @@ void SettingsLayer::virtual_hook(int id, void *data)
 }
 
 void SettingsLayer::show(MenuController *controller)
-{	
+{
 	show(Settings::items(controller->metaObject()), controller);
 }
 
@@ -501,51 +501,51 @@ int SettingsItem::priority() const
 
 void SettingsItem::setPriority(int priority)
 {
-    d_ptr->priority = priority;
+	d_ptr->priority = priority;
 }
 
 class QmlSettingsGenerator : public ObjectGenerator
 {
 public:
-    QmlSettingsGenerator(const QString &name) : m_name(name)
-    {
-    }
+	QmlSettingsGenerator(const QString &name) : m_name(name)
+	{
+	}
 
-    const QMetaObject *metaObject() const
-    {
-        return &QmlSettingsWidget::staticMetaObject;
-    }
+	const QMetaObject *metaObject() const
+	{
+		return &QmlSettingsWidget::staticMetaObject;
+	}
 
-    QList<QByteArray> interfaces() const
-    {
-        return QList<QByteArray>();
-    }
+	QList<QByteArray> interfaces() const
+	{
+		return QList<QByteArray>();
+	}
 
 protected:
-    QObject *generateHelper() const
-    {
-        return new QmlSettingsWidget(m_name);
-    }
+	QObject *generateHelper() const
+	{
+		return new QmlSettingsWidget(m_name);
+	}
 
-    void virtual_hook(int id, void *data)
-    {
-        Q_UNUSED(id);
-        Q_UNUSED(data);
-    }
+	void virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 
-    QString m_name;
+	QString m_name;
 };
 
 QmlSettingsItem::QmlSettingsItem(const QString &name, Settings::Type type, const QIcon &icon, const LocalizedString &text)
-    : SettingsItem(type, icon, text)
+	: SettingsItem(type, icon, text)
 {
-    d_ptr->gen = new QmlSettingsGenerator(name);
+	d_ptr->gen = new QmlSettingsGenerator(name);
 }
 
 QmlSettingsItem::QmlSettingsItem(const QString &name, Settings::Type type, const LocalizedString &text)
-    : SettingsItem(type, text)
+	: SettingsItem(type, text)
 {
-    d_ptr->gen = new QmlSettingsGenerator(name);
+	d_ptr->gen = new QmlSettingsGenerator(name);
 }
 
 QmlSettingsItem::~QmlSettingsItem()
@@ -554,7 +554,7 @@ QmlSettingsItem::~QmlSettingsItem()
 
 const ObjectGenerator *QmlSettingsItem::generator() const
 {
-    return d_ptr->gen;
+	return d_ptr->gen;
 }
 
 

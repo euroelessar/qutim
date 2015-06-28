@@ -61,9 +61,9 @@ public:
 	// Toolbar id for appearance settings, by default id is "common"
 	// 		void setId(const QString& id);
 	using QToolBar::setIconSize;
-    void setIconSize(const QSize & iconSize);
+	void setIconSize(const QSize & iconSize);
 	using QToolBar::setToolButtonStyle;
-    void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
+	void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 	void clear();
 protected:
 	void changeEvent(QEvent *e);

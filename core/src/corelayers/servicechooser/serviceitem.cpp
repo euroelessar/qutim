@@ -38,7 +38,7 @@ namespace Core
 	{
 		if (role == Qt::CheckStateRole && parent() && parent()->data(ExclusiveRole).toBool()) {
 			Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
-			
+
 			if (state == Qt::Checked) {
 				for (int row = 0;row!=parent()->rowCount();row++) {
 					parent()->child(row)->setData(Qt::Unchecked,role);
@@ -52,7 +52,7 @@ namespace Core
 // 				}
 // 			}
 		}
-		
+
 		QStandardItem::setData(value, role);
 	}
 

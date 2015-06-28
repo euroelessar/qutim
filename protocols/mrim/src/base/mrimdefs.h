@@ -85,27 +85,27 @@ struct MRIMSearchParams
 	qint32 BirthdayMonth;
 	bool OnlineOnly;
 	//not for search
-        qint32 Status;
+		qint32 Status;
 	QString LocationText;
 	qint32 BirthYear;
 };
 
 enum CLItemType
 {
-        EAccount = 2,
-        EGroup = 1,
-        EContact = 0
+		EAccount = 2,
+		EGroup = 1,
+		EContact = 0
 };
 
 struct FileTransferRequest
 {
-    QString From;
-    QString To;
-    quint32 UniqueId;
-    quint32 SummarySize;
-    QHash<QString,quint32> FilesDict;
-    QHash<QString,quint32> IPsDict;
-    QList<QFileInfo> FilesInfo;
+	QString From;
+	QString To;
+	quint32 UniqueId;
+	quint32 SummarySize;
+	QHash<QString,quint32> FilesDict;
+	QHash<QString,quint32> IPsDict;
+	QList<QFileInfo> FilesInfo;
 };
 
 #define MRIM_MSGQUEUE_MAX_LEN 10

@@ -68,173 +68,173 @@ namespace SimpleContactList
 struct ModulePrivate
 {
 	ModulePrivate() : model("ContactModel") {}
-    ~ModulePrivate() {}
-    ServicePointer<QWidget> widget;
+	~ModulePrivate() {}
+	ServicePointer<QWidget> widget;
 	ServicePointer<QAbstractItemModel> model;
-    QScopedPointer<ActionGenerator> tagsGenerator;
-    QList<ActionGenerator*> toolBarButtons;
-    MenuController buttonsController;
+	QScopedPointer<ActionGenerator> tagsGenerator;
+	QList<ActionGenerator*> toolBarButtons;
+	MenuController buttonsController;
 };
 
 Module::Module() : p(new ModulePrivate)
 {
-    Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactList"));
-    Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactListWidget"));
-    Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactModel"));
-    Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactDelegate"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactList"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactListWidget"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactModel"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service", "ContactDelegate"));
 
-    p->buttonsController.setParent(this);
-    p->buttonsController.setObjectName("ContactListButtons");
+	p->buttonsController.setParent(this);
+	p->buttonsController.setObjectName("ContactListButtons");
 
-    // init shortcuts
-    Shortcut::registerSequence("contactListGlobalStatus",
-                               QT_TRANSLATE_NOOP("ContactList", "Change global status"),
-                               QT_TRANSLATE_NOOP("ChatLayer", "ContactList"),
-                               QKeySequence("Ctrl+S")
-                               );
-    Shortcut::registerSequence("contactListActivateMainMenu",
-                               QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
-                               QT_TRANSLATE_NOOP("ChatLayer", "ContactList"),
-                               QKeySequence("Ctrl+M")
-                               );
+	// init shortcuts
+	Shortcut::registerSequence("contactListGlobalStatus",
+							   QT_TRANSLATE_NOOP("ContactList", "Change global status"),
+							   QT_TRANSLATE_NOOP("ChatLayer", "ContactList"),
+							   QKeySequence("Ctrl+S")
+							   );
+	Shortcut::registerSequence("contactListActivateMainMenu",
+							   QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
+							   QT_TRANSLATE_NOOP("ChatLayer", "ContactList"),
+							   QKeySequence("Ctrl+M")
+							   );
 
-    p->widget = ServicePointer<QWidget>("ContactListWidget");
+	p->widget = ServicePointer<QWidget>("ContactListWidget");
 
-    ActionGenerator *gen = new ActionGenerator(Icon("configure"),
-                                               QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
-                                               this,
-                                               SLOT(onConfigureClicked(QObject*))
-                                               );
-    gen->setMenuRole(QAction::PreferencesRole);
-    gen->setPriority(1);
-    gen->setType(ActionTypeAdditional);
-    gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
-    addAction(gen);
+	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
+											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
+											   this,
+											   SLOT(onConfigureClicked(QObject*))
+											   );
+	gen->setMenuRole(QAction::PreferencesRole);
+	gen->setPriority(1);
+	gen->setType(ActionTypeAdditional);
+	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
+	addAction(gen);
 
-    gen = new ActionGenerator(Icon("application-exit"),
-                              QT_TRANSLATE_NOOP("ContactList","&Quit"),
-                              this,
-                              SLOT(onQuitTriggered(QObject*)));
-    gen->setMenuRole(QAction::QuitRole);
-    gen->setPriority(-127);
-    gen->setType(512);
-    addAction(gen);
+	gen = new ActionGenerator(Icon("application-exit"),
+							  QT_TRANSLATE_NOOP("ContactList","&Quit"),
+							  this,
+							  SLOT(onQuitTriggered(QObject*)));
+	gen->setMenuRole(QAction::QuitRole);
+	gen->setPriority(-127);
+	gen->setType(512);
+	addAction(gen);
 
-    connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
-            SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
+	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
+			SLOT(onServiceChanged(QByteArray,QObject*,QObject*)));
 
-    Settings::registerItem(new GeneralSettingsItem<ContactListSettings>(Settings::General,
-                                                                        Icon("preferences-contact-list"),
-                                                                        QT_TRANSLATE_NOOP("ContactList", "Contact list")));
+	Settings::registerItem(new GeneralSettingsItem<ContactListSettings>(Settings::General,
+																		Icon("preferences-contact-list"),
+																		QT_TRANSLATE_NOOP("ContactList", "Contact list")));
 
-    QTimer::singleShot(0, this, SLOT(init()));
+	QTimer::singleShot(0, this, SLOT(init()));
 }
 
 Module::~Module()
 {
-    AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
-    if (widget) {
-        foreach (ActionGenerator *gen, p->toolBarButtons)
-            widget->removeButton(gen);
-    }
+	AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
+	if (widget) {
+		foreach (ActionGenerator *gen, p->toolBarButtons)
+			widget->removeButton(gen);
+	}
 }
 
 QWidget *Module::widget()
 {
-    return p->widget;
+	return p->widget;
 }
 
 QObject *Module::buttons()
 {
-    return &p->buttonsController;
+	return &p->buttonsController;
 }
 
 void Module::addButton(ActionGenerator *generator)
 {
-    if (!p->toolBarButtons.contains(generator)) {
-        p->toolBarButtons << generator;
-        p->buttonsController.addAction(generator);
-    }
-    AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
-    if (w)
+	if (!p->toolBarButtons.contains(generator)) {
+		p->toolBarButtons << generator;
+		p->buttonsController.addAction(generator);
+	}
+	AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
+	if (w)
 		w->addButton(generator);
 }
 
 void Module::removeButton(ActionGenerator *generator)
 {
 	if (p->toolBarButtons.removeOne(generator)) {
-        p->buttonsController.removeAction(generator);
+		p->buttonsController.removeAction(generator);
 
 		AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(p->widget);
-	    if (w)
+		if (w)
 			w->removeButton(generator);
 	}
 }
 
 void Module::show()
 {
-    QWidget *w = p->widget->window();
-    SystemIntegration::show(w);
-    w->setWindowState(w->windowState() & ~Qt::WindowMinimized);
-    w->activateWindow();
-    w->raise();
+	QWidget *w = p->widget->window();
+	SystemIntegration::show(w);
+	w->setWindowState(w->windowState() & ~Qt::WindowMinimized);
+	w->activateWindow();
+	w->raise();
 }
 
 void Module::hide()
 {
-    p->widget->window()->hide();
+	p->widget->window()->hide();
 }
 
 void Module::changeVisibility()
 {
-    QWidget *w = p->widget->window();
-    if (w->isActiveWindow()) {
-        QTimer::singleShot( 0, w, SLOT(hide()) );
-    } else {
-        show();
-    }
+	QWidget *w = p->widget->window();
+	if (w->isActiveWindow()) {
+		QTimer::singleShot( 0, w, SLOT(hide()) );
+	} else {
+		show();
+	}
 }
 
 void Module::onConfigureClicked(QObject*)
 {
-    Settings::showWidget();
+	Settings::showWidget();
 }
 
 void Module::onQuitTriggered(QObject *)
 {
-    qApp->quit();
+	qApp->quit();
 }
 
 bool Module::event(QEvent *ev)
 {
-    if (ev->type() == ActionCreatedEvent::eventType()) {
-        ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
-        if (event->generator() == p->tagsGenerator.data()) {
-            QAction *action = event->action();
-            QMenu *menu = new QMenu(p->widget);
-            QAction *act = menu->addAction(tr("Select tags"));
-            connect(act, SIGNAL(triggered()), this, SLOT(onSelectTagsTriggered()));
-            act = menu->addAction(tr("Reset"));
-            connect(act, SIGNAL(triggered()), this, SLOT(onResetTagsTriggered()));
-            action->setMenu(menu);
-        }
-    }
-    return QObject::event(ev);
+	if (ev->type() == ActionCreatedEvent::eventType()) {
+		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
+		if (event->generator() == p->tagsGenerator.data()) {
+			QAction *action = event->action();
+			QMenu *menu = new QMenu(p->widget);
+			QAction *act = menu->addAction(tr("Select tags"));
+			connect(act, SIGNAL(triggered()), this, SLOT(onSelectTagsTriggered()));
+			act = menu->addAction(tr("Reset"));
+			connect(act, SIGNAL(triggered()), this, SLOT(onResetTagsTriggered()));
+			action->setMenu(menu);
+		}
+	}
+	return QObject::event(ev);
 }
 
 void Module::init()
 {
-    p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
-    p->tagsGenerator->addHandler(ActionCreatedHandler,this);
-    p->tagsGenerator->setPriority(-127);
-    addButton(p->tagsGenerator.data());
+	p->tagsGenerator.reset(new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0));
+	p->tagsGenerator->addHandler(ActionCreatedHandler,this);
+	p->tagsGenerator->setPriority(-127);
+	addButton(p->tagsGenerator.data());
 
-    // TODO: choose another, non-kopete icon
+	// TODO: choose another, non-kopete icon
 	ActionGenerator *gen = new ActionGenerator(Icon("view-user-offline-kopete"), QT_TRANSLATE_NOOP("ContactList","Hide offline"), this, SLOT(onHideShowOffline()));
-    gen->setCheckable(true);
+	gen->setCheckable(true);
 	gen->setChecked(!p->model->property("showOffline").toBool());
-    gen->setToolTip(QT_TRANSLATE_NOOP("ContactList", "Hide offline"));
-    addButton(gen);
+	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList", "Hide offline"));
+	addButton(gen);
 }
 
 void Module::onResetTagsTriggered()
@@ -245,18 +245,18 @@ void Module::onResetTagsTriggered()
 void Module::onSelectTagsTriggered()
 {
 	QStringList tags = p->model->property("tags").toStringList();
-    TagsFilterDialog *dialog = new TagsFilterDialog(tags, p->widget);
+	TagsFilterDialog *dialog = new TagsFilterDialog(tags, p->widget);
 	QStringList selectedTags = p->model->property("filterTags").toStringList();
 	if (selectedTags.isEmpty())
 		selectedTags = tags;
 	dialog->setSelectedTags(selectedTags);
-    SystemIntegration::show(dialog);
-    centerizeWidget(dialog);
-    if (dialog->exec()) {
+	SystemIntegration::show(dialog);
+	centerizeWidget(dialog);
+	if (dialog->exec()) {
 		selectedTags = dialog->selectedTags();
 		p->model->setProperty("filterTags", selectedTags);
-    }
-    dialog->deleteLater();
+	}
+	dialog->deleteLater();
 }
 
 void Module::addContact(qutim_sdk_0_3::Contact *contact)
@@ -265,30 +265,30 @@ void Module::addContact(qutim_sdk_0_3::Contact *contact)
 	QMetaObject::invokeMethod(p->model, "addContact",
 							  Q_ARG(qutim_sdk_0_3::Contact*, contact));
 #else
-    p->model->addContact(contact);
+	p->model->addContact(contact);
 #endif
 }
 
 void Module::onServiceChanged(const QByteArray &name, QObject *now, QObject *old)
 {
-    if (name == "ContactModel") {
-        AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
-        if (!widget)
-            return;
+	if (name == "ContactModel") {
+		AbstractContactListWidget *widget = qobject_cast<AbstractContactListWidget*>(p->widget);
+		if (!widget)
+			return;
 		QList<qutim_sdk_0_3::Contact*> contacts;
-        widget->contactView()->setContactModel(p->model);
+		widget->contactView()->setContactModel(p->model);
 
 		if (old) {
 			QMetaObject::invokeMethod(old,  "contacts", Q_RETURN_ARG(QList<qutim_sdk_0_3::Contact*>, contacts));
 			QMetaObject::invokeMethod(p->model, "setContacts", Q_ARG(QList<qutim_sdk_0_3::Contact*>, contacts));
 		}
-    } else if (name == "ContactListWidget") {
-        AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(now);
-        if (w) {
-            foreach (ActionGenerator *gen, p->toolBarButtons)
-                w->addButton(gen);
-        }
-    }
+	} else if (name == "ContactListWidget") {
+		AbstractContactListWidget *w = qobject_cast<AbstractContactListWidget*>(now);
+		if (w) {
+			foreach (ActionGenerator *gen, p->toolBarButtons)
+				w->addButton(gen);
+		}
+	}
 }
 
 void Module::onHideShowOffline()

@@ -32,7 +32,7 @@ WSettings::WSettings()
 
 	m_networkManager = new QNetworkAccessManager();
 	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)),
-	        SLOT(searchFinished(QNetworkReply*)));
+			SLOT(searchFinished(QNetworkReply*)));
 
 	QFocusEvent focusEvent(QEvent::FocusOut);
 	eventFilter(ui.searchEdit, &focusEvent);
@@ -126,7 +126,7 @@ void WSettings::on_addButton_clicked()
 		return;
 	QString cityName = ui.searchEdit->itemData(index, CityRole).toString();
 	QString stateName = ui.searchEdit->itemData(index, StateRole).toString();
-	
+
 	WListItem *item = new WListItem(cityName, stateName, cityCode, ui.citiesList);
 	connect(item, SIGNAL(buttonClicked()), this, SLOT(onRemoveButtonClicked()));
 	m_items << item;
@@ -157,12 +157,12 @@ void WSettings::searchFinished(QNetworkReply *reply)
 	reply->deleteLater();
 	ui.addButton->setEnabled(true);
 	ui.searchEdit->clear();
-	
+
 	QDomDocument doc;
 	if (!doc.setContent(reply->readAll()))
 		return;
 	QDomElement rootElement = doc.documentElement();
-	
+
 	QDomNodeList locations = rootElement.elementsByTagName(QLatin1String("location"));
 	if (locations.isEmpty())
 		ui.searchEdit->addItem(tr("Not found"));

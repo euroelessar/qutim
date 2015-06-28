@@ -36,33 +36,33 @@ namespace MeegoIntegration
 {
 class MenuModel : public QAbstractListModel, public qutim_sdk_0_3::ActionHandler
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_PROPERTY(QObject* controller READ controller WRITE setController NOTIFY controllerChanged)
 public:
-    explicit MenuModel();
+	explicit MenuModel();
 	virtual ~MenuModel();
-	
+
 	static void init();
-	
+
 	QObject *controller() const;
 	void setController(QObject *controller);
-	
+
 	// ActionHandler
 	virtual void actionAdded(QAction *action, int index);
 	virtual void actionRemoved(int index);
 	virtual void actionsCleared();
-	
+
 	// QAbstractItemModel
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int columnCount(const QModelIndex &parent) const;
-    bool hasChildren(const QModelIndex &parent) const;
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	
+	QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+	QModelIndex parent(const QModelIndex &child) const;
+	int columnCount(const QModelIndex &parent) const;
+	bool hasChildren(const QModelIndex &parent) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
 signals:
 	void controllerChanged(QObject *controller);
-	
+
 private:
 	struct Node
 	{

@@ -17,18 +17,18 @@ class ChatController : public WebKitMessageViewController
 public:
 	ChatController();
 	~ChatController();
-	
+
 	QString fontFamily() const;
 	int fontSize() const;
 	QObject *webView() const;
 	void setWebView(QObject *webView);
 	ChatViewStyle *style() const;
-	
+
 public slots:
 	void fixFlickable(QObject *object);
 	void append(const qutim_sdk_0_3::Message &message);
 	void handleElement(const QWebElement &element);
-	
+
 protected:
 	virtual void appendNick(const QVariant &nick);
 	virtual void appendText(const QVariant &text);
@@ -40,7 +40,7 @@ signals:
 	void fontFamilyChanged(const QString &fontFamily);
 	void fontSizeChanged(int fontSize);
 	void webViewChanged(QObject *webView);
-	
+
 private:
 	QString m_fontFamily;
 	int m_fontSize;

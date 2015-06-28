@@ -24,16 +24,16 @@ struct TreeModelItem
 		m_protocol_name = account->protocol()->id();
 		m_item_type = 0;
 	}
-	
+
 	qutim_sdk_0_3::Buddy *unit()
 	{
 		/*qutim_sdk_0_3::debug() << "Trying to convert TreeModelItem {"
-		                       << m_protocol_name
-		                       << ", "
-		                       << m_account_name
-		                       << ", "
-		                       << m_item_name
-		                       << "}";*/
+							   << m_protocol_name
+							   << ", "
+							   << m_account_name
+							   << ", "
+							   << m_item_name
+							   << "}";*/
 		qutim_sdk_0_3::Protocol *protocol = qutim_sdk_0_3::Protocol::all().value(m_protocol_name);
 		qutim_sdk_0_3::Account *account = protocol->account(m_account_name);
 		Q_ASSERT(account);
@@ -83,27 +83,27 @@ extern "C"
 #define DH1536_GROUP_ID 5
 
 typedef struct {
-    unsigned int groupid;
-    gcry_mpi_t priv, pub;
+	unsigned int groupid;
+	gcry_mpi_t priv, pub;
 } DH_keypair;
 
 /* Which half of the secure session id should be shown in bold? */
 typedef enum {
-    OTRL_SESSIONID_FIRST_HALF_BOLD,
-    OTRL_SESSIONID_SECOND_HALF_BOLD
+	OTRL_SESSIONID_FIRST_HALF_BOLD,
+	OTRL_SESSIONID_SECOND_HALF_BOLD
 } OtrlSessionIdHalf;
 
 typedef struct {
-    unsigned char sendctr[16];
-    unsigned char rcvctr[16];
-    gcry_cipher_hd_t sendenc;
-    gcry_cipher_hd_t rcvenc;
-    gcry_md_hd_t sendmac;
-    unsigned char sendmackey[20];
-    int sendmacused;
-    gcry_md_hd_t rcvmac;
-    unsigned char rcvmackey[20];
-    int rcvmacused;
+	unsigned char sendctr[16];
+	unsigned char rcvctr[16];
+	gcry_cipher_hd_t sendenc;
+	gcry_cipher_hd_t rcvenc;
+	gcry_md_hd_t sendmac;
+	unsigned char sendmackey[20];
+	int sendmacused;
+	gcry_md_hd_t rcvmac;
+	unsigned char rcvmackey[20];
+	int rcvmacused;
 } DH_sesskeys;
 
 /*
@@ -130,7 +130,7 @@ DLL void otrl_dh_keypair_free(DH_keypair *kp);
 
 /*
  * Generate a DH keypair for a specified group.
- */ 
+ */
 DLL gcry_error_t otrl_dh_gen_keypair(unsigned int groupid, DH_keypair *kp);
 
 /*
@@ -202,15 +202,15 @@ DLL int otrl_dh_cmpctr(const unsigned char *ctr1, const unsigned char *ctr2);
 //#include <gcrypt.h>
 
 typedef struct s_OtrlPrivKey {
-    struct s_OtrlPrivKey *next;
-    struct s_OtrlPrivKey **tous;
+	struct s_OtrlPrivKey *next;
+	struct s_OtrlPrivKey **tous;
 
-    char *accountname;
-    char *protocol;
-    unsigned short pubkey_type;
-    gcry_sexp_t privkey;
-    unsigned char *pubkey_data;
-    size_t pubkey_datalen;
+	char *accountname;
+	char *protocol;
+	unsigned short pubkey_type;
+	gcry_sexp_t privkey;
+	unsigned char *pubkey_data;
+	size_t pubkey_datalen;
 } OtrlPrivKey;
 
 #define OTRL_PUBKEY_TYPE_DSA 0x0000
@@ -243,52 +243,52 @@ typedef struct s_OtrlPrivKey {
 //#include "dh.h"
 
 typedef enum {
-    OTRL_AUTHSTATE_NONE,
-    OTRL_AUTHSTATE_AWAITING_DHKEY,
-    OTRL_AUTHSTATE_AWAITING_REVEALSIG,
-    OTRL_AUTHSTATE_AWAITING_SIG,
-    OTRL_AUTHSTATE_V1_SETUP
+	OTRL_AUTHSTATE_NONE,
+	OTRL_AUTHSTATE_AWAITING_DHKEY,
+	OTRL_AUTHSTATE_AWAITING_REVEALSIG,
+	OTRL_AUTHSTATE_AWAITING_SIG,
+	OTRL_AUTHSTATE_V1_SETUP
 } OtrlAuthState;
 
 typedef struct {
-    OtrlAuthState authstate;              /* Our state */
+	OtrlAuthState authstate;              /* Our state */
 
-    DH_keypair our_dh;                    /* Our D-H key */
-    unsigned int our_keyid;               /* ...and its keyid */
+	DH_keypair our_dh;                    /* Our D-H key */
+	unsigned int our_keyid;               /* ...and its keyid */
 
-    unsigned char *encgx;                 /* The encrypted value of g^x */
-    size_t encgx_len;                     /*  ...and its length */
-    unsigned char r[16];                  /* The encryption key */
+	unsigned char *encgx;                 /* The encrypted value of g^x */
+	size_t encgx_len;                     /*  ...and its length */
+	unsigned char r[16];                  /* The encryption key */
 
-    unsigned char hashgx[32];             /* SHA256(g^x) */
+	unsigned char hashgx[32];             /* SHA256(g^x) */
 
-    gcry_mpi_t their_pub;                 /* Their D-H public key */
-    unsigned int their_keyid;             /*  ...and its keyid */
+	gcry_mpi_t their_pub;                 /* Their D-H public key */
+	unsigned int their_keyid;             /*  ...and its keyid */
 
-    gcry_cipher_hd_t enc_c, enc_cp;       /* c and c' encryption keys */
-    gcry_md_hd_t mac_m1, mac_m1p;         /* m1 and m1' MAC keys */
-    gcry_md_hd_t mac_m2, mac_m2p;         /* m2 and m2' MAC keys */
+	gcry_cipher_hd_t enc_c, enc_cp;       /* c and c' encryption keys */
+	gcry_md_hd_t mac_m1, mac_m1p;         /* m1 and m1' MAC keys */
+	gcry_md_hd_t mac_m2, mac_m2p;         /* m2 and m2' MAC keys */
 
-    unsigned char their_fingerprint[20];  /* The fingerprint of their
-					     long-term signing key */
+	unsigned char their_fingerprint[20];  /* The fingerprint of their
+						 long-term signing key */
 
-    int initiated;                        /* Did we initiate this
-					     authentication? */
+	int initiated;                        /* Did we initiate this
+						 authentication? */
 
-    unsigned int protocol_version;        /* The protocol version number
-					     used to authenticate. */
+	unsigned int protocol_version;        /* The protocol version number
+						 used to authenticate. */
 
-    unsigned char secure_session_id[20];  /* The secure session id */
-    size_t secure_session_id_len;         /* And its actual length,
-					     which may be either 20 (for
-					     v1) or 8 (for v2) */
-    OtrlSessionIdHalf session_id_half;    /* Which half of the session
-					     id gets shown in bold */
+	unsigned char secure_session_id[20];  /* The secure session id */
+	size_t secure_session_id_len;         /* And its actual length,
+						 which may be either 20 (for
+						 v1) or 8 (for v2) */
+	OtrlSessionIdHalf session_id_half;    /* Which half of the session
+						 id gets shown in bold */
 
-    char *lastauthmsg;                    /* The last auth message
-					     (base-64 encoded) we sent,
-					     in case we need to
-					     retransmit it. */
+	char *lastauthmsg;                    /* The last auth message
+						 (base-64 encoded) we sent,
+						 in case we need to
+						 retransmit it. */
 } OtrlAuthInfo;
 
 //#include "privkey-t.h"
@@ -459,25 +459,25 @@ DLL int otrl_base64_otr_decode(const char *msg, unsigned char **bufp,
 #define SM_DIGEST_SIZE 32
 
 typedef enum {
-    OTRL_SMP_EXPECT1,
-    OTRL_SMP_EXPECT2,
-    OTRL_SMP_EXPECT3,
-    OTRL_SMP_EXPECT4,
-    OTRL_SMP_EXPECT5
+	OTRL_SMP_EXPECT1,
+	OTRL_SMP_EXPECT2,
+	OTRL_SMP_EXPECT3,
+	OTRL_SMP_EXPECT4,
+	OTRL_SMP_EXPECT5
 } NextExpectedSMP;
 
 typedef enum {
-    OTRL_SMP_PROG_OK = 0,            /* All is going fine so far */
-    OTRL_SMP_PROG_CHEATED = -2,      /* Some verification failed */
-    OTRL_SMP_PROG_FAILED = -1,       /* The secrets didn't match */
-    OTRL_SMP_PROG_SUCCEEDED = 1      /* The SMP completed successfully */
+	OTRL_SMP_PROG_OK = 0,            /* All is going fine so far */
+	OTRL_SMP_PROG_CHEATED = -2,      /* Some verification failed */
+	OTRL_SMP_PROG_FAILED = -1,       /* The secrets didn't match */
+	OTRL_SMP_PROG_SUCCEEDED = 1      /* The SMP completed successfully */
 } OtrlSMProgState;
 
 typedef struct {
-    gcry_mpi_t secret, x2, x3, g1, g2, g3, g3o, p, q, pab, qab;
-    NextExpectedSMP nextExpected;
-    int received_question;  /* 1 if we received a question in an SMP1Q TLV */
-    OtrlSMProgState sm_prog_state;
+	gcry_mpi_t secret, x2, x3, g1, g2, g3, g3o, p, q, pab, qab;
+	NextExpectedSMP nextExpected;
+	int received_question;  /* 1 if we received a question in an SMP1Q TLV */
+	OtrlSMProgState sm_prog_state;
 } OtrlSMState;
 
 typedef OtrlSMState OtrlSMAliceState;
@@ -585,11 +585,11 @@ DLL void otrl_userstate_free(OtrlUserState us);
 //#include "sm.h"
 
 typedef enum {
-    OTRL_MSGSTATE_PLAINTEXT,           /* Not yet started an encrypted
+	OTRL_MSGSTATE_PLAINTEXT,           /* Not yet started an encrypted
 					  conversation */
-    OTRL_MSGSTATE_ENCRYPTED,           /* Currently in an encrypted
+	OTRL_MSGSTATE_ENCRYPTED,           /* Currently in an encrypted
 					  conversation */
-    OTRL_MSGSTATE_FINISHED             /* The remote side has sent us a
+	OTRL_MSGSTATE_FINISHED             /* The remote side has sent us a
 					  notification that he has ended
 					  his end of the encrypted
 					  conversation; prevent any
@@ -598,100 +598,100 @@ typedef enum {
 } OtrlMessageState;
 
 typedef struct s_fingerprint {
-    struct s_fingerprint *next;        /* The next fingerprint in the list */
-    struct s_fingerprint **tous;       /* A pointer to the pointer to us */
-    unsigned char *fingerprint;        /* The fingerprint, or NULL */
-    struct context *context;           /* The context to which we belong */
-    char *trust;                       /* The trust level of the fingerprint */
+	struct s_fingerprint *next;        /* The next fingerprint in the list */
+	struct s_fingerprint **tous;       /* A pointer to the pointer to us */
+	unsigned char *fingerprint;        /* The fingerprint, or NULL */
+	struct context *context;           /* The context to which we belong */
+	char *trust;                       /* The trust level of the fingerprint */
 } Fingerprint;
 
 typedef struct context {
-    struct context * next;             /* Linked list pointer */
-    struct context ** tous;            /* A pointer to the pointer to us */
+	struct context * next;             /* Linked list pointer */
+	struct context ** tous;            /* A pointer to the pointer to us */
 
-    char * username;                   /* The user this context is for */
-    char * accountname;                /* The username is relative to
+	char * username;                   /* The user this context is for */
+	char * accountname;                /* The username is relative to
 					  this account... */
-    char * protocol;                   /* ... and this protocol */
+	char * protocol;                   /* ... and this protocol */
 
-    char *fragment;                    /* The part of the fragmented message
+	char *fragment;                    /* The part of the fragmented message
 					  we've seen so far */
-    size_t fragment_len;               /* The length of fragment */
-    unsigned short fragment_n;         /* The total number of fragments
+	size_t fragment_len;               /* The length of fragment */
+	unsigned short fragment_n;         /* The total number of fragments
 					  in this message */
-    unsigned short fragment_k;         /* The highest fragment number
+	unsigned short fragment_k;         /* The highest fragment number
 					  we've seen so far for this
 					  message */
 
-    OtrlMessageState msgstate;         /* The state of message disposition
+	OtrlMessageState msgstate;         /* The state of message disposition
 					  with this user */
-    OtrlAuthInfo auth;                 /* The state of ongoing
+	OtrlAuthInfo auth;                 /* The state of ongoing
 					  authentication with this user */
 
-    Fingerprint fingerprint_root;      /* The root of a linked list of
+	Fingerprint fingerprint_root;      /* The root of a linked list of
 					  Fingerprints entries */
-    Fingerprint *active_fingerprint;   /* Which fingerprint is in use now?
-                                          A pointer into the above list */
-    unsigned int their_keyid;          /* current keyid used by other side;
-                                          this is set to 0 if we get a
+	Fingerprint *active_fingerprint;   /* Which fingerprint is in use now?
+										  A pointer into the above list */
+	unsigned int their_keyid;          /* current keyid used by other side;
+										  this is set to 0 if we get a
 					  OTRL_TLV_DISCONNECTED message from
 					  them. */
-    gcry_mpi_t their_y;                /* Y[their_keyid] (their DH pubkey) */
-    gcry_mpi_t their_old_y;            /* Y[their_keyid-1] (their prev DH
+	gcry_mpi_t their_y;                /* Y[their_keyid] (their DH pubkey) */
+	gcry_mpi_t their_old_y;            /* Y[their_keyid-1] (their prev DH
 					  pubkey) */
-    unsigned int our_keyid;            /* current keyid used by us */
-    DH_keypair our_dh_key;             /* DH key[our_keyid] */
-    DH_keypair our_old_dh_key;         /* DH key[our_keyid-1] */
+	unsigned int our_keyid;            /* current keyid used by us */
+	DH_keypair our_dh_key;             /* DH key[our_keyid] */
+	DH_keypair our_old_dh_key;         /* DH key[our_keyid-1] */
 
-    DH_sesskeys sesskeys[2][2];        /* sesskeys[i][j] are the session keys
+	DH_sesskeys sesskeys[2][2];        /* sesskeys[i][j] are the session keys
 					  derived from DH key[our_keyid-i]
 					  and mpi Y[their_keyid-j] */
 
-    unsigned char sessionid[20];       /* The sessionid and bold half */
-    size_t sessionid_len;              /* determined when this private */
-    OtrlSessionIdHalf sessionid_half;  /* connection was established. */
+	unsigned char sessionid[20];       /* The sessionid and bold half */
+	size_t sessionid_len;              /* determined when this private */
+	OtrlSessionIdHalf sessionid_half;  /* connection was established. */
 
-    unsigned int protocol_version;     /* The version of OTR in use */
+	unsigned int protocol_version;     /* The version of OTR in use */
 
-    unsigned char *preshared_secret;   /* A secret you share with this
+	unsigned char *preshared_secret;   /* A secret you share with this
 					  user, in order to do
 					  authentication. */
-    size_t preshared_secret_len;       /* The length of the above secret. */
+	size_t preshared_secret_len;       /* The length of the above secret. */
 
-    /* saved mac keys to be revealed later */
-    unsigned int numsavedkeys;
-    unsigned char *saved_mac_keys;
+	/* saved mac keys to be revealed later */
+	unsigned int numsavedkeys;
+	unsigned char *saved_mac_keys;
 
-    /* generation number: increment every time we go private, and never
-     * reset to 0 (unless we remove the context entirely) */
-    unsigned int generation;
+	/* generation number: increment every time we go private, and never
+	 * reset to 0 (unless we remove the context entirely) */
+	unsigned int generation;
 
-    time_t lastsent;      /* The last time a Data Message was sent */
-    char *lastmessage;    /* The plaintext of the last Data Message sent */
-    int may_retransmit;   /* Is the last message eligible for
-			     retransmission? */
+	time_t lastsent;      /* The last time a Data Message was sent */
+	char *lastmessage;    /* The plaintext of the last Data Message sent */
+	int may_retransmit;   /* Is the last message eligible for
+				 retransmission? */
 
-    enum {
+	enum {
 	OFFER_NOT,
 	OFFER_SENT,
 	OFFER_REJECTED,
 	OFFER_ACCEPTED
-    } otr_offer;          /* Has this correspondent repsponded to our
-			     OTR offers? */
+	} otr_offer;          /* Has this correspondent repsponded to our
+				 OTR offers? */
 
-    /* Application data to be associated with this context */
-    void *app_data;
-    /* A function to free the above data when we forget this context */
-    void (*app_data_free)(void *);
+	/* Application data to be associated with this context */
+	void *app_data;
+	/* A function to free the above data when we forget this context */
+	void (*app_data_free)(void *);
 
-    OtrlSMState *smstate;              /* The state of the current
-                                          socialist millionaires exchange */
+	OtrlSMState *smstate;              /* The state of the current
+										  socialist millionaires exchange */
 } ConnContext;
 
 
 struct s_OtrlUserState {
-    ConnContext *context_root;
-    OtrlPrivKey *privkey_root;
+	ConnContext *context_root;
+	OtrlPrivKey *privkey_root;
 };
 
 //#include "userstate.h"
@@ -765,10 +765,10 @@ DLL void otrl_context_forget_all(OtrlUserState us);
 #define __TLV_H__
 
 typedef struct s_OtrlTLV {
-    unsigned short type;
-    unsigned short len;
-    unsigned char *data;
-    struct s_OtrlTLV *next;
+	unsigned short type;
+	unsigned short len;
+	unsigned char *data;
+	struct s_OtrlTLV *next;
 } OtrlTLV;
 
 /* TLV types */
@@ -779,7 +779,7 @@ typedef struct s_OtrlTLV {
 /* The sender has thrown away his OTR session keys with you */
 #define OTRL_TLV_DISCONNECTED    0x0001
 
-/* The message contains a step in the Socialist Millionaires' Protocol. */ 
+/* The message contains a step in the Socialist Millionaires' Protocol. */
 #define OTRL_TLV_SMP1            0x0002
 #define OTRL_TLV_SMP2            0x0003
 #define OTRL_TLV_SMP3            0x0004
@@ -864,46 +864,46 @@ typedef unsigned int OtrlPolicy;
 /* For v1 compatibility */
 #define OTRL_POLICY_NEVER			0x00
 #define OTRL_POLICY_OPPORTUNISTIC \
-	    ( OTRL_POLICY_ALLOW_V1 | \
-	    OTRL_POLICY_ALLOW_V2 | \
-	    OTRL_POLICY_SEND_WHITESPACE_TAG | \
-	    OTRL_POLICY_WHITESPACE_START_AKE | \
-	    OTRL_POLICY_ERROR_START_AKE )
+		( OTRL_POLICY_ALLOW_V1 | \
+		OTRL_POLICY_ALLOW_V2 | \
+		OTRL_POLICY_SEND_WHITESPACE_TAG | \
+		OTRL_POLICY_WHITESPACE_START_AKE | \
+		OTRL_POLICY_ERROR_START_AKE )
 #define OTRL_POLICY_MANUAL \
-	    ( OTRL_POLICY_ALLOW_V1 | \
-	    OTRL_POLICY_ALLOW_V2 )
+		( OTRL_POLICY_ALLOW_V1 | \
+		OTRL_POLICY_ALLOW_V2 )
 #define OTRL_POLICY_ALWAYS \
-	    ( OTRL_POLICY_ALLOW_V1 | \
-	    OTRL_POLICY_ALLOW_V2 | \
-	    OTRL_POLICY_REQUIRE_ENCRYPTION | \
-	    OTRL_POLICY_WHITESPACE_START_AKE | \
-	    OTRL_POLICY_ERROR_START_AKE )
+		( OTRL_POLICY_ALLOW_V1 | \
+		OTRL_POLICY_ALLOW_V2 | \
+		OTRL_POLICY_REQUIRE_ENCRYPTION | \
+		OTRL_POLICY_WHITESPACE_START_AKE | \
+		OTRL_POLICY_ERROR_START_AKE )
 #define OTRL_POLICY_DEFAULT OTRL_POLICY_OPPORTUNISTIC
 
 typedef enum {
-    OTRL_MSGTYPE_NOTOTR,
-    OTRL_MSGTYPE_TAGGEDPLAINTEXT,
-    OTRL_MSGTYPE_QUERY,
-    OTRL_MSGTYPE_DH_COMMIT,
-    OTRL_MSGTYPE_DH_KEY,
-    OTRL_MSGTYPE_REVEALSIG,
-    OTRL_MSGTYPE_SIGNATURE,
-    OTRL_MSGTYPE_V1_KEYEXCH,
-    OTRL_MSGTYPE_DATA,
-    OTRL_MSGTYPE_ERROR,
-    OTRL_MSGTYPE_UNKNOWN
+	OTRL_MSGTYPE_NOTOTR,
+	OTRL_MSGTYPE_TAGGEDPLAINTEXT,
+	OTRL_MSGTYPE_QUERY,
+	OTRL_MSGTYPE_DH_COMMIT,
+	OTRL_MSGTYPE_DH_KEY,
+	OTRL_MSGTYPE_REVEALSIG,
+	OTRL_MSGTYPE_SIGNATURE,
+	OTRL_MSGTYPE_V1_KEYEXCH,
+	OTRL_MSGTYPE_DATA,
+	OTRL_MSGTYPE_ERROR,
+	OTRL_MSGTYPE_UNKNOWN
 } OtrlMessageType;
 
 typedef enum {
-    OTRL_FRAGMENT_UNFRAGMENTED,
-    OTRL_FRAGMENT_INCOMPLETE,
-    OTRL_FRAGMENT_COMPLETE
+	OTRL_FRAGMENT_UNFRAGMENTED,
+	OTRL_FRAGMENT_INCOMPLETE,
+	OTRL_FRAGMENT_COMPLETE
 } OtrlFragmentResult;
 
 typedef enum {
-    OTRL_FRAGMENT_SEND_ALL,
-    OTRL_FRAGMENT_SEND_ALL_BUT_FIRST,
-    OTRL_FRAGMENT_SEND_ALL_BUT_LAST
+	OTRL_FRAGMENT_SEND_ALL,
+	OTRL_FRAGMENT_SEND_ALL_BUT_FIRST,
+	OTRL_FRAGMENT_SEND_ALL_BUT_LAST
 } OtrlFragmentPolicy;
 
 /* Initialize the OTR library.  Pass the version of the API you are
@@ -914,7 +914,7 @@ DLL void otrl_init(unsigned int ver_major, unsigned int ver_minor,
 /* Shortcut */
 #define OTRL_INIT do { \
 	otrl_init(OTRL_VERSION_MAJOR, OTRL_VERSION_MINOR, OTRL_VERSION_SUB); \
-    } while(0)
+	} while(0)
 
 /* Return a pointer to a static string containing the version number of
  * the OTR library. */
@@ -1014,92 +1014,92 @@ DLL void otrl_mem_init(void);
 #define __MESSAGE_H__
 
 typedef enum {
-    OTRL_NOTIFY_ERROR,
-    OTRL_NOTIFY_WARNING,
-    OTRL_NOTIFY_INFO
+	OTRL_NOTIFY_ERROR,
+	OTRL_NOTIFY_WARNING,
+	OTRL_NOTIFY_INFO
 } OtrlNotifyLevel;
 
 typedef struct s_OtrlMessageAppOps {
-    /* Return the OTR policy for the given context. */
-    OtrlPolicy (*policy)(void *opdata, ConnContext *context);
+	/* Return the OTR policy for the given context. */
+	OtrlPolicy (*policy)(void *opdata, ConnContext *context);
 
-    /* Create a private key for the given accountname/protocol if
-     * desired. */
-    void (*create_privkey)(void *opdata, const char *accountname,
-	    const char *protocol);
+	/* Create a private key for the given accountname/protocol if
+	 * desired. */
+	void (*create_privkey)(void *opdata, const char *accountname,
+		const char *protocol);
 
-    /* Report whether you think the given user is online.  Return 1 if
-     * you think he is, 0 if you think he isn't, -1 if you're not sure.
-     *
-     * If you return 1, messages such as heartbeats or other
-     * notifications may be sent to the user, which could result in "not
-     * logged in" errors if you're wrong. */
-    int (*is_logged_in)(void *opdata, const char *accountname,
-	    const char *protocol, const char *recipient);
+	/* Report whether you think the given user is online.  Return 1 if
+	 * you think he is, 0 if you think he isn't, -1 if you're not sure.
+	 *
+	 * If you return 1, messages such as heartbeats or other
+	 * notifications may be sent to the user, which could result in "not
+	 * logged in" errors if you're wrong. */
+	int (*is_logged_in)(void *opdata, const char *accountname,
+		const char *protocol, const char *recipient);
 
-    /* Send the given IM to the given recipient from the given
-     * accountname/protocol. */
-    void (*inject_message)(void *opdata, const char *accountname,
-	    const char *protocol, const char *recipient, const char *message);
+	/* Send the given IM to the given recipient from the given
+	 * accountname/protocol. */
+	void (*inject_message)(void *opdata, const char *accountname,
+		const char *protocol, const char *recipient, const char *message);
 
-    /* Display a notification message for a particular accountname /
-     * protocol / username conversation. */
-    void (*notify)(void *opdata, OtrlNotifyLevel level,
-	    const char *accountname, const char *protocol,
-	    const char *username, const char *title,
-	    const char *primary, const char *secondary);
+	/* Display a notification message for a particular accountname /
+	 * protocol / username conversation. */
+	void (*notify)(void *opdata, OtrlNotifyLevel level,
+		const char *accountname, const char *protocol,
+		const char *username, const char *title,
+		const char *primary, const char *secondary);
 
-    /* Display an OTR control message for a particular accountname /
-     * protocol / username conversation.  Return 0 if you are able to
-     * successfully display it.  If you return non-0 (or if this
-     * function is NULL), the control message will be displayed inline,
-     * as a received message, or else by using the above notify()
-     * callback. */
-    int (*display_otr_message)(void *opdata, const char *accountname,
-	    const char *protocol, const char *username, const char *msg);
+	/* Display an OTR control message for a particular accountname /
+	 * protocol / username conversation.  Return 0 if you are able to
+	 * successfully display it.  If you return non-0 (or if this
+	 * function is NULL), the control message will be displayed inline,
+	 * as a received message, or else by using the above notify()
+	 * callback. */
+	int (*display_otr_message)(void *opdata, const char *accountname,
+		const char *protocol, const char *username, const char *msg);
 
-    /* When the list of ConnContexts changes (including a change in
-     * state), this is called so the UI can be updated. */
-    void (*update_context_list)(void *opdata);
+	/* When the list of ConnContexts changes (including a change in
+	 * state), this is called so the UI can be updated. */
+	void (*update_context_list)(void *opdata);
 
-    /* Return a newly allocated string containing a human-friendly name
-     * for the given protocol id */
-    const char *(*protocol_name)(void *opdata, const char *protocol);
+	/* Return a newly allocated string containing a human-friendly name
+	 * for the given protocol id */
+	const char *(*protocol_name)(void *opdata, const char *protocol);
 
-    /* Deallocate a string allocated by protocol_name */
-    void (*protocol_name_free)(void *opdata, const char *protocol_name);
+	/* Deallocate a string allocated by protocol_name */
+	void (*protocol_name_free)(void *opdata, const char *protocol_name);
 
-    /* A new fingerprint for the given user has been received. */
-    void (*new_fingerprint)(void *opdata, OtrlUserState us,
-	    const char *accountname, const char *protocol,
-	    const char *username, unsigned char fingerprint[20]);
+	/* A new fingerprint for the given user has been received. */
+	void (*new_fingerprint)(void *opdata, OtrlUserState us,
+		const char *accountname, const char *protocol,
+		const char *username, unsigned char fingerprint[20]);
 
-    /* The list of known fingerprints has changed.  Write them to disk. */
-    void (*write_fingerprints)(void *opdata);
+	/* The list of known fingerprints has changed.  Write them to disk. */
+	void (*write_fingerprints)(void *opdata);
 
-    /* A ConnContext has entered a secure state. */
-    void (*gone_secure)(void *opdata, ConnContext *context);
+	/* A ConnContext has entered a secure state. */
+	void (*gone_secure)(void *opdata, ConnContext *context);
 
-    /* A ConnContext has left a secure state. */
-    void (*gone_insecure)(void *opdata, ConnContext *context);
+	/* A ConnContext has left a secure state. */
+	void (*gone_insecure)(void *opdata, ConnContext *context);
 
-    /* We have completed an authentication, using the D-H keys we
-     * already knew.  is_reply indicates whether we initiated the AKE. */
-    void (*still_secure)(void *opdata, ConnContext *context, int is_reply);
+	/* We have completed an authentication, using the D-H keys we
+	 * already knew.  is_reply indicates whether we initiated the AKE. */
+	void (*still_secure)(void *opdata, ConnContext *context, int is_reply);
 
-    /* Log a message.  The passed message will end in "\n". */
-    void (*log_message)(void *opdata, const char *message);
+	/* Log a message.  The passed message will end in "\n". */
+	void (*log_message)(void *opdata, const char *message);
 
-    /* Find the maximum message size supported by this protocol. */
-    int (*max_message_size)(void *opdata, ConnContext *context);
+	/* Find the maximum message size supported by this protocol. */
+	int (*max_message_size)(void *opdata, ConnContext *context);
 
-    /* Return a newly allocated string containing a human-friendly
-     * representation for the given account */
-    const char *(*account_name)(void *opdata, const char *account,
-	    const char *protocol);
+	/* Return a newly allocated string containing a human-friendly
+	 * representation for the given account */
+	const char *(*account_name)(void *opdata, const char *account,
+		const char *protocol);
 
-    /* Deallocate a string returned by account_name */
-    void (*account_name_free)(void *opdata, const char *account_name);
+	/* Deallocate a string returned by account_name */
+	void (*account_name_free)(void *opdata, const char *account_name);
 
 } OtrlMessageAppOps;
 
@@ -1113,7 +1113,7 @@ DLL void otrl_message_free(char *message);
  * pointer to the new ConnContext.  You can use this to add
  * application-specific information to the ConnContext using the
  * "context->app" field, for example.  If you don't need to do this, you
- * can pass NULL for the last two arguments of otrl_message_sending.  
+ * can pass NULL for the last two arguments of otrl_message_sending.
  *
  * tlvs is a chain of OtrlTLVs to append to the private message.  It is
  * usually correct to just pass NULL here.
@@ -1121,7 +1121,7 @@ DLL void otrl_message_free(char *message);
  * If this routine returns non-zero, then the library tried to encrypt
  * the message, but for some reason failed.  DO NOT send the message in
  * the clear in that case.
- * 
+ *
  * If *messagep gets set by the call to something non-NULL, then you
  * should replace your message with the contents of *messagep, and
  * send that instead.  Call otrl_message_free(*messagep) when you're
@@ -1141,7 +1141,7 @@ DLL gcry_error_t otrl_message_sending(OtrlUserState us,
  * a pointer to the new ConnContext.  You can use this to add
  * application-specific information to the ConnContext using the
  * "context->app" field, for example.  If you don't need to do this, you
- * can pass NULL for the last two arguments of otrl_message_receiving.  
+ * can pass NULL for the last two arguments of otrl_message_receiving.
  *
  * If otrl_message_receiving returns 1, then the message you received
  * was an internal protocol message, and no message should be delivered
@@ -1344,16 +1344,16 @@ DLL gcry_error_t otrl_privkey_verify(const unsigned char *sigbuf, size_t siglen,
 #define debug_data(t,b,l) do { const unsigned char *data = (b); size_t i; \
 	fprintf(stderr, "%s: ", (t)); \
 	for(i=0;i<(l);++i) { \
-	    fprintf(stderr, "%02x", data[i]); \
+		fprintf(stderr, "%02x", data[i]); \
 	} \
 	fprintf(stderr, "\n"); \
-    } while(0)
+	} while(0)
 
 #define debug_int(t,b) do { const unsigned char *data = (b); \
 	unsigned int v = \
-	    (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]; \
+		(data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]; \
 	fprintf(stderr, "%s: %u (0x%x)\n", (t), v, v); \
-    } while(0)
+	} while(0)
 
 #else
 #define debug_data(t,b,l)
@@ -1366,36 +1366,36 @@ DLL gcry_error_t otrl_privkey_verify(const unsigned char *sigbuf, size_t siglen,
 	bufp[2] = ((x) >> 8) & 0xff; \
 	bufp[3] = (x) & 0xff; \
 	bufp += 4; lenp -= 4; \
-    } while(0)
+	} while(0)
 
 #define write_mpi(x,nx,dx) do { \
 	write_int(nx); \
 	gcry_mpi_print(format, bufp, lenp, NULL, (x)); \
 	debug_data((dx), bufp, (nx)); \
 	bufp += (nx); lenp -= (nx); \
-    } while(0)
+	} while(0)
 
 #define require_len(l) do { \
 	if (lenp < (l)) goto invval; \
-    } while(0)
+	} while(0)
 
 #define read_int(x) do { \
 	require_len(4); \
 	(x) = (bufp[0] << 24) | (bufp[1] << 16) | (bufp[2] << 8) | bufp[3]; \
 	bufp += 4; lenp -= 4; \
-    } while(0)
+	} while(0)
 
 #define read_mpi(x) do { \
 	size_t mpilen; \
 	read_int(mpilen); \
 	if (mpilen) { \
-	    require_len(mpilen); \
-	    gcry_mpi_scan(&(x), GCRYMPI_FMT_USG, bufp, mpilen, NULL); \
+		require_len(mpilen); \
+		gcry_mpi_scan(&(x), GCRYMPI_FMT_USG, bufp, mpilen, NULL); \
 	} else { \
-	    (x) = gcry_mpi_set_ui(NULL, 0); \
+		(x) = gcry_mpi_set_ui(NULL, 0); \
 	} \
 	bufp += mpilen; lenp -= mpilen; \
-    } while(0)
+	} while(0)
 
 #endif
 /*

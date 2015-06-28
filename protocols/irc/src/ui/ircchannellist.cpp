@@ -132,7 +132,7 @@ void ChannelsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
 {
 	QVariant data = index.data();
 	if (data.canConvert<QTextDocument *>()) {
-        QTextDocument *textDocument = data.value<QTextDocument *>();
+		QTextDocument *textDocument = data.value<QTextDocument *>();
 		QStyleOptionViewItemV4 option(opt);
 		QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 		painter->save();
@@ -165,7 +165,7 @@ IrcChannelListForm::IrcChannelListForm(IrcAccount *account,QWidget *parent) :
 	m_account(account),
 	m_model(new ChannelsModel(this))
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	connect(ui->startButton, SIGNAL(clicked()), SLOT(onStartSearch()));
 	connect(ui->filterEdit, SIGNAL(returnPressed()), SLOT(onStartSearch()));
 	connect(ui->channelsView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDoubleClick(QModelIndex)));
@@ -176,7 +176,7 @@ IrcChannelListForm::IrcChannelListForm(IrcAccount *account,QWidget *parent) :
 
 IrcChannelListForm::~IrcChannelListForm()
 {
-    delete ui;
+	delete ui;
 }
 
 void IrcChannelListForm::listStarted()
@@ -225,14 +225,14 @@ void IrcChannelListForm::onDoubleClick(const QModelIndex &index)
 
 void IrcChannelListForm::changeEvent(QEvent *e)
 {
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWidget::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 } } // namespace qutim_sdk_0_3::irc

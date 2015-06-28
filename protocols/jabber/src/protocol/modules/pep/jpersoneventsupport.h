@@ -33,7 +33,7 @@
 namespace Jabber
 {
 	class JPersonEventSupport;
-	
+
 //	class JPersonalEventFilterFactory : public QObject
 //	{
 //		Q_OBJECT
@@ -44,7 +44,7 @@ namespace Jabber
 //		virtual gloox::MessageFilter *create(qutim_sdk_0_3::Account *account,
 //											 const JabberParams &params,
 //											 gloox::MessageSession *session);
-		
+
 //	};
 
 //	class JPersonalEventFilter : public gloox::MessageFilter
@@ -57,7 +57,7 @@ namespace Jabber
 //	private:
 //		JPersonEventSupport *m_support;
 //	};
-	
+
 	class JPersonEventSupport : public QObject, public JabberExtension
 	{
 		Q_OBJECT
@@ -70,7 +70,7 @@ namespace Jabber
 	protected slots:
 		void onEventReceived(const Jreen::PubSub::Event::Ptr &event, const Jreen::JID &from);
 //		void handleTag(const std::string &jid, gloox::Tag *tag);
-		
+
 //		// wow... reimplemented from gloox::PubSub::ResultHandler
 //        virtual void handleItem(const gloox::JID &, const std::string &, const gloox::Tag *) {}
 //        virtual void handleItems(const std::string &, const gloox::JID &, const std::string &,

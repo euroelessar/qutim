@@ -35,9 +35,9 @@ using namespace qutim_sdk_0_3;
 namespace Jabber
 {
 JAccountRegistrationPage::JAccountRegistrationPage(QWidget *parent) :
-    QWizardPage(parent),
-    ui(new Ui::JAccountRegistrationPage),
-    m_client(0), m_manager(0), m_jabberForm(0), m_form(0), m_registered(false)
+	QWizardPage(parent),
+	ui(new Ui::JAccountRegistrationPage),
+	m_client(0), m_manager(0), m_jabberForm(0), m_form(0), m_registered(false)
 {
 	ui->setupUi(this);
 	setFinalPage(false);
@@ -75,13 +75,13 @@ void JAccountRegistrationPage::initializePage()
 #endif
 	m_manager = new RegistrationManager(server, m_client);
 	connect(m_manager, SIGNAL(formReceived(Jreen::RegistrationData)),
-	        SLOT(onFieldsReceived(Jreen::RegistrationData)));
+			SLOT(onFieldsReceived(Jreen::RegistrationData)));
 	connect(m_manager, SIGNAL(error(Jreen::Error::Ptr)),
-	        SLOT(onError(Jreen::Error::Ptr)));
+			SLOT(onError(Jreen::Error::Ptr)));
 	connect(m_manager, SIGNAL(success()),
-	        SLOT(onSuccess()));
+			SLOT(onSuccess()));
 	connect(m_manager, SIGNAL(unsupported()),
-	        SLOT(onUnsupported()));
+			SLOT(onUnsupported()));
 	m_manager->registerAtServer();
 }
 
@@ -105,7 +105,7 @@ bool JAccountRegistrationPage::validatePage()
 			if (!ok)
 				continue;
 			data.setFieldValue(static_cast<Jreen::RegistrationData::FieldType>(index),
-			                   item.data().toString());
+							   item.data().toString());
 		}
 		m_manager->send(data);
 		emit completeChanged();
@@ -163,13 +163,13 @@ LocalizedString JAccountRegistrationPage::fieldText(RegistrationData::FieldType 
 }
 
 const char *knownVars[] = {
-    "username",
-    "nick",
-    "name",
-    "first",
-    "last",
-    "email",
-    "phone"
+	"username",
+	"nick",
+	"name",
+	"first",
+	"last",
+	"email",
+	"phone"
 };
 
 void JAccountRegistrationPage::onFieldsReceived(const RegistrationData &data)
@@ -190,12 +190,12 @@ void JAccountRegistrationPage::onFieldsReceived(const RegistrationData &data)
 			}
 			delete m_jabberForm;
 		}
-		
+
 		m_jabberForm = new JDataForm(data.form(), data.bitsOfBinaries(), ui->formPage);
 		m_form = m_jabberForm->widget();
 		setSubTitle(data.form()->instructions());
 		ui->verticalLayout_3->addWidget(m_jabberForm);
-		
+
 	} else {
 //		if (data.hasUrl()) {
 //			// Notify user about url by which he can register
@@ -223,7 +223,7 @@ void JAccountRegistrationPage::onFieldsReceived(const RegistrationData &data)
 			setSubTitle(data.instructions());
 			ui->verticalLayout_3->addWidget(m_form);
 		}
-	} 
+	}
 	if (m_form) {
 		connect(m_form, SIGNAL(completeChanged(bool)), SIGNAL(completeChanged()));
 		emit completeChanged();
@@ -244,8 +244,8 @@ void JAccountRegistrationPage::onError(const Error::Ptr &error)
 	}
 	if (!m_error.isEmpty()) {
 		m_error = QLatin1Literal("<span style=\"color: red\">")
-                  % m_error.toHtmlEscaped().replace(QLatin1String("\n"), QLatin1String("<br>"))
-		          % QLatin1Literal("</span>");
+				  % m_error.toHtmlEscaped().replace(QLatin1String("\n"), QLatin1String("<br>"))
+				  % QLatin1Literal("</span>");
 	}
 	ui->errorLabel->setText(m_error);
 	m_manager->fetchFields();

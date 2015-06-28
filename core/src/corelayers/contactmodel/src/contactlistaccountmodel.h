@@ -30,15 +30,15 @@
 
 class ContactListAccountModel : public ContactListBaseModel
 {
-    Q_OBJECT
-    Q_CLASSINFO("SettingsDescription", "Show accounts and contacts")
+	Q_OBJECT
+	Q_CLASSINFO("SettingsDescription", "Show accounts and contacts")
 public:
-    explicit ContactListAccountModel(QObject *parent = 0);
+	explicit ContactListAccountModel(QObject *parent = 0);
 
-    virtual void addAccount(qutim_sdk_0_3::Account *account);
-    virtual void removeAccount(qutim_sdk_0_3::Account *account);
-    virtual void addContact(qutim_sdk_0_3::Contact *contact);
-    virtual void removeContact(qutim_sdk_0_3::Contact *contact);
+	virtual void addAccount(qutim_sdk_0_3::Account *account);
+	virtual void removeAccount(qutim_sdk_0_3::Account *account);
+	virtual void addContact(qutim_sdk_0_3::Contact *contact);
+	virtual void removeContact(qutim_sdk_0_3::Contact *contact);
 };
 
 #endif // CONTACTLISTACCOUNTMODEL_H

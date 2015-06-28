@@ -24,134 +24,134 @@
 using namespace qutim_dbus;
 
 StatusNotifierItemAdaptor::StatusNotifierItemAdaptor(QObject *parent)
-    : QDBusAbstractAdaptor(parent)
+	: QDBusAbstractAdaptor(parent)
 {
-    // constructor
-    setAutoRelaySignals(true);
+	// constructor
+	setAutoRelaySignals(true);
 }
 
 StatusNotifierItemAdaptor::~StatusNotifierItemAdaptor()
 {
-    // destructor
+	// destructor
 }
 
 QString StatusNotifierItemAdaptor::attentionIconName() const
 {
-    // get the value of property AttentionIconName
-    return qvariant_cast< QString >(parent()->property("AttentionIconName"));
+	// get the value of property AttentionIconName
+	return qvariant_cast< QString >(parent()->property("AttentionIconName"));
 }
 
 KDbusImageVector StatusNotifierItemAdaptor::attentionIconPixmap() const
 {
-    // get the value of property AttentionIconPixmap
-    return qvariant_cast< KDbusImageVector >(parent()->property("AttentionIconPixmap"));
+	// get the value of property AttentionIconPixmap
+	return qvariant_cast< KDbusImageVector >(parent()->property("AttentionIconPixmap"));
 }
 
 QString StatusNotifierItemAdaptor::attentionMovieName() const
 {
-    // get the value of property AttentionMovieName
-    return qvariant_cast< QString >(parent()->property("AttentionMovieName"));
+	// get the value of property AttentionMovieName
+	return qvariant_cast< QString >(parent()->property("AttentionMovieName"));
 }
 
 QString StatusNotifierItemAdaptor::category() const
 {
-    // get the value of property Category
-    return qvariant_cast< QString >(parent()->property("Category"));
+	// get the value of property Category
+	return qvariant_cast< QString >(parent()->property("Category"));
 }
 
 QString StatusNotifierItemAdaptor::iconName() const
 {
-    // get the value of property IconName
-    return qvariant_cast< QString >(parent()->property("IconName"));
+	// get the value of property IconName
+	return qvariant_cast< QString >(parent()->property("IconName"));
 }
 
 KDbusImageVector StatusNotifierItemAdaptor::iconPixmap() const
 {
-    // get the value of property IconPixmap
-    return qvariant_cast< KDbusImageVector >(parent()->property("IconPixmap"));
+	// get the value of property IconPixmap
+	return qvariant_cast< KDbusImageVector >(parent()->property("IconPixmap"));
 }
 
 QString StatusNotifierItemAdaptor::iconThemePath() const
 {
-    // get the value of property IconThemePath
-    return qvariant_cast< QString >(parent()->property("IconThemePath"));
+	// get the value of property IconThemePath
+	return qvariant_cast< QString >(parent()->property("IconThemePath"));
 }
 
 QString StatusNotifierItemAdaptor::id() const
 {
-    // get the value of property Id
-    return qvariant_cast< QString >(parent()->property("Id"));
+	// get the value of property Id
+	return qvariant_cast< QString >(parent()->property("Id"));
 }
 
 bool StatusNotifierItemAdaptor::itemIsMenu() const
 {
-    // get the value of property ItemIsMenu
-    return qvariant_cast< bool >(parent()->property("ItemIsMenu"));
+	// get the value of property ItemIsMenu
+	return qvariant_cast< bool >(parent()->property("ItemIsMenu"));
 }
 
 QDBusObjectPath StatusNotifierItemAdaptor::menu() const
 {
-    // get the value of property Menu
-    return qvariant_cast< QDBusObjectPath >(parent()->property("Menu"));
+	// get the value of property Menu
+	return qvariant_cast< QDBusObjectPath >(parent()->property("Menu"));
 }
 
 QString StatusNotifierItemAdaptor::overlayIconName() const
 {
-    // get the value of property OverlayIconName
-    return qvariant_cast< QString >(parent()->property("OverlayIconName"));
+	// get the value of property OverlayIconName
+	return qvariant_cast< QString >(parent()->property("OverlayIconName"));
 }
 
 KDbusImageVector StatusNotifierItemAdaptor::overlayIconPixmap() const
 {
-    // get the value of property OverlayIconPixmap
-    return qvariant_cast< KDbusImageVector >(parent()->property("OverlayIconPixmap"));
+	// get the value of property OverlayIconPixmap
+	return qvariant_cast< KDbusImageVector >(parent()->property("OverlayIconPixmap"));
 }
 
 QString StatusNotifierItemAdaptor::status() const
 {
-    // get the value of property Status
-    return qvariant_cast< QString >(parent()->property("Status"));
+	// get the value of property Status
+	return qvariant_cast< QString >(parent()->property("Status"));
 }
 
 QString StatusNotifierItemAdaptor::title() const
 {
-    // get the value of property Title
-    return qvariant_cast< QString >(parent()->property("Title"));
+	// get the value of property Title
+	return qvariant_cast< QString >(parent()->property("Title"));
 }
 
 KDbusToolTipStruct StatusNotifierItemAdaptor::toolTip() const
 {
-    // get the value of property ToolTip
-    return qvariant_cast< KDbusToolTipStruct >(parent()->property("ToolTip"));
+	// get the value of property ToolTip
+	return qvariant_cast< KDbusToolTipStruct >(parent()->property("ToolTip"));
 }
 
 int StatusNotifierItemAdaptor::windowId() const
 {
-    // get the value of property WindowId
-    return qvariant_cast< int >(parent()->property("WindowId"));
+	// get the value of property WindowId
+	return qvariant_cast< int >(parent()->property("WindowId"));
 }
 
 void StatusNotifierItemAdaptor::Activate(int x, int y)
 {
-    // handle method call org.kde.StatusNotifierItem.Activate
-    QMetaObject::invokeMethod(parent(), "Activate", Q_ARG(int, x), Q_ARG(int, y));
+	// handle method call org.kde.StatusNotifierItem.Activate
+	QMetaObject::invokeMethod(parent(), "Activate", Q_ARG(int, x), Q_ARG(int, y));
 }
 
 void StatusNotifierItemAdaptor::ContextMenu(int x, int y)
 {
-    // handle method call org.kde.StatusNotifierItem.ContextMenu
-    QMetaObject::invokeMethod(parent(), "ContextMenu", Q_ARG(int, x), Q_ARG(int, y));
+	// handle method call org.kde.StatusNotifierItem.ContextMenu
+	QMetaObject::invokeMethod(parent(), "ContextMenu", Q_ARG(int, x), Q_ARG(int, y));
 }
 
 void StatusNotifierItemAdaptor::Scroll(int delta, const QString &orientation)
 {
-    // handle method call org.kde.StatusNotifierItem.Scroll
-    QMetaObject::invokeMethod(parent(), "Scroll", Q_ARG(int, delta), Q_ARG(QString, orientation));
+	// handle method call org.kde.StatusNotifierItem.Scroll
+	QMetaObject::invokeMethod(parent(), "Scroll", Q_ARG(int, delta), Q_ARG(QString, orientation));
 }
 
 void StatusNotifierItemAdaptor::SecondaryActivate(int x, int y)
 {
-    // handle method call org.kde.StatusNotifierItem.SecondaryActivate
-    QMetaObject::invokeMethod(parent(), "SecondaryActivate", Q_ARG(int, x), Q_ARG(int, y));
+	// handle method call org.kde.StatusNotifierItem.SecondaryActivate
+	QMetaObject::invokeMethod(parent(), "SecondaryActivate", Q_ARG(int, x), Q_ARG(int, y));
 }
 

@@ -42,7 +42,7 @@ public:
 	~dGlobalHotKey();
 
 	static bool eventFilter( void *e );
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result);
+	bool nativeEventFilter(const QByteArray &eventType, void *message, long *result);
 	static dGlobalHotKey *instance();
 
 	bool shortcut( const QString &s, bool a = true );
@@ -59,7 +59,7 @@ private:
 	quint32 nativeModifiers( Qt::KeyboardModifiers m );
 	quint32 nativeKeycode( Qt::Key k );
 #if defined( Q_WS_X11 )
-    bool error;
+	bool error;
 #endif
 };
 

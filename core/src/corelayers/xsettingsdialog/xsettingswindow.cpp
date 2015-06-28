@@ -79,7 +79,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	p->controller = controller;
-    setWindowModality(controller ? Qt::WindowModal : Qt::NonModal);
+	setWindowModality(controller ? Qt::WindowModal : Qt::NonModal);
 	//setup ui
 	QWidget *widget = new QWidget(this);
 	QVBoxLayout *l = new QVBoxLayout(widget);
@@ -118,18 +118,18 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 		p->splitter->setSizes(QList<int>() << 80  << 250);
 	l->addWidget(p->splitter);
 
-    QDialogButtonBox::StandardButtons buttons;
-    if (controller)
-        buttons = QDialogButtonBox::Ok;
-    else
-        buttons = QDialogButtonBox::Save | QDialogButtonBox::Cancel;
+	QDialogButtonBox::StandardButtons buttons;
+	if (controller)
+		buttons = QDialogButtonBox::Ok;
+	else
+		buttons = QDialogButtonBox::Save | QDialogButtonBox::Cancel;
 
 	p->buttonBox = new QDialogButtonBox(buttons, Qt::Horizontal, widget);
 	l->addWidget(p->buttonBox);
-    p->buttonBox->setVisible(controller);
+	p->buttonBox->setVisible(controller);
 	//init actiontoolbar
 	setCentralWidget(widget);
-    setUnifiedTitleAndToolBarOnMac(true);
+	setUnifiedTitleAndToolBarOnMac(true);
 
 	p->toolBar = new ActionToolBar(widget);
 	addToolBar(Qt::TopToolBarArea,p->toolBar);
@@ -153,13 +153,13 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->group = new QActionGroup(widget);
 	p->group->setExclusive(true);
 	//connections
-    connect(p->group,SIGNAL(triggered(QAction*)), SLOT(onGroupActionTriggered(QAction*)));
+	connect(p->group,SIGNAL(triggered(QAction*)), SLOT(onGroupActionTriggered(QAction*)));
 	connect(p->listWidget,
 			SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
 			SLOT(onCurrentItemChanged(QListWidgetItem*))
 			);
-    connect(p->buttonBox,SIGNAL(accepted()), SLOT(save()));
-    connect(p->buttonBox,SIGNAL(rejected()), SLOT(cancel()));
+	connect(p->buttonBox,SIGNAL(accepted()), SLOT(save()));
+	connect(p->buttonBox,SIGNAL(rejected()), SLOT(cancel()));
 	loadSettings(settings);
 	if (p->group->actions().count())
 		p->group->actions().first()->trigger();
@@ -346,10 +346,10 @@ void XSettingsWindow::save()
 		if (widget != c)
 			widget->deleteLater();
 	}
-    if (p->controller)
-        close();
-    else
-        p->buttonBox->close();
+	if (p->controller)
+		close();
+	else
+		p->buttonBox->close();
 }
 
 void XSettingsWindow::cancel()
@@ -361,10 +361,10 @@ void XSettingsWindow::cancel()
 		if (widget != c)
 			widget->deleteLater();
 	}
-    if (p->controller)
-        close();
-    else
-        p->buttonBox->close();
+	if (p->controller)
+		close();
+	else
+		p->buttonBox->close();
 }
 
 

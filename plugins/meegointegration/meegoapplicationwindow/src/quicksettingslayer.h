@@ -73,15 +73,15 @@ private:
 
 class QuickSettingsLayer : public qutim_sdk_0_3::SettingsLayer
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_PROPERTY(QObject* model READ model CONSTANT)
 public:
-    explicit QuickSettingsLayer();
-	
+	explicit QuickSettingsLayer();
+
 	virtual void show(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
 	virtual void close(QObject* controller = 0);
 	virtual void update(const qutim_sdk_0_3::SettingsItemList &settings, QObject *controller = 0);
-	
+
 	QObject *model();
 	Q_INVOKABLE void show(QObject *object = 0);
 

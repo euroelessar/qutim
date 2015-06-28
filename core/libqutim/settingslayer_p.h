@@ -42,7 +42,7 @@ struct ConnectInfo
 {
 	ConnectInfo(const char *s, QObject *r, const char *m) : signal(s), receiver(r), member(m) {}
 	QByteArray signal;
-    QPointer<QObject> receiver;
+	QPointer<QObject> receiver;
 	QByteArray member;
 };
 
@@ -54,7 +54,7 @@ public:
 	Settings::Type type;
 	QIcon icon;
 	LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
-    mutable QPointer<QObject> object;
+	mutable QPointer<QObject> object;
 	QList<ConnectInfo> connections;
 	int order;
 	int priority;
@@ -119,7 +119,7 @@ protected:
 	}
 private:
 	AutoSettingsItemPrivate *p;
-    mutable QPointer<QObject> m_object;
+	mutable QPointer<QObject> m_object;
 };
 
 class AutoSettingsFileChooser;

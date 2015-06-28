@@ -55,7 +55,7 @@ public:
 void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs)
 {
 	this->form = form;
-	
+
 	DataItem root = JDataForm::convertToDataItem(form, bobs);
 	QGridLayout *layout = new QGridLayout(that);
 	that->setLayout(layout);
@@ -63,13 +63,13 @@ void JDataFormPrivate::init(JDataForm *that, const Jreen::DataForm::Ptr &form, c
 }
 
 JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs, QWidget *parent)
-    : QWidget(parent), d_ptr(new JDataFormPrivate)
+	: QWidget(parent), d_ptr(new JDataFormPrivate)
 {
 	d_func()->init(this, form, bobs);
 }
 
 JDataForm::JDataForm(const Jreen::DataForm::Ptr &form, QWidget *parent)
-    : QWidget(parent), d_ptr(new JDataFormPrivate)
+	: QWidget(parent), d_ptr(new JDataFormPrivate)
 {
 	d_func()->init(this, form, QList<Jreen::BitsOfBinary::Ptr>());
 }
@@ -187,7 +187,7 @@ void JDataForm::convertFromDataItem(const Jreen::DataForm::Ptr &form, const Data
 		Jreen::DataFormField field = form->field(i);
 		DataItem currentItem = item.subitem(field.var(), true);
 		QVariant data = currentItem.data();
-		
+
 		if (field.type() == Jreen::DataFormField::Hidden) {
 			continue;
 		} else if (field.type() == Jreen::DataFormField::Boolean) {

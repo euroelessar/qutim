@@ -43,7 +43,7 @@ MergeDialog::MergeDialog(QWidget *parent) :
 	ui->treeView->setModel(m_model = new Model(this));
 	ui->treeView->setItemDelegate(new ItemDelegate(this));
 	ui->treeView->expandAll();
-	
+
 	connect(ui->searchField, SIGNAL(textChanged(QString)),
 			m_model, SLOT(searchContacts(QString)));
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),

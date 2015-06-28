@@ -40,7 +40,7 @@ class TextViewWidget : public QTextBrowser, public Core::AdiumChat::ChatViewWidg
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
-    TextViewWidget();
+	TextViewWidget();
 	virtual void setViewController(QObject *controller);
 private:
 //	QTextEdit *m_textEdit;

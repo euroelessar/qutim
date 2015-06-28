@@ -53,7 +53,7 @@ WebKitPreview::Ptr WebKitPreviewLoader::loadPreview(const QString &fileName)
 	{
 		QVariantMap data = previewData.value(QLatin1String("Chat")).toMap();
 		session->setDateOpened(QDateTime::fromString(data.value(QLatin1String("Date Opened")).toString(),
-		                                             timeFormat));
+													 timeFormat));
 		accountId = data.value(QLatin1String("Source UID")).toString();
 	}
 	{
@@ -63,7 +63,7 @@ WebKitPreview::Ptr WebKitPreviewLoader::loadPreview(const QString &fileName)
 			QVariantMap data = participants[i].toMap();
 			if (data.value(QLatin1String("UID")).toString() == accountId) {
 				data.insert(QLatin1String("UserIcon Name"),
-				            dir.filePath(data.value(QLatin1String("UserIcon Name")).toString()));
+							dir.filePath(data.value(QLatin1String("UserIcon Name")).toString()));
 				account = new WebKitPreviewAccount(data, protocol);
 				break;
 			}
@@ -74,7 +74,7 @@ WebKitPreview::Ptr WebKitPreviewLoader::loadPreview(const QString &fileName)
 			QString id = data.value(QLatin1String("UID")).toString();
 			if (id != accountId) {
 				data.insert(QLatin1String("UserIcon Name"),
-				            dir.filePath(data.value(QLatin1String("UserIcon Name")).toString()));
+							dir.filePath(data.value(QLatin1String("UserIcon Name")).toString()));
 				units.insert(id, new WebKitPreviewChatUnit(data, account));
 				break;
 			}

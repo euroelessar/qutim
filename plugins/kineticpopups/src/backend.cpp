@@ -43,9 +43,9 @@ static Backend *backend_instance = nullptr;
 
 Backend::Backend() :
 	NotificationBackend("Popup"),
-    m_component(DeclarativeView::globalEngine())
+	m_component(DeclarativeView::globalEngine())
 {
-    backend_instance = this;
+	backend_instance = this;
 
 	setDescription(QT_TR_NOOP("Show popup"));
 	m_item = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance,
@@ -53,13 +53,13 @@ Backend::Backend() :
 													  QT_TRANSLATE_NOOP("Settings","Popups"));
 	m_item->connect(SIGNAL(saved()), this, SLOT(onSettingsSaved()));
 	Settings::registerItem(m_item);
-    
-    qmlRegisterUncreatableType<Action>("org.qutim.kineticpopups", 0, 4,
-	                                   "Action",
-	                                   "Unable to create action inside QtQuick");
+
+	qmlRegisterUncreatableType<Action>("org.qutim.kineticpopups", 0, 4,
+									   "Action",
+									   "Unable to create action inside QtQuick");
 	qmlRegisterUncreatableType<Notify>("org.qutim.kineticpopups", 0, 4,
-	                                   "Notify",
-	                                   "Unable to create notify inside QtQuick");
+									   "Notify",
+									   "Unable to create notify inside QtQuick");
 	qmlRegisterType<NotifyList>("org.qutim.kineticpopups", 0, 4, "NotifyList");
 	qmlRegisterType<Timeout>("org.qutim.kineticpopups", 0, 4, "Timeout");
 
@@ -68,7 +68,7 @@ Backend::Backend() :
 
 Backend::~Backend()
 {
-    backend_instance = nullptr;
+	backend_instance = nullptr;
 
 	Settings::removeItem(m_item);
 	delete m_item;
@@ -79,20 +79,20 @@ void Backend::handleNotification(qutim_sdk_0_3::Notification *notification)
 	m_notifications.append(notification);
 	ref(notification);
 
-    connect(notification, &Notification::finished, this, &Backend::onNotificationFinished);
+	connect(notification, &Notification::finished, this, &Backend::onNotificationFinished);
 
-    emit notificationAdded(notification);
+	emit notificationAdded(notification);
 }
 
 void Backend::onNotificationFinished()
 {
-    if (Notification *notify = qobject_cast<Notification *>(sender()))
-        removeNotification(notify);
+	if (Notification *notify = qobject_cast<Notification *>(sender()))
+		removeNotification(notify);
 }
 
 Backend *Backend::instance()
 {
-    return backend_instance;
+	return backend_instance;
 }
 
 void Backend::removeNotification(Notification *notification)
@@ -122,9 +122,9 @@ void Backend::onSettingsSaved()
 	if (themeUrl != m_component.url()) {
 		m_component.loadUrl(themeUrl);
 		m_logic.reset(m_component.create());
-        
-        if (!m_logic)
-            qDebug() << "Failed to load" << themeUrl << m_component.errorString();
+
+		if (!m_logic)
+			qDebug() << "Failed to load" << themeUrl << m_component.errorString();
 	}
 }
 

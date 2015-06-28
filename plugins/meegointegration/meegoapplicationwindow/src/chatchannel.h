@@ -63,20 +63,20 @@ public:
 	QObject *page() const;
 	void setPage(QObject *page);
 	bool supportJavaScript() const;
-	
+
 	Q_INVOKABLE QVariant evaluateJavaScript(const QString &script);
-	
+
 protected:
 	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
 	virtual void doSetActive(bool active);
-	
+
 signals:
 	void javaScriptRequest(const QString &javaScript, QVariant *variant);
 	void messageAppended(const qutim_sdk_0_3::Message &message);
 	void unitChanged(qutim_sdk_0_3::ChatUnit *unit);
 	void unreadCountChanged(int);
 	void pageChanged(QObject *page);
-	
+
 private:
 	qutim_sdk_0_3::ChatUnit *m_unit;
 	qutim_sdk_0_3::MessageList m_unread;

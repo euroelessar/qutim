@@ -42,7 +42,7 @@ class ScriptMessageHandler : public qutim_sdk_0_3::MessageHandler
 public:
 	ScriptMessageHandler(ScriptPlugin *parent);
 	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
-	
+
 	void openContext(ChatUnit *unit);
 	void closeContext();
 	void handleException();
@@ -55,15 +55,15 @@ class ScriptPlugin : public Plugin, public qutim_sdk_0_3::PluginFactory
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::PluginFactory)
 public:
-    explicit ScriptPlugin();
+	explicit ScriptPlugin();
 	virtual void init();
 	virtual bool load();
 	virtual QList<Plugin*> loadPlugins();
 	virtual bool unload();
-	
+
 public slots:
 	void onException(const QScriptValue &exception);
-	
+
 private:
 	QScopedPointer<ScriptMessageHandler> m_handler;
 };

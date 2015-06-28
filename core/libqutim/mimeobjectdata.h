@@ -35,23 +35,23 @@ class MimeObjectDataPrivate;
 
 class LIBQUTIM_EXPORT MimeObjectData : public QMimeData
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(MimeObjectData)
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(MimeObjectData)
 public:
-    MimeObjectData();
-    ~MimeObjectData();
+	MimeObjectData();
+	~MimeObjectData();
 
-    void setObject(QObject *obj);
-    QObject *object() const;
-    static QString objectMimeType();
+	void setObject(QObject *obj);
+	QObject *object() const;
+	static QString objectMimeType();
 
-    virtual bool hasFormat(const QString &mimetype) const;
-    virtual QStringList formats() const;
+	virtual bool hasFormat(const QString &mimetype) const;
+	virtual QStringList formats() const;
 protected:
-    virtual QVariant retrieveData(const QString &mimetype,
-                                  QVariant::Type preferredType) const;
+	virtual QVariant retrieveData(const QString &mimetype,
+								  QVariant::Type preferredType) const;
 private:
-    QScopedPointer<MimeObjectDataPrivate> d_ptr;
+	QScopedPointer<MimeObjectDataPrivate> d_ptr;
 };
 }
 

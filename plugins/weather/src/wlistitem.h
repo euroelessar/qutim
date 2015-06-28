@@ -37,10 +37,10 @@ class WListItem : public QWidget
 	Q_OBJECT
 
 public:
-	
+
 	WListItem(const QString &city, const QString &state, const QString &id, QListWidget *citiesList);
 	~WListItem();
-	
+
 	QString id() const;
 	QString name() const;
 	QString state() const;

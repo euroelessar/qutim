@@ -44,10 +44,10 @@ class QuickNotificationManagerAdaptor : public QDBusAbstractAdaptor
 	Q_CLASSINFO("D-Bus Interface", "org.qutim.NoficationManager")
 public:
 	QuickNotificationManagerAdaptor(QuickNoficationManager *manager);
-	
+
 public slots:
 	void activate();
-	
+
 private:
 	QuickNoficationManager *m_manager;
 };
@@ -63,14 +63,14 @@ public:
 	void setWindowActive(bool active);
 	void updateNotification();
 	void activate();
-	
+
 protected slots:
 	void onNotificationFinished();
-	
+
 signals:
 	void requestChannelList();
 	void requestChannel(QObject *channel);
-	
+
 private:
 	QList<Notification*> m_notifications;
 	QHash<QObject*, MNotification*> m_ids;

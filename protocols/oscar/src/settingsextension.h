@@ -38,7 +38,7 @@ namespace oscar {
 class LIBOSCAR_EXPORT SettingsExtension
 {
 public:
-    SettingsExtension();
+	SettingsExtension();
 	virtual ~SettingsExtension();
 	virtual void loadSettings(DataItem &item, Config cfg) = 0;
 	virtual void saveSettings(const DataItem &item, Config cfg) = 0;

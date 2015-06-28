@@ -35,10 +35,10 @@ using namespace qutim_sdk_0_3;
 namespace HistoryManager {
 
 ClientConfigPage::ClientConfigPage(HistoryManagerWindow *parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::ClientConfigPage)
+	QWizardPage(parent),
+	m_ui(new Ui::ClientConfigPage)
 {
-    m_ui->setupUi(this);
+	m_ui->setupUi(this);
 	m_parent = parent;
 	registerField("historypath", m_ui->filenameEdit);
 	QList<int> mibs = QTextCodec::availableMibs();
@@ -59,7 +59,7 @@ ClientConfigPage::ClientConfigPage(HistoryManagerWindow *parent) :
 
 ClientConfigPage::~ClientConfigPage()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 void ClientConfigPage::initializePage()
@@ -185,14 +185,14 @@ void ClientConfigPage::onTextChanged(const QString &filename)
 
 void ClientConfigPage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 }

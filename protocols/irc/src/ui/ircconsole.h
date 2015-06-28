@@ -40,7 +40,7 @@ namespace irc {
 class IrcAccount;
 
 class IrcConsoleFrom : public QWidget {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	IrcConsoleFrom(IrcAccount *account, const QString &log, QWidget *parent = 0);
 	~IrcConsoleFrom();
@@ -48,7 +48,7 @@ public:
 private slots:
 	void sendCommand();
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 private:
 	Ui::IrcConsoleForm *ui;
 	QHash<QString, QString> m_colors;

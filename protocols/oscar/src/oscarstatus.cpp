@@ -35,7 +35,7 @@ namespace oscar {
 
 static OscarStatusList init_status_list()
 {
-    OscarStatusList list;
+	OscarStatusList list;
 	list.insert(OscarStatusData(OscarAway, Status::Away));
 	list.insert(OscarStatusData(OscarInvisible, Status::Invisible));
 	list.insert(OscarStatusData(OscarDND, Status::DND));
@@ -49,7 +49,7 @@ static OscarStatusList init_status_list()
 								QT_TRANSLATE_NOOP("Status", "Busy")));
 	foreach (const OscarStatusData &data, list)
 		MenuController::addAction<IcqAccount>(new StatusActionGenerator(OscarStatus(data)));
-    return list;
+	return list;
 }
 Q_GLOBAL_STATIC_WITH_ARGS(OscarStatusList, statusList, (init_status_list()))
 

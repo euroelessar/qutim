@@ -28,20 +28,20 @@ QVariantList ChatPreview::messages() const
 	QVariantList messages;
 	foreach (const Message &message, m_preview->messages)
 		messages << qVariantFromValue(message);
-    return messages;
+	return messages;
 }
 
 QStringList ChatPreview::fontFamilies() const
 {
-    return m_database.families();
+	return m_database.families();
 }
 
 QVariantList ChatPreview::fontSizes() const
 {
-    QVariantList result;
-    foreach (int size, m_database.standardSizes())
-        result << size;
-    return result;
+	QVariantList result;
+	foreach (int size, m_database.standardSizes())
+		result << size;
+	return result;
 }
 
 } // namespace MeegoIntegration

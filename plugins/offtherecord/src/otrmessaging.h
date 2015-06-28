@@ -41,20 +41,20 @@ namespace OtrSupport
 
 enum Policy
 {
-    PolicyOff,
-    PolicyEnabled,
-    PolicyAuto,
-    PolicyRequire
+	PolicyOff,
+	PolicyEnabled,
+	PolicyAuto,
+	PolicyRequire
 };
 
 // ---------------------------------------------------------------------------
 
 enum MessageState
 {
-    MessageStateUnknown,
-    MessageStatePlainText,
-    MessageStateEncrypted,
-    MessageStateFinished
+	MessageStateUnknown,
+	MessageStatePlainText,
+	MessageStateEncrypted,
+	MessageStateFinished
 };
 
 // ---------------------------------------------------------------------------
@@ -64,35 +64,35 @@ enum MessageState
 */
 struct Fingerprint
 {
-    /**
-    * Pointer to fingerprint in libotr struct. Binary format.
-    */
-    unsigned char* fingerprint;
+	/**
+	* Pointer to fingerprint in libotr struct. Binary format.
+	*/
+	unsigned char* fingerprint;
 
-    /**
-    * own account
-    */
-    QString account;
+	/**
+	* own account
+	*/
+	QString account;
 
-    /**
-    * owner of the fingerprint
-    */
-    QString username;
+	/**
+	* owner of the fingerprint
+	*/
+	QString username;
 
-    /**
-    * The fingerprint in a human-readable format
-    */
-    QString fingerprintHuman;
+	/**
+	* The fingerprint in a human-readable format
+	*/
+	QString fingerprintHuman;
 
-    /**
-    * the level of trust
-    */
-    QString trust;
+	/**
+	* the level of trust
+	*/
+	QString trust;
 
-    /**
-    * The messageState of the context (i.e. plaintext, encrypted, finished)
-    */
-    QString messageState;
+	/**
+	* The messageState of the context (i.e. plaintext, encrypted, finished)
+	*/
+	QString messageState;
 };
 
 // ---------------------------------------------------------------------------
@@ -106,118 +106,118 @@ class OtrMessaging
 {
 public:
 
-    /**
-    * Constructor
-    *
-    * @param plugin Pointer to the plugin, used for sending messages.
-    * @param policy The default OTR policy
-    */
-    OtrMessaging(Policy policy, OtrlUserState userstate);
+	/**
+	* Constructor
+	*
+	* @param plugin Pointer to the plugin, used for sending messages.
+	* @param policy The default OTR policy
+	*/
+	OtrMessaging(Policy policy, OtrlUserState userstate);
 
-    /**
-    * Deconstructor
-    */
-    ~OtrMessaging();
+	/**
+	* Deconstructor
+	*/
+	~OtrMessaging();
 
-    /**
-    * Process an outgoing message.
-    *
-    * @param from Account the message is send from
-    * @param to Recipient of message
-    * @param message The message itself.
-    * @param item The item that emit event.
-    *
-    * @return The encrypted message.
-    */
-    QString encryptMessage(const QString& from, const QString& to,
-                           const QString& message, TreeModelItem &item);
+	/**
+	* Process an outgoing message.
+	*
+	* @param from Account the message is send from
+	* @param to Recipient of message
+	* @param message The message itself.
+	* @param item The item that emit event.
+	*
+	* @return The encrypted message.
+	*/
+	QString encryptMessage(const QString& from, const QString& to,
+						   const QString& message, TreeModelItem &item);
 
-    /**
-    * Decrypt an incoming message
-    *
-    * @param from Sender of the message
-    * @param to Account the message is send to.
-    * @param message the mesasge itself.
-    * @param item The item that emit event.
-    *
-    * @return The decrypted message if the original message was encrypted.
-    */
-    QString decryptMessage(const QString& from, const QString& to,
-                           const QString& message, TreeModelItem &item);
+	/**
+	* Decrypt an incoming message
+	*
+	* @param from Sender of the message
+	* @param to Account the message is send to.
+	* @param message the mesasge itself.
+	* @param item The item that emit event.
+	*
+	* @return The decrypted message if the original message was encrypted.
+	*/
+	QString decryptMessage(const QString& from, const QString& to,
+						   const QString& message, TreeModelItem &item);
 
-    /**
-    * Returns a list of known fingerprints.
-    */
-    QList<Fingerprint> getFingerprints();
+	/**
+	* Returns a list of known fingerprints.
+	*/
+	QList<Fingerprint> getFingerprints();
 
-    /**
-    * Set fingerprint verified/not verified.
-    */
-    void verifyFingerprint(const Fingerprint& fingerprint, bool verified);
+	/**
+	* Set fingerprint verified/not verified.
+	*/
+	void verifyFingerprint(const Fingerprint& fingerprint, bool verified);
 
-    /**
-    * Delete a known fingerprint.
-    */
-    void deleteFingerprint(const Fingerprint& fingerprint);
-    void deleteKey(QString account, QString protocol);
+	/**
+	* Delete a known fingerprint.
+	*/
+	void deleteFingerprint(const Fingerprint& fingerprint);
+	void deleteKey(QString account, QString protocol);
 
-    /**
-    * Get hash of fingerprints of own private keys.
-    * Account -> KeyFingerprint
-    */
-    QHash<QString, QHash<QString, QString> > getPrivateKeys();
+	/**
+	* Get hash of fingerprints of own private keys.
+	* Account -> KeyFingerprint
+	*/
+	QHash<QString, QHash<QString, QString> > getPrivateKeys();
 
-    /**
-    * Send an OTR query message from account to jid.
-    */
-    void startSession(const QString& account, const QString& jid, TreeModelItem &item, int pol);
+	/**
+	* Send an OTR query message from account to jid.
+	*/
+	void startSession(const QString& account, const QString& jid, TreeModelItem &item, int pol);
 
-    /**
-    * Send otr-finished message to user.
-    */
-    void endSession(const QString& account, const QString& jid, TreeModelItem &item);
+	/**
+	* Send otr-finished message to user.
+	*/
+	void endSession(const QString& account, const QString& jid, TreeModelItem &item);
 
-    /**
-    * Return the messageState of a context.
-    * i.e. plaintext, encrypted, finished
-    */
-    MessageState getMessageState(const QString& thisJid,
-                                    const QString& remoteJid,
-                                    TreeModelItem &item);
+	/**
+	* Return the messageState of a context.
+	* i.e. plaintext, encrypted, finished
+	*/
+	MessageState getMessageState(const QString& thisJid,
+									const QString& remoteJid,
+									TreeModelItem &item);
 
-    /**
-    * returns the messageState in human-readable string.
-    */
-    QString getMessageStateString(const QString& thisJid,
-                                  const QString& remoteJid,
-                                  TreeModelItem &item);
-    
-    int getMessageStateInt(const QString& thisJid,
-                                  const QString& remoteJid,
-                                  TreeModelItem &item);
+	/**
+	* returns the messageState in human-readable string.
+	*/
+	QString getMessageStateString(const QString& thisJid,
+								  const QString& remoteJid,
+								  TreeModelItem &item);
 
-    /**
-    * Return the secure session id (ssid) for a context
-    */
-    QString getSessionId(const QString& thisJid, const QString& remoteJid, TreeModelItem &item);
+	int getMessageStateInt(const QString& thisJid,
+								  const QString& remoteJid,
+								  TreeModelItem &item);
 
-    /**
-    * Set the default OTR policy.
-    */
-    void setPolicy(Policy policy);
+	/**
+	* Return the secure session id (ssid) for a context
+	*/
+	QString getSessionId(const QString& thisJid, const QString& remoteJid, TreeModelItem &item);
 
-    /**
-    * @return The default OTR policy
-    */
-    Policy getPolicy();
+	/**
+	* Set the default OTR policy.
+	*/
+	void setPolicy(Policy policy);
 
-    // TODO: check this function
-    void requestAuth(TreeModelItem &item, bool agree, QString answer = QString(), QString question = QString());
+	/**
+	* @return The default OTR policy
+	*/
+	Policy getPolicy();
+
+	// TODO: check this function
+	void requestAuth(TreeModelItem &item, bool agree, QString answer = QString(), QString question = QString());
 
 
 private:
-    Policy    m_otrPolicy;
-    OtrInternal* m_impl;
+	Policy    m_otrPolicy;
+	OtrInternal* m_impl;
 };
 
 // ---------------------------------------------------------------------------

@@ -76,7 +76,7 @@ RosterManager::RosterManager()
 	m_quickAnswerGenerator.reset(new QuickAnswerButtonActionGenerator(this, SLOT(onQuickAnswerClicked(QObject*))));
 	//QT_TRANSLATE_NOOP("RosterManager", "Show groups")
 	m_groupGenerator.reset(new ActionGenerator(Icon("view-group"), "Show groups",
-	                                           this, SLOT(onGroupsClicked(QAction*))));
+											   this, SLOT(onGroupsClicked(QAction*))));
 	ServicePointer<QObject> form("ChatForm");
 	if (form) {
 		QMetaObject::invokeMethod(form, "addAction", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_autoReplyGenerator.data()));
@@ -87,7 +87,7 @@ RosterManager::RosterManager()
 		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, m_groupGenerator.data()));
 	}
 	m_settingsItem = new GeneralSettingsItem<Control::SettingsWidget>(
-	                     Settings::Plugin,	QIcon(),
+						 Settings::Plugin,	QIcon(),
 						 QT_TRANSLATE_NOOP("Plugin", "Control"));
 	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
 	Settings::registerItem(m_settingsItem);
@@ -183,7 +183,7 @@ void RosterManager::onAccountCreated(Account *account)
 {
 	if (account->inherits("Jabber::JAccount")) {
 		connect(account, SIGNAL(messageEcnrypted(quint64)),
-		        m_manager, SLOT(onMessageEncrypted(quint64)));
+				m_manager, SLOT(onMessageEncrypted(quint64)));
 	}
 	connectAccount(account);
 	AccountContext &context = m_contexts[account];
@@ -316,17 +316,17 @@ void RosterManager::onGroupsClicked(QAction *action)
 void RosterManager::connectAccount(Account *account)
 {
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-	        SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+			SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
 }
 
 void RosterManager::connectContact(Contact *contact)
 {
 	connect(contact, SIGNAL(nameChanged(QString,QString)),
-	        SLOT(onContactUpdated()));
+			SLOT(onContactUpdated()));
 	connect(contact, SIGNAL(tagsChanged(QStringList,QStringList)),
-	        SLOT(onContactUpdated()));
+			SLOT(onContactUpdated()));
 	connect(contact, SIGNAL(inListChanged(bool)),
-	        SLOT(onContactInListChanged(bool)));
+			SLOT(onContactInListChanged(bool)));
 }
 
 MessageHandler::Result RosterManager::doHandle(Message &message, QString *reason)
@@ -373,9 +373,9 @@ void RosterManager::onStarted()
 	PairStringList oldAccounts;
 	foreach (Protocol *protocol, Protocol::all()) {
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		connect(protocol, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+				SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 	}

@@ -42,12 +42,12 @@
 
 dGlobalHotKey::dGlobalHotKey()
 {
-    qApp->eventDispatcher()->installNativeEventFilter(this);
+	qApp->eventDispatcher()->installNativeEventFilter(this);
 }
 
 dGlobalHotKey::~dGlobalHotKey()
 {
-    qApp->eventDispatcher()->removeNativeEventFilter(this);
+	qApp->eventDispatcher()->removeNativeEventFilter(this);
 }
 
 #if defined( Q_WS_X11 )
@@ -80,10 +80,10 @@ static bool qxt_mac_handler_installed = false;
 
 OSStatus qxt_mac_handle_hot_key( EventHandlerCallRef /* nextHandler */, EventRef event, void *data )
 {
-    Q_UNUSED( data );
-    QAbstractEventDispatcher::instance()->filterEvent( ( void * ) event );
+	Q_UNUSED( data );
+	QAbstractEventDispatcher::instance()->filterEvent( ( void * ) event );
 
-    return noErr;
+	return noErr;
 }
 
 #endif
@@ -121,10 +121,10 @@ bool dGlobalHotKey::eventFilter( void *e )
 
 bool dGlobalHotKey::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
 {
-    Q_UNUSED(eventType);
-    Q_UNUSED(message);
-    Q_UNUSED(result);
-    return false;
+	Q_UNUSED(eventType);
+	Q_UNUSED(message);
+	Q_UNUSED(result);
+	return false;
 }
 
 Q_GLOBAL_STATIC(dGlobalHotKey, dGlobalHotKeySelf)
@@ -226,7 +226,7 @@ quint32 dGlobalHotKey::id( const QString &s )
 	quint32 key, mods;
 	native( s, key, mods );
 
-    return mods ^ key;
+	return mods ^ key;
 }
 
 #if defined( Q_OS_WIN )

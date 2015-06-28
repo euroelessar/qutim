@@ -38,28 +38,28 @@ namespace qutim_sdk_0_3
 {
 
 Account::Account(const QString &id, Protocol *protocol)
-    : Account(*new AccountPrivate(this), protocol)
+	: Account(*new AccountPrivate(this), protocol)
 {
-    d_func()->id = id;
+	d_func()->id = id;
 }
 
 Account::Account(AccountPrivate &p, Protocol *protocol)
 	: MenuController(p, protocol)
 {
-    Q_D(Account);
-    d->protocol = protocol;
-    d->status = Status::instance(Status::Offline, protocol->id().toLatin1());
-    d->userStatus = d->status;
+	Q_D(Account);
+	d->protocol = protocol;
+	d->status = Status::instance(Status::Offline, protocol->id().toLatin1());
+	d->userStatus = d->status;
 
-    // Hack for authorization failed notification,
-    // move once to some plugin
-    connect(this, &Account::disconnected, this, [this] (Status::ChangeReason reason) {
-        if (reason == Status::ByAuthorizationFailed) {
-            NotificationRequest request(Notification::System);
-            request.setText(QT_TRANSLATE_NOOP("Account", "Authorization failed"));
-            request.send();
-        }
-    });
+	// Hack for authorization failed notification,
+	// move once to some plugin
+	connect(this, &Account::disconnected, this, [this] (Status::ChangeReason reason) {
+		if (reason == Status::ByAuthorizationFailed) {
+			NotificationRequest request(Notification::System);
+			request.setText(QT_TRANSLATE_NOOP("Account", "Authorization failed"));
+			request.send();
+		}
+	});
 }
 
 Account::~Account()
@@ -116,18 +116,18 @@ Account::State Account::state() const
 
 void Account::connectToServer()
 {
-    Q_D(Account);
+	Q_D(Account);
 
 	switch (d->state) {
-    case Disconnected:
+	case Disconnected:
 		setState(Connecting);
 		doConnectToServer();
 		break;
-    case Connecting:
+	case Connecting:
 		break;
-    case Connected:
+	case Connected:
 		break;
-    case Disconnecting:
+	case Disconnecting:
 		setState(Connecting);
 		doConnectToServer();
 		break;
@@ -156,7 +156,7 @@ void Account::disconnectFromServer()
 
 void Account::setState(Account::State state, Status::ChangeReason reason)
 {
-    Q_D(Account);
+	Q_D(Account);
 
 	if (d->state != state) {
 		d->state = state;
@@ -198,20 +198,20 @@ void AccountPrivate::setStatus(const Status &newStatus)
 
 void Account::setUserStatus(const Status &userStatus)
 {
-    Q_D(Account);
+	Q_D(Account);
 
 	Status oldUserStatus = d->userStatus;
 	d->userStatus = userStatus;
-    emit userStatusChanged(userStatus, oldUserStatus);
+	emit userStatusChanged(userStatus, oldUserStatus);
 
 	const bool oldOffline = oldUserStatus == Status::Offline;
 	const bool newOffline = userStatus == Status::Offline;
 
-    if (oldOffline && !newOffline) {
+	if (oldOffline && !newOffline) {
 		// Go online
 		if (state() == Disconnected)
 			connectToServer();
-    } else if (!oldOffline && newOffline) {
+	} else if (!oldOffline && newOffline) {
 		// Go offline
 		if (state() == Connected || state() == Connecting)
 			disconnectFromServer();
@@ -253,11 +253,11 @@ QObject *Account::feature(const QMetaObject *meta)
 	if (name.isEmpty()) {
 		qWarning() << "Feature name is missed at class:" << meta->className();
 		return nullptr;
-    }
+	}
 
-    AccountInterface result = d->interfaces.value(name);
-    qDebug() << "Found" << result.object << "as" << name << "for" << this;
-    return result.object;
+	AccountInterface result = d->interfaces.value(name);
+	qDebug() << "Found" << result.object << "as" << name << "for" << this;
+	return result.object;
 }
 
 void Account::setFeature(const QMetaObject *meta, QObject *feature)
@@ -273,10 +273,10 @@ void Account::setFeature(const QMetaObject *meta, QObject *feature)
 
 	qDebug() << "Setting" << feature << "as" << name << "for" << this;
 
-    AccountInterface &current = d->interfaces[name];
-    std::swap(current.object, feature);
+	AccountInterface &current = d->interfaces[name];
+	std::swap(current.object, feature);
 
-    emit featureChanged(name, current.object);
+	emit featureChanged(name, current.object);
 }
 
 GroupChatManager *Account::groupChatManager()

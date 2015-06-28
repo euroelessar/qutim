@@ -51,10 +51,10 @@ LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
 namespace Core
 {
 ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
-    QWizardPage(parent),
+	QWizardPage(parent),
 	ui(new Ui::ProfileCreationPage),m_is_valid(false)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	qDebug("%s???", Q_FUNC_INFO);
 	QDir dir = QApplication::applicationDirPath();
 	QFileInfo dirInfo = dir.absolutePath();
@@ -110,7 +110,7 @@ void ProfileCreationPage::initializePage()
 			}
 		}
 	}
-    Q_ASSERT_X(ui->cryptoBox->count() > 0, "ProfileCreationPage::initializePage", "Have not been found any crypto plugin");
+	Q_ASSERT_X(ui->cryptoBox->count() > 0, "ProfileCreationPage::initializePage", "Have not been found any crypto plugin");
 	first = true;
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<ConfigBackend>()) {
 		const ExtensionInfo info = gen->info();
@@ -127,7 +127,7 @@ void ProfileCreationPage::initializePage()
 
 ProfileCreationPage::~ProfileCreationPage()
 {
-    delete ui;
+	delete ui;
 }
 
 bool ProfileCreationPage::createDirs(QString &path)
@@ -211,7 +211,7 @@ bool ProfileCreationPage::validatePage()
 			configBackends.append(backend);
 	}
 	debugClearConfig();
-	
+
 	m_is_valid = true;
 	return true;
 }
@@ -286,14 +286,14 @@ void ProfileCreationPage::rebaseDirs()
 
 void ProfileCreationPage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 void ProfileCreationPage::onPathSelectTriggered()

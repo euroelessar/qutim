@@ -41,7 +41,7 @@ class SqlEngine;
 
 class HistoryWindow : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	HistoryWindow(const TreeModelItem &item, SqlEngine *engine, QWidget *parent = 0);
@@ -58,13 +58,13 @@ private slots:
   void clearSelectedItems();
   void deleteDay();
   void itemClicked(QTreeWidgetItem * item, int  );
-    
+
 private:
 	void fillAccountComboBox();
 	void setIcons();
 	Ui::HistoryWindowClass ui;
 	qutim_sdk_0_3::TreeModelItem m_item;
-    QString m_history_path;
+	QString m_history_path;
 	QString m_search_word;
 	SqlEngine *m_engine;
 	QAction *deleteCurrentAction;

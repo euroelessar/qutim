@@ -77,29 +77,29 @@ static ModuleManagerPrivate *d = NULL;
 
 ExtensionInfoList extensionList()
 {
-    return (managerSelf && d && d->is_inited) ? d->extensions : ExtensionInfoList();
+	return (managerSelf && d && d->is_inited) ? d->extensions : ExtensionInfoList();
 }
 
 QList<QPointer<Plugin> > pluginsList()
 {
-    return (managerSelf && d && d->is_inited) ? d->plugins : QList<QPointer<Plugin> >();
+	return (managerSelf && d && d->is_inited) ? d->plugins : QList<QPointer<Plugin> >();
 }
 
 bool isCoreInited()
 {
-    return managerSelf && d && d->is_inited;
+	return managerSelf && d && d->is_inited;
 }
 
 GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
 {
 	Q_ASSERT((module == 0) ^ (iid == 0));
 	GeneratorList list;
-    if (!managerSelf || !d)
+	if (!managerSelf || !d)
 		return list;
 	if (module && !iid)
 		iid = module->className();
 	const QByteArray id = QByteArray::fromRawData(iid, qstrlen(iid));
-    ExtensionNode *node = d->nodes.value(id);
+	ExtensionNode *node = d->nodes.value(id);
 	if (!node)
 		return list;
 	// BFS
@@ -122,21 +122,21 @@ GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
 
 ProtocolHash allProtocols()
 {
-    ProtocolHash map;
+	ProtocolHash map;
 	if(ObjectGenerator::isInited())
-        map = d->protocols;
+		map = d->protocols;
 	return map;
 }
 
 static ExtensionNode *ensureNode(const QMetaObject *meta)
 {
 	QByteArray id = QByteArray::fromRawData(meta->className(), qstrlen(meta->className()));
-    ExtensionNodeHash::Iterator it = d->nodes.find(id);
-    if (it != d->nodes.end())
+	ExtensionNodeHash::Iterator it = d->nodes.find(id);
+	if (it != d->nodes.end())
 		return it.value();
 	ExtensionNode *parent = meta->superClass() ? ensureNode(meta->superClass()) : 0;
 	id.detach();
-    ExtensionNode *node = d->nodes.insert(id, new ExtensionNode).value();
+	ExtensionNode *node = d->nodes.insert(id, new ExtensionNode).value();
 	if (parent)
 		parent->children << node;
 	return node;
@@ -144,10 +144,10 @@ static ExtensionNode *ensureNode(const QMetaObject *meta)
 
 static ExtensionNode *ensureNode(const QByteArray &id)
 {
-    ExtensionNodeHash::Iterator it = d->nodes.find(id);
-    if (it != d->nodes.end())
+	ExtensionNodeHash::Iterator it = d->nodes.find(id);
+	if (it != d->nodes.end())
 		return it.value();
-    return d->nodes.insert(id, new ExtensionNode).value();
+	return d->nodes.insert(id, new ExtensionNode).value();
 }
 
 static void addExtension(const ExtensionInfo &info)
@@ -297,7 +297,7 @@ ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	qRegisterMetaType<QObject*>();
 	qRegisterMetaType<QAction*>("QAction*");
 	qRegisterMetaTypeStreamOperators<Status>();
-    d = new ModuleManagerPrivate;
+	d = new ModuleManagerPrivate;
 	AccountManagerPrivate::self = &d->accountManager;
 	managerSelf = this;
 	qApp->setApplicationName("qutIM");
@@ -360,7 +360,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #else
 	bool singleInstance = parser.isSet("single-instance");
 #endif
-	
+
 	if (singleInstance) {
 		messageToServer = QLatin1String("arguments: ");
 		QByteArray data;
@@ -410,21 +410,21 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	}
 
 #endif
-	
+
 	// Static plugins
 	foreach (QObject *object, QPluginLoader::staticInstances()) {
 		if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 			plugin->init();
-            if (plugin->p->validate()) {
-                plugin->p->info.data()->inited = 1;
-                d->plugins.append(plugin);
-                d->extensions << plugin->avaiableExtensions();
+			if (plugin->p->validate()) {
+				plugin->p->info.data()->inited = 1;
+				d->plugins.append(plugin);
+				d->extensions << plugin->avaiableExtensions();
 			}
 		}
 	}
 
 	QStringList paths;
-    d->extensions << coreExtensions();
+	d->extensions << coreExtensions();
 
 	paths = additional_paths;
 	QDir root_dir = QApplication::applicationDirPath();
@@ -525,7 +525,7 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #ifdef QUTIM_TEST_PERFOMANCE
 				instanceTime = timer.elapsed(); timer.restart();
 #endif // QUTIM_TEST_PERFOMANCE
-				
+
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 					if (debugId)
 						debugAddPluginId(debugId, plugin->metaObject());
@@ -533,23 +533,23 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 #ifdef QUTIM_TEST_PERFOMANCE
 					initTime = timer.elapsed();
 					qDebug() << files[i].fileName();
-                    qDebug() << "load:" << libLoadTime << "ms, verify:" << verifyTime
+					qDebug() << "load:" << libLoadTime << "ms, verify:" << verifyTime
 							<< "ms, instance:" << instanceTime << "ms, init:" << initTime << "ms";
 #endif // QUTIM_TEST_PERFOMANCE
-                    if (plugin->p->validate()) {
-                        PluginInfo::Data *info = plugin->p->info.data();
-                        info->inited = 1;
-                        info->fileName = filename;
-                        QFileInfo fileInfo = info->fileName;
-                        QString baseName = fileInfo.baseName();
-                        if (baseName.startsWith(QStringLiteral("lib")))
-                            baseName.remove(0, 3);
-                        info->libraryName = baseName;
+					if (plugin->p->validate()) {
+						PluginInfo::Data *info = plugin->p->info.data();
+						info->inited = 1;
+						info->fileName = filename;
+						QFileInfo fileInfo = info->fileName;
+						QString baseName = fileInfo.baseName();
+						if (baseName.startsWith(QStringLiteral("lib")))
+							baseName.remove(0, 3);
+						info->libraryName = baseName;
 
-                        d->plugins.append(plugin);
-                        d->extensions << plugin->avaiableExtensions();
+						d->plugins.append(plugin);
+						d->extensions << plugin->avaiableExtensions();
 						foreach(ExtensionInfo info, plugin->avaiableExtensions())
-                            d->extsPlugins.insert(info.name(), plugin);
+							d->extsPlugins.insert(info.name(), plugin);
 					} else {
 						delete object;
 					}
@@ -606,9 +606,9 @@ void ModuleManager::loadPlugins(const QStringList &additional_paths)
 //	}
 #endif // NO_COMMANDS
 
-    foreach (const ExtensionInfo &info, d->extensions) {
+	foreach (const ExtensionInfo &info, d->extensions) {
 		addExtension(info);
-        d->extensionsHash.insert(info.generator()->metaObject()->className(), info);
+		d->extensionsHash.insert(info.generator()->metaObject()->className(), info);
 	}
 }
 
@@ -616,7 +616,7 @@ ExtensionInfoList ModuleManager::extensions(const char *iid) const
 {
 	ExtensionInfoList list;
 	const QByteArray id = QByteArray::fromRawData(iid, qstrlen(iid));
-    ExtensionNode *node = d->nodes.value(id);
+	ExtensionNode *node = d->nodes.value(id);
 	if (!node)
 		return list;
 	// BFS
@@ -684,14 +684,14 @@ void ModuleManager::initExtensions()
 	Config pluginsConfig;
 	pluginsConfig.beginGroup("plugins/list");
 	{
-        foreach (QPointer<Plugin> plugin, d->plugins) {
-            if (!pluginsConfig.value(plugin.data()->metaObject()->className(), true))
-                disabledPlugins << plugin.data()->info().data();
+		foreach (QPointer<Plugin> plugin, d->plugins) {
+			if (!pluginsConfig.value(plugin.data()->metaObject()->className(), true))
+				disabledPlugins << plugin.data()->info().data();
 		}
-        for (int i = 0; i < d->extensions.size(); i++) {
-            PluginInfo::Data *data = d->extensions.at(i).data()->plugin.data();
+		for (int i = 0; i < d->extensions.size(); i++) {
+			PluginInfo::Data *data = d->extensions.at(i).data()->plugin.data();
 			if (disabledPlugins.contains(data)) {
-                d->extensions.removeAt(i);
+				d->extensions.removeAt(i);
 				i--;
 				break;
 			}
@@ -700,7 +700,7 @@ void ModuleManager::initExtensions()
 
 	QSet<QByteArray> usedExtensions;
 	{
-        const QHash<QByteArray, ExtensionInfo> &extsHash = d->extensionsHash;
+		const QHash<QByteArray, ExtensionInfo> &extsHash = d->extensionsHash;
 		ConfigGroup group = Config().group("protocols");
 		QVariantMap selected = group.value("list", QVariantMap());
 		QVariantMap::const_iterator it = selected.constBegin();
@@ -723,7 +723,7 @@ void ModuleManager::initExtensions()
 				choosedProtocols.insert(it.key());
 				usedExtensions << meta->className();
 
-                connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
+				connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
 			}
 		}
 		const ExtensionInfoList exts = extensions(Protocol::staticMetaObject.className()); //p->extensions;
@@ -732,7 +732,7 @@ void ModuleManager::initExtensions()
 			const ObjectGenerator *gen = it2->generator();
 			const QMetaObject *meta = gen->metaObject();
 			QString name = QLatin1String(MetaObjectBuilder::info(meta, "Protocol"));
-            if (name.isEmpty() || choosedProtocols.contains(name))
+			if (name.isEmpty() || choosedProtocols.contains(name))
 				continue;
 			Protocol *protocol = gen->generate<Protocol>();
 			AccountManagerPrivate::getPrivate(&d->accountManager)->addProtocol(protocol);
@@ -740,18 +740,18 @@ void ModuleManager::initExtensions()
 			usedExtensions << meta->className();
 			selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
 
-            connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
+			connect(protocol, SIGNAL(destroyed(QObject*)), this, SLOT(_q_protocolDestroyed(QObject*)));
 		}
 
 		group.setValue("list", selected);
 	}
-    d->is_inited = true;
-    for (int i = 0; i < d->extensions.size(); i++) {
-        const QMetaObject *meta = d->extensions.at(i).generator()->metaObject();
+	d->is_inited = true;
+	for (int i = 0; i < d->extensions.size(); i++) {
+		const QMetaObject *meta = d->extensions.at(i).generator()->metaObject();
 		for (int j = 0; j < meta->classInfoCount(); j++) {
 			QMetaClassInfo info = meta->classInfo(j);
 			if (!qstrcmp(info.name(), "DependsOn") && !usedExtensions.contains(info.value())) {
-                d->extensions.removeAt(i);
+				d->extensions.removeAt(i);
 				i--;
 				break;
 			}
@@ -793,8 +793,8 @@ void ModuleManager::initExtensions()
 	if (MetaContactManager *manager = MetaContactManager::instance())
 		manager->loadContacts();
 
-    for (int i = 0; i < d->plugins.size(); i++) {
-        Plugin *plugin = d->plugins.at(i).data();
+	for (int i = 0; i < d->plugins.size(); i++) {
+		Plugin *plugin = d->plugins.at(i).data();
 		//			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
 		if (plugin && !disabledPlugins.contains(plugin->info().data())) {
 			if (plugin->info().capabilities() & Plugin::Loadable) {
@@ -820,7 +820,7 @@ void ModuleManager::initExtensions()
 						if (!pluginsConfig.value(subPlugin->metaObject()->className(), true))
 							disabledPlugins << subPlugin->info().data();
 						subPlugin->init();
-                        d->plugins << subPlugin;
+						d->plugins << subPlugin;
 					}
 				}
 			}
@@ -841,22 +841,22 @@ void ModuleManager::onQuit()
 	}
 
 	Event("aboutToQuit").send();
-    foreach(QPointer<Plugin> plugin, d->plugins) {
-        if (!plugin.isNull() && plugin.data()->info().data()->loaded) {
-            plugin.data()->unload();
+	foreach(QPointer<Plugin> plugin, d->plugins) {
+		if (!plugin.isNull() && plugin.data()->info().data()->loaded) {
+			plugin.data()->unload();
 		}
-        delete plugin.data();
+		delete plugin.data();
 	}
 	ServiceManagerPrivate::get(ServiceManager::instance())->deinit();
 
-    foreach (QString key, d->protocols.keys())
-        d->protocols.take(key)->deleteLater();
+	foreach (QString key, d->protocols.keys())
+		d->protocols.take(key)->deleteLater();
 }
 
 void ModuleManager::_q_protocolDestroyed(QObject *obj)
 {
-    QString key = d->protocols.key(static_cast<Protocol*>(obj));
-    d->protocols.remove(key);
+	QString key = d->protocols.key(static_cast<Protocol*>(obj));
+	d->protocols.remove(key);
 }
 
 void ModuleManager::virtual_hook(int id, void *data)

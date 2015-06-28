@@ -31,7 +31,7 @@ namespace qutim_sdk_0_3
 {
 ScriptInfoRequest::ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error,
 									 InfoRequest *parent)
-    : QObject(parent), m_func(func), m_error(error)
+	: QObject(parent), m_func(func), m_error(error)
 {
 	if (!parent) {
 		debug() << Q_FUNC_INFO;

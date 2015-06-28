@@ -40,9 +40,9 @@ bool FormulaPlugin::load()
 {
 	m_handler.reset(new FormulaHandler);
 	MessageHandler::registerHandler(m_handler.data(),
-	                                QLatin1String("Formula"),
-	                                qutim_sdk_0_3::MessageHandler::HighPriority - 0x100,
-								    qutim_sdk_0_3::MessageHandler::HighPriority - 0x100);
+									QLatin1String("Formula"),
+									qutim_sdk_0_3::MessageHandler::HighPriority - 0x100,
+									qutim_sdk_0_3::MessageHandler::HighPriority - 0x100);
 	return true;
 }
 

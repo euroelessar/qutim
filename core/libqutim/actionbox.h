@@ -51,7 +51,7 @@ private:
 
 class LIBQUTIM_EXPORT ActionBoxModule : public QWidget
 {
-	Q_OBJECT	
+	Q_OBJECT
 public:
 	virtual void addAction(QAction *) = 0;
 	virtual void removeAction(QAction *) = 0;

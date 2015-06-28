@@ -30,13 +30,13 @@
 
 class ContactListPlainModel : public ContactListBaseModel
 {
-    Q_OBJECT
-    Q_CLASSINFO("SettingsDescription", "Show only contacts")
+	Q_OBJECT
+	Q_CLASSINFO("SettingsDescription", "Show only contacts")
 public:
-    explicit ContactListPlainModel(QObject *parent = 0);
+	explicit ContactListPlainModel(QObject *parent = 0);
 
-    virtual void addContact(qutim_sdk_0_3::Contact *contact);
-    virtual void removeContact(qutim_sdk_0_3::Contact *contact);
+	virtual void addContact(qutim_sdk_0_3::Contact *contact);
+	virtual void removeContact(qutim_sdk_0_3::Contact *contact);
 };
 
 #endif // CONTACTLISTPLAINMODEL_H

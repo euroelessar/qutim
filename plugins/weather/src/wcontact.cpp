@@ -28,7 +28,7 @@
 #include <qutim/servicemanager.h>
 
 WContact::WContact(const QString &code, const QString &name, Account *account)
-    : Contact(account)
+	: Contact(account)
 {
 	m_city = code;
 	m_name = name;
@@ -40,8 +40,8 @@ WContact::WContact(const QString &code, const QString &name, Account *account)
 
 	addToList();
 	QMetaObject::invokeMethod(ServiceManager::getByName("ContactList"),
-	                          "addContact",
-	                          Q_ARG(qutim_sdk_0_3::Contact*, this));
+							  "addContact",
+							  Q_ARG(qutim_sdk_0_3::Contact*, this));
 }
 
 WContact::~WContact()

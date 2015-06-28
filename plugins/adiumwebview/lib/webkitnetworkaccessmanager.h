@@ -33,13 +33,13 @@ class QUrl;
 
 class ADIUMWEBVIEW_EXPORT WebKitNetworkAccessManager : public QNetworkAccessManager
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit WebKitNetworkAccessManager(QObject *parent = 0);
-	
+	explicit WebKitNetworkAccessManager(QObject *parent = 0);
+
 protected:
-    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request,
-                                         QIODevice *outgoingData = 0);
+	virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &request,
+										 QIODevice *outgoingData = 0);
 private:
 	void fixLocalUrl(QUrl &url);
 };

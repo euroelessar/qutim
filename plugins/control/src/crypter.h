@@ -38,13 +38,13 @@ namespace Control {
 class Crypter
 {
 public:
-    Crypter(const QByteArray &key);
-    ~Crypter();
+	Crypter(const QByteArray &key);
+	~Crypter();
 
-    QByteArray encode(const QByteArray &data, bool *ok) const;
+	QByteArray encode(const QByteArray &data, bool *ok) const;
 
 private:
-    QScopedPointer<QCA::SymmetricKey> m_key;
+	QScopedPointer<QCA::SymmetricKey> m_key;
 };
 
 } // namespace Control

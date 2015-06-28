@@ -32,13 +32,13 @@ using namespace qutim_sdk_0_3;
 
 class MrimPlugin : public Plugin
 {
-    Q_OBJECT
-    Q_CLASSINFO("DebugName","MRIM")
+	Q_OBJECT
+	Q_CLASSINFO("DebugName","MRIM")
 public:
-    MrimPlugin();
-    void init();
-    bool load();
-    bool unload();
+	MrimPlugin();
+	void init();
+	bool load();
+	bool unload();
 };
 
 #endif // MRIMPLUGIN_H

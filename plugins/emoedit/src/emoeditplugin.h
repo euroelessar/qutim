@@ -45,8 +45,8 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-    virtual QSizeF intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format);
-    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc,
+	virtual QSizeF intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format);
+	virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc,
 							int posInDocument, const QTextFormat &format);
 protected slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);

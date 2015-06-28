@@ -32,8 +32,8 @@
 class Utils
 {
 public:
-    static QString stripEmail(const QString& email);
-    static QString toHostPortPair(const QHostAddress& host, quint32 port);
+	static QString stripEmail(const QString& email);
+	static QString toHostPortPair(const QHostAddress& host, quint32 port);
 };
 
 #include "mrimdebug.h"

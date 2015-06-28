@@ -71,7 +71,7 @@ class ChatEdit;
 class ConferenceContactsView;
 class StackedChatWidget : public AbstractChatWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	StackedChatWidget(const QString &key = QString(),QWidget *parent = 0);
 	virtual void addAction(ActionGenerator *gen);

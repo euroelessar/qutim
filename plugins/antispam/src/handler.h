@@ -37,7 +37,7 @@ class Handler : public QObject, public qutim_sdk_0_3::MessageHandler
 {
 	Q_OBJECT
 public:
-    explicit Handler();
+	explicit Handler();
 
 public slots:
 	void loadSettings();

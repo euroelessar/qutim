@@ -79,7 +79,7 @@ public:
 		if (m_action)
 			m_action.data()->setVisible(!m_proto->accounts().isEmpty());
 	}
-	
+
 	void showImpl(QAction *, QObject *)
 	{
 		ensureVisibility();
@@ -97,7 +97,7 @@ void StatusAction::onStatusChanged(Status status)
 
 StatusAction::StatusAction(QObject* parent): QAction(parent)
 {
-	
+
 }
 
 class AccountMenuActionGenerator : public ActionGenerator
@@ -109,7 +109,7 @@ public:
 		m_account = account;
 		setType(-1);
 	}
-	
+
 	virtual QObject *generateHelper() const
 	{
 		StatusAction *action = new StatusAction(0);
@@ -132,7 +132,7 @@ using namespace KdeIntegration;
 KdeTrayIcon::KdeTrayIcon(QObject *parent) :
 	MenuController(parent),
 	NotificationBackend("Tray"),
-    m_currentIcon(QIcon())
+	m_currentIcon(QIcon())
 {
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	setMenuOwner(qobject_cast<MenuController*>(contactList));
@@ -146,7 +146,7 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) :
 	m_item = new KdeStatusNotifierItem(this);
 	m_item->setStandardActionsEnabled(false);
 	m_item->setStatus(KStatusNotifierItem::Active);
-	
+
 	QMap<QString, Protocol*> protocols;
 	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);
@@ -165,7 +165,7 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) :
 		foreach (Account *account, m_protocols.at(i)->accounts())
 			onAccountCreated(account);
 	}
-	
+
 	m_item->setCategory(KStatusNotifierItem::Communications);
 	//	if (contactList) {
 	//		QWidget *widget = contactList->property("widget").value<QWidget*>();
@@ -173,8 +173,8 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) :
 	//	}
 	m_item->setContextMenu(kmenu);
 	debug() << KIconLoader::global()->iconPath(ICON_ONLINE, KIconLoader::Panel)
-	        << KIconLoader::global()->iconPath(ICON_OFFLINE, KIconLoader::Panel)
-	        << KIconLoader::global()->iconPath(ICON_NEW_MESSAGE, KIconLoader::Panel);
+			<< KIconLoader::global()->iconPath(ICON_OFFLINE, KIconLoader::Panel)
+			<< KIconLoader::global()->iconPath(ICON_NEW_MESSAGE, KIconLoader::Panel);
 	m_item->setIconByName(ICON_OFFLINE);
 	m_item->setAttentionIconByName(ICON_NEW_MESSAGE);
 	qApp->setQuitOnLastWindowClosed(false);
@@ -218,7 +218,7 @@ void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
 	m_actions.insert(account, gen);
 	addAction(gen);
 	connect(account, SIGNAL(destroyed(QObject*)),
-	        SLOT(onAccountDestroyed(QObject*)));
+			SLOT(onAccountDestroyed(QObject*)));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(validateIcon()));
 	validateIcon();

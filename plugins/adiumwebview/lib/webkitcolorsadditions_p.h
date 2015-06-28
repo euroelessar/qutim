@@ -31,7 +31,7 @@
 
 class WebKitColorsAdditions
 {
-    WebKitColorsAdditions();
+	WebKitColorsAdditions();
 public:
 	static QString representedColorForObject(const QString &object, const QStringList &colors);
 };

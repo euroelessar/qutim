@@ -30,10 +30,10 @@
 
 class KdeSystemIntegration : public qutim_sdk_0_3::SystemIntegration
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    KdeSystemIntegration();
-	
+	KdeSystemIntegration();
+
 	virtual void init();
 	virtual bool isAvailable() const;
 	virtual int priority();

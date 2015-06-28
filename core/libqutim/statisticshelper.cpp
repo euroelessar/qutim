@@ -46,7 +46,7 @@ public:
 	void init();
 	void sendInfo();
 	void _q_on_finished();
-	
+
 	StatisticsHelper *q_ptr;
 	QVariantMap systemInfo;
 	StatisticsHelper::Action action;
@@ -65,7 +65,7 @@ void StatisticsHelperPrivate::init()
 	systemInfo.insert(QLatin1String("width"), QString::number(size.width()));
 	systemInfo.insert(QLatin1String("height"), QString::number(size.height()));
 	systemInfo.insert(QLatin1String("locale"), QLocale::system().name());
-	
+
 	Config config = Profile::instance()->config();
 	config.beginGroup(QLatin1String("statistics"));
 	bool denied = config.value(QLatin1String("denied"), false);
@@ -80,7 +80,7 @@ void StatisticsHelperPrivate::init()
 		return;
 	}
 	for (QVariantMap::ConstIterator it = systemInfo.constBegin();
-	     it != systemInfo.constEnd(); ++it) {
+		 it != systemInfo.constEnd(); ++it) {
 		if (config.value(it.key(), QString()) != it.value().toString()) {
 			if (automatic) {
 				sendInfo();
@@ -96,7 +96,7 @@ void StatisticsHelperPrivate::init()
 
 void StatisticsHelperPrivate::sendInfo()
 {
-    QUrl url(QStringLiteral("http://qutim.org/stats"));
+	QUrl url(QStringLiteral("http://qutim.org/stats"));
 	QUrlQuery query;
 	Config config = Profile::instance()->config();
 	config.beginGroup(QLatin1String("statistics"));
@@ -105,12 +105,12 @@ void StatisticsHelperPrivate::sendInfo()
 	if (!id.isEmpty())
 		query.addQueryItem(QLatin1String("key"), id);
 	for (QVariantMap::ConstIterator it = systemInfo.constBegin();
-	     it != systemInfo.constEnd(); ++it) {
+		 it != systemInfo.constEnd(); ++it) {
 		query.addQueryItem(it.key(), it.value().toString());
 	}
-    url.setQuery(query);
+	url.setQuery(query);
 	QObject::connect(manager.get(QNetworkRequest(url)), SIGNAL(finished()),
-	                 q_func(), SLOT(_q_on_finished()));
+					 q_func(), SLOT(_q_on_finished()));
 }
 
 void StatisticsHelperPrivate::_q_on_finished()
@@ -124,7 +124,7 @@ void StatisticsHelperPrivate::_q_on_finished()
 			config.beginGroup(QLatin1String("statistics"));
 			config.setValue(QLatin1String("key"), key);
 			for (QVariantMap::ConstIterator it = systemInfo.constBegin();
-			     it != systemInfo.constEnd(); ++it) {
+				 it != systemInfo.constEnd(); ++it) {
 				config.setValue(it.key(), it.value());
 			}
 		}
@@ -133,7 +133,7 @@ void StatisticsHelperPrivate::_q_on_finished()
 }
 
 StatisticsHelper::StatisticsHelper(QObject *parent) :
-    QObject(parent), d_ptr(new StatisticsHelperPrivate(this))
+	QObject(parent), d_ptr(new StatisticsHelperPrivate(this))
 {
 	Q_D(StatisticsHelper);
 	d->init();
@@ -147,21 +147,21 @@ QString StatisticsHelper::infoHtml() const
 {
 	QRect size = qApp->desktop()->screenGeometry();
 	return tr("<b>Short:</b> %1 <br />"
-	          "<b>Version:</b> %2 <br />"
-	          "<b>Full:</b> %3 <br />"
-	          "<b>qutIM Version:</b> %4 <br />"
-	          "<b>Qt Version:</b> %5 (%6 bit) <br />"
-	          "<b>Screen resolution:</b> %7 x %8 <br />"
-	          "<b>System locale:</b> %9<br />"
-	          ).arg(SystemInfo::getName())
-	        .arg(SystemInfo::getVersion())
-	        .arg(SystemInfo::getFullName())
-	        .arg(QLatin1String(versionString()))
-	        .arg(QLatin1String(qVersion()))
-	        .arg(QString::number(QSysInfo::WordSize))
-	        .arg(size.width())
-	        .arg(size.height())
-	        .arg(QLocale::system().name());
+			  "<b>Version:</b> %2 <br />"
+			  "<b>Full:</b> %3 <br />"
+			  "<b>qutIM Version:</b> %4 <br />"
+			  "<b>Qt Version:</b> %5 (%6 bit) <br />"
+			  "<b>Screen resolution:</b> %7 x %8 <br />"
+			  "<b>System locale:</b> %9<br />"
+			  ).arg(SystemInfo::getName())
+			.arg(SystemInfo::getVersion())
+			.arg(SystemInfo::getFullName())
+			.arg(QLatin1String(versionString()))
+			.arg(QLatin1String(qVersion()))
+			.arg(QString::number(QSysInfo::WordSize))
+			.arg(size.width())
+			.arg(size.height())
+			.arg(QLocale::system().name());
 }
 
 StatisticsHelper::Action StatisticsHelper::action() const

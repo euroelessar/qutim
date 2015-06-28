@@ -48,9 +48,9 @@
 template <>
 void qScriptValueToSequence<QSet<QString> >(const QScriptValue &value, QSet<QString> &cont)
 {
-    quint32 len = value.property(QLatin1String("length")).toUInt32();
-    for (quint32 i = 0; i < len; ++i) {
-        QScriptValue item = value.property(i);
+	quint32 len = value.property(QLatin1String("length")).toUInt32();
+	for (quint32 i = 0; i < len; ++i) {
+		QScriptValue item = value.property(i);
 		cont.insert(item.toString());
 	}
 }
@@ -107,7 +107,7 @@ QScriptValue scriptSettingsRegister(QScriptContext *ctxt, QScriptEngine *e)
 	//		settingsItem->connect(SIGNAL(saved()), helper, SLOT(onSaved()));
 	//		qScriptConnect(helper, SIGNAL(saved()), item, onSaved);
 	//	}
-	
+
 	//	QScriptValue entries = item.property("entries");
 	//    quint32 len = entries.property(QLatin1String("length")).toUInt32();
 	//    for (quint32 i = 0; i < len; ++i) {
@@ -219,7 +219,7 @@ void scriptRegisterEnum(QScriptEngine *engine)
 }
 
 ScriptExtensionPlugin::ScriptExtensionPlugin(QObject *parent)
-    : QScriptExtensionPlugin(parent)
+	: QScriptExtensionPlugin(parent)
 {
 	debug() << Q_FUNC_INFO;
 }
@@ -277,7 +277,7 @@ public:
 	{
 		qRegisterStaticPluginInstanceFunction(createInstance);
 	}
-	
+
 	static QObject *createInstance()
 	{
 		static QPointer<QObject> instance;

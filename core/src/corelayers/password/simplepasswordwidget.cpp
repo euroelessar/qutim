@@ -34,7 +34,7 @@ SimplePasswordWidget::SimplePasswordWidget(Account *account, SimplePasswordDialo
 	ui->setupUi(this);
 	if (account) {
 		ui->label->setText(tr("Enter password for account %1 (%2):")
-		                   .arg(account->id(), account->protocol()->id()));
+						   .arg(account->id(), account->protocol()->id()));
 	}
 	connect(this, SIGNAL(accepted()), this, SLOT(onAccept()));
 	connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
@@ -47,7 +47,7 @@ SimplePasswordWidget::SimplePasswordWidget(Account *account, SimplePasswordDialo
 
 SimplePasswordWidget::~SimplePasswordWidget()
 {
-    delete ui;
+	delete ui;
 }
 
 void SimplePasswordWidget::setValidator(QValidator *validator)
@@ -74,18 +74,18 @@ void SimplePasswordWidget::setText(const QString &title, const QString &descript
 
 void SimplePasswordWidget::changeEvent(QEvent *e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
+	QDialog::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
 		if (m_account) {
 			ui->label->setText(tr("Enter password for account %1 (%2):")
-			                   .arg(m_account->id(), m_account->protocol()->id()));
+							   .arg(m_account->id(), m_account->protocol()->id()));
 		}
-        break;
-    default:
-        break;
-    }
+		break;
+	default:
+		break;
+	}
 }
 
 void SimplePasswordWidget::onAccept()

@@ -50,9 +50,9 @@ using namespace Attica;
 void PackageManagerPlugin::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Package manager"),
-	        QT_TRANSLATE_NOOP("Plugin", "Provides possibility to Get Hot New Stuff from open community"),
-	        PLUGIN_VERSION(0, 0, 0, 1),
-	        ExtensionIcon());
+			QT_TRANSLATE_NOOP("Plugin", "Provides possibility to Get Hot New Stuff from open community"),
+			PLUGIN_VERSION(0, 0, 0, 1),
+			ExtensionIcon());
 	setCapabilities(Loadable);
 	addAuthor(QLatin1String("euroelessar"));
 //	addAuthor(QLatin1String("sauron"));
@@ -62,8 +62,8 @@ void PackageManagerPlugin::init()
 bool PackageManagerPlugin::load()
 {
 	m_gen = new ActionGenerator(qutim_sdk_0_3::Icon("download"),
-	                            QT_TRANSLATE_NOOP("PackageManager", "Manage packages"),
-	                            this, SLOT(onManagerButtonClicked()));
+								QT_TRANSLATE_NOOP("PackageManager", "Manage packages"),
+								this, SLOT(onManagerButtonClicked()));
 	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList"))
 		menu->addAction(m_gen);
 //	m_emoticonsEngine = new PackageEngine(QStringList(QLatin1String("Emoticon Theme")),
@@ -84,8 +84,8 @@ bool PackageManagerPlugin::unload()
 void PackageManagerPlugin::onManagerButtonClicked()
 {
 	QDialog *dialog = new PackageDownloadDialog(QStringList(QLatin1String("Emoticon Theme")),
-	                                            QLatin1String("emoticons"));
-    SystemIntegration::show(dialog);
+												QLatin1String("emoticons"));
+	SystemIntegration::show(dialog);
 }
 
 QUTIM_EXPORT_PLUGIN(PackageManager::PackageManagerPlugin)

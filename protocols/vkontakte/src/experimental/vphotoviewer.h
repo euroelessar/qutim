@@ -30,14 +30,14 @@
 
 class VPhotoViewer : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit VPhotoViewer(QObject *parent = 0);
-    virtual ~VPhotoViewer();
+	explicit VPhotoViewer(QObject *parent = 0);
+	virtual ~VPhotoViewer();
 private slots:
-    void onViewPhotoTriggered(QObject*);
+	void onViewPhotoTriggered(QObject*);
 private:
-    QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactGen;
+	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_contactGen;
 };
 
 #endif // VPHOTOVIEWER_H

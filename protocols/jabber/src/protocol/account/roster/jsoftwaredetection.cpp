@@ -53,14 +53,14 @@ QString fromConfigNode(QString node)
 {
 	return node.replace(QLatin1String("%2F"), QChar(QLatin1Char('/')));
 }
-	
+
 JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 {
 	m_account = account;
 	Jreen::Client *client = account->client();
 	connect(client,SIGNAL(presenceReceived(Jreen::Presence)),SLOT(handlePresence(Jreen::Presence)));
-	
-	
+
+
 	Config cache(QLatin1String("jabberhash"));
 	cache.beginGroup(QLatin1String("softwareInfo"));
 	foreach (const QString &node, cache.childGroups()) {
@@ -218,15 +218,15 @@ void JSoftwareDetection::onSoftwareRequestFinished(const Jreen::IQ &iq)
 		}
 	}
 }
-		
+
 void JSoftwareDetection::onInfoRequestFinished()
 {
 	Jreen::DiscoReply *reply = qobject_cast<Jreen::DiscoReply*>(sender());
 	Q_ASSERT(reply);
-	
+
 	if (reply->error())
 		return;
-	
+
 	const Jreen::Disco::Item item = reply->item();
 	const QString node = reply->item().node();
 	const Jreen::DataForm::Ptr form = item.form();

@@ -44,7 +44,7 @@ public:
 	virtual QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
 	virtual QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
 	virtual QString key() const;
-    virtual AvatarIconEngine *clone() const;
+	virtual AvatarIconEngine *clone() const;
 private:
 	QString m_path;
 	QIcon m_overlay;

@@ -48,12 +48,12 @@ void SettingsLayerImpl::close()
 
 SettingsLayerImpl::SettingsLayerImpl()
 {
-  
+
 }
 
 
 SettingsLayerImpl::~SettingsLayerImpl()
 {
-  
+
 }
 

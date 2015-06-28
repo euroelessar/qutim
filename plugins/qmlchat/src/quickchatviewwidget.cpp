@@ -38,29 +38,29 @@ using namespace qutim_sdk_0_3;
 
 QuickChatViewWidget::QuickChatViewWidget()
 {
-    m_container = QWidget::createWindowContainer(&m_view, this);
-    auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->addWidget(m_container);
+	m_container = QWidget::createWindowContainer(&m_view, this);
+	auto layout = new QVBoxLayout(this);
+	layout->setMargin(0);
+	layout->addWidget(m_container);
 
-    m_view.setResizeMode(QQuickView::SizeRootObjectToView);
-    m_view.setColor(qApp->palette().window().color());
+	m_view.setResizeMode(QQuickView::SizeRootObjectToView);
+	m_view.setColor(qApp->palette().window().color());
 
-    QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
-    path += QStringLiteral("/qml/qmlchat/ChatView.qml");
+	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
+	path += QStringLiteral("/qml/qmlchat/ChatView.qml");
 
-    m_view.setSource(path);
+	m_view.setSource(path);
 
-    qDebug() << "chat" << m_view.rootObject();
-    if (!m_view.rootObject())
-        qWarning() << m_view.errors();
-    Q_ASSERT(m_view.rootObject());
+	qDebug() << "chat" << m_view.rootObject();
+	if (!m_view.rootObject())
+		qWarning() << m_view.errors();
+	Q_ASSERT(m_view.rootObject());
 }
 
 QuickChatViewWidget::~QuickChatViewWidget()
 {
-    if (m_connection)
-        QObject::disconnect(m_connection);
+	if (m_connection)
+		QObject::disconnect(m_connection);
 }
 
 void QuickChatViewWidget::setViewController(QObject* object)
@@ -68,22 +68,22 @@ void QuickChatViewWidget::setViewController(QObject* object)
 	if (m_controller == object)
 		return;
 
-    if (m_connection)
-        QObject::disconnect(m_connection);
+	if (m_connection)
+		QObject::disconnect(m_connection);
 
 	m_controller = qobject_cast<QuickChatController*>(object);
-    auto onItemChanged = [this] (QQuickItem *item) {
-        bool result = QMetaObject::invokeMethod(m_view.rootObject(), "setItem", Q_ARG(QVariant, QVariant::fromValue(item)));
-        (void) result;
-        Q_ASSERT(result);
-    };
+	auto onItemChanged = [this] (QQuickItem *item) {
+		bool result = QMetaObject::invokeMethod(m_view.rootObject(), "setItem", Q_ARG(QVariant, QVariant::fromValue(item)));
+		(void) result;
+		Q_ASSERT(result);
+	};
 
-    if (m_controller) {
-        onItemChanged(m_controller->item());
-        m_connection = connect(m_controller.data(), &QuickChatController::itemChanged, onItemChanged);
-    } else {
-        onItemChanged(NULL);
-    }
+	if (m_controller) {
+		onItemChanged(m_controller->item());
+		m_connection = connect(m_controller.data(), &QuickChatController::itemChanged, onItemChanged);
+	} else {
+		onItemChanged(NULL);
+	}
 }
 
 } // namespace AdiumChat

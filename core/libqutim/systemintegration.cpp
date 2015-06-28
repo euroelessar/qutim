@@ -38,7 +38,7 @@ namespace qutim_sdk_0_3
 struct IntegrationData
 {
 	QList<SystemIntegration*> integrations;
-	
+
 	IntegrationData();
 
 	template <typename T>
@@ -59,10 +59,10 @@ IntegrationData::IntegrationData()
 			integrations.append(integration);
 		}
 	}
-    qSort(integrations.begin(), integrations.end(),
-          [] (SystemIntegration *a, SystemIntegration *b) {
-        return a->priority() > b->priority();
-    });
+	qSort(integrations.begin(), integrations.end(),
+		  [] (SystemIntegration *a, SystemIntegration *b) {
+		return a->priority() > b->priority();
+	});
 }
 
 template <typename T>

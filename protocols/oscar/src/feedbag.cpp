@@ -77,14 +77,14 @@ class FeedbagItemPrivate : public QSharedData
 public:
 	FeedbagItemPrivate();
 	FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList = false);
-	
+
 	void send(const FeedbagItem &item, Feedbag::ModifyType operation);
 	QByteArray data(Feedbag::ModifyType operation) const;
 	inline void remove(FeedbagItem item);
 	bool isSendingAllowed(const FeedbagItem &item, Feedbag::ModifyType operation);
 	quint16 id() const { return itemType == SsiGroup ? groupId : itemId; }
 	QString configId() const { return QString::number(quint64(quint64(itemType) << 16 | id()) << 32 | groupId); }
-	
+
 	QString recordName;
 	quint16 groupId;
 	quint16 itemId;
@@ -129,7 +129,7 @@ class FeedbagPrivate
 	Q_DECLARE_PUBLIC(Feedbag)
 public:
 	FeedbagPrivate(IcqAccount *acc, Feedbag *q)
-	    : account(acc), conn(static_cast<OscarConnection*>(acc->connection())), q_ptr(q) {}
+		: account(acc), conn(static_cast<OscarConnection*>(acc->connection())), q_ptr(q) {}
 	void handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	FeedbagGroup *findGroup(quint16 id);
 	quint16 generateId() const;
@@ -138,11 +138,11 @@ public:
 	FeedbagItemPrivate *getFeedbagItemPrivate(const SNAC &snac);
 	void updateList();
 	void updateFeedbagList();
-	
+
 	AllItemsHash itemsById;
 	QHash<quint16, QSet<quint16> > itemsByType;
 	QHash<QString, FeedbagItem> temporaryBuddies;
-	
+
 	QList<FeedbagItem> itemsList;
 	FeedbagRootGroup root;
 	QList<FeedbagQueueItem> modifyQueue;
@@ -525,7 +525,7 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 	}
 	const QPair<quint16, quint16> id = item.pairId();
 	const bool hasError = (error.code() != FeedbagError::NoError);
-	
+
 	if (hasError) {
 		if (type == Feedbag::Remove) {
 			item.d->isInList = true;
@@ -556,10 +556,10 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 			}
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 //	// Iterator on a ItemsHash that contains feedbag items with matched type.
 //	QHash<quint16, ItemsIdHash>::iterator itemsGroupItr = items.find(item.type());
 //	bool isItemGroupItrCreated = itemsGroupItr != items.end();
@@ -591,13 +591,13 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		} else {
 			if (type == Feedbag::Remove) {
 				qWarning().nospace() << "The feedbag item has not been removed: "
-				                         << error.errorString() << ". (" << error.code() << ")" << item;
+										 << error.errorString() << ". (" << error.code() << ")" << item;
 			} else if (type == Feedbag::Modify) {
 				qWarning() << "The feedbag item has not been updated:"
-				               << error.errorString() << ". (" << error.code() << ")" << item;
+							   << error.errorString() << ". (" << error.code() << ")" << item;
 			} else {
 				qWarning() << "The feedbag item has not been added:"
-				               << error.errorString() << ". (" << error.code() << ")" << item;
+							   << error.errorString() << ". (" << error.code() << ")" << item;
 			}
 		}
 	}
@@ -962,7 +962,7 @@ bool Feedbag::containsItem(quint16 type, const QString &name) const
 	const QString uniqueName = getCompressedName(type, name);
 	if (type == SsiBuddy) {
 		for (GroupHash::Iterator it = d->root.regulars.begin();
-		     it != d->root.regulars.end(); ++it) {
+			 it != d->root.regulars.end(); ++it) {
 			if (it.value().hashByName.contains(qMakePair(type, uniqueName)))
 				return true;
 		}
@@ -1078,7 +1078,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		quint16 count = sn.read<quint16>();
 		bool isLast = !(sn.flags() & 0x0001);
 		qDebug() << "SSI: number of entries is" << count << "version is" << version;
-		for (uint i = 0; i < count; i++) {	
+		for (uint i = 0; i < count; i++) {
 			FeedbagItemPrivate *itemPrivate = d->getFeedbagItemPrivate(sn);
 			if (itemPrivate) {
 				FeedbagItem item(itemPrivate);
@@ -1126,8 +1126,8 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				FeedbagError error(sn);
 				d->handleItem(operation.item, operation.type, error);
 				if (error.code() == FeedbagError::NoError
-				        && operation.item.type() == SsiBuddy
-				        && (operation.type == Add || operation.type == Remove)) {
+						&& operation.item.type() == SsiBuddy
+						&& (operation.type == Add || operation.type == Remove)) {
 					groups.insert(operation.item.groupId());
 				}
 			}

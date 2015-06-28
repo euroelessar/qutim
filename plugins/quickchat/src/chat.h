@@ -36,41 +36,41 @@ namespace QuickChat
 {
 class Chat : public qutim_sdk_0_3::ChatLayer
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_PROPERTY(qutim_sdk_0_3::ChatSession* activeSession READ activeSession WRITE setActiveSession NOTIFY activeSessionChanged)
-    Q_PROPERTY(QQmlListProperty<QuickChat::ChatChannel> channels READ channels NOTIFY channelsChanged)
+	Q_PROPERTY(QQmlListProperty<QuickChat::ChatChannel> channels READ channels NOTIFY channelsChanged)
 public:
-    explicit Chat();
+	explicit Chat();
 	virtual ~Chat();
-	
+
 	static void init();
-	
+
 	virtual qutim_sdk_0_3::ChatSession *getSession(qutim_sdk_0_3::ChatUnit *unit, bool create = true);
 	virtual QList<qutim_sdk_0_3::ChatSession*> sessions();
-    QQmlListProperty<ChatChannel> channels();
+	QQmlListProperty<ChatChannel> channels();
 	qutim_sdk_0_3::ChatSession *activeSession() const;
 	void setActiveSession(qutim_sdk_0_3::ChatSession *session);
-    void handleSessionDeath(qutim_sdk_0_3::ChatSession *session);
+	void handleSessionDeath(qutim_sdk_0_3::ChatSession *session);
 
 public slots:
-    void show();
-    void forEachChannel(QJSValue callback) const;
-    void onCommandUrl(const QUrl &url);
-	
+	void show();
+	void forEachChannel(QJSValue callback) const;
+	void onCommandUrl(const QUrl &url);
+
 signals:
 	void sessionDestroyed(qutim_sdk_0_3::ChatSession *session);
 	void activeSessionChanged(qutim_sdk_0_3::ChatSession *session);
-    void channelsChanged(const QQmlListProperty<ChatChannel> &channels);
+	void channelsChanged(const QQmlListProperty<ChatChannel> &channels);
 	void shown();
-	
+
 private slots:
 	void onSessionActivated(bool active);
 	void onSessionDestroyed(QObject *object);
-	
+
 private:
-    QList<ChatChannel*> m_channels;
-    qutim_sdk_0_3::QuickDialog m_view;
+	QList<ChatChannel*> m_channels;
+	qutim_sdk_0_3::QuickDialog m_view;
 	qutim_sdk_0_3::ChatSession *m_activeSession;
 };
 }

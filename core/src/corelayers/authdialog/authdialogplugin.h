@@ -33,8 +33,8 @@ namespace Core {
 
 class AuthDialogPlugin : public qutim_sdk_0_3::Plugin
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
 	virtual void init();
 	virtual bool load();

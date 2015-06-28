@@ -38,15 +38,15 @@ using namespace qutim_sdk_0_3;
 class AboutKdeActionGenerator : public ActionGenerator
 {
 public:
-	AboutKdeActionGenerator() 
-	    : ActionGenerator(QIcon(), LocalizedString(), 0, 0)
+	AboutKdeActionGenerator()
+		: ActionGenerator(QIcon(), LocalizedString(), 0, 0)
 	{
 	}
 
 	virtual QObject *generateHelper() const
 	{
 		return KStandardAction::aboutKDE(KdeIntegration::KdePlugin::helpMenu(),
-		                                 SLOT(aboutKDE()), 0);
+										 SLOT(aboutKDE()), 0);
 	}
 };
 

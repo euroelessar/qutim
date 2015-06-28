@@ -41,7 +41,7 @@ QString notificationTypeName(int type);
 
 class NotificationSettings : public qutim_sdk_0_3::SettingsWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit NotificationSettings(QWidget *parent = 0);
 	virtual void loadImpl();

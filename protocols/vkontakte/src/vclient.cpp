@@ -25,13 +25,13 @@
 #include "vclient.h"
 
 VClient::VClient(const QString &login, QObject *parent) :
-    Vreen::Client(parent)
+	Vreen::Client(parent)
 {
-    setLogin(login);
+	setLogin(login);
 }
 
 QObject *VClient::request(const QString &method, const QVariantMap &args)
 {
-    return Vreen::Client::request(method, args);
+	return Vreen::Client::request(method, args);
 }
 

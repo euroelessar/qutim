@@ -36,7 +36,7 @@ class ResourceIconLoader : public IconLoader
 {
 public:
 	ResourceIconLoader();
-	
+
 protected:
 	QIcon doLoadIcon(const QString &name);
 	QMovie *doLoadMovie(const QString &name);

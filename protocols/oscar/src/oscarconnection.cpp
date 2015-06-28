@@ -67,7 +67,7 @@ void OscarConnection::connectToLoginServer(const QString &password)
 		m_auth.data()->deleteLater();
 	m_auth = new OscarAuth(m_account);
 	connect(m_auth.data(), SIGNAL(error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)),
-	        SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
+			SLOT(md5Error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError)));
 	QTimer::singleShot(0, m_auth.data(), SLOT(login()));
 }
 

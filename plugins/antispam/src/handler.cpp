@@ -43,9 +43,9 @@ using namespace Authorization;
 struct Info
 {
 	typedef QSharedPointer<Info> Ptr;
-	
+
 	Info() : trusted(false) {}
-	
+
 	bool trusted;
 	QDateTime lastQuestionTime;
 };
@@ -59,7 +59,7 @@ namespace Antispam {
 Handler::Handler() : m_authorization("AuthorizationService")
 {
 	connect(ServiceManager::instance(), SIGNAL(serviceChanged(QByteArray,QObject*,QObject*)),
-	        SLOT(onServiceChanged(QByteArray)));
+			SLOT(onServiceChanged(QByteArray)));
 	loadSettings();
 }
 
@@ -86,23 +86,23 @@ MessageHandlerAsyncResult Handler::doHandle(Message &message)
 {
 	if (!m_enabled || message.property("service", false)) {
 		return makeAsyncResult(Accept, QString());
-    }
+	}
 
 	Contact *contact = qobject_cast<Contact*>(message.chatUnit()->buddy());
 	if (!contact || contact->isInList()) {
 		return makeAsyncResult(Accept, QString());
-    }
-	
+	}
+
 	Info::Ptr info = contact->property(ANTISPAM_PROPERTY).value<Info::Ptr>();
 	if (info.isNull()) {
 		info = Info::Ptr::create();
 		contact->setProperty(ANTISPAM_PROPERTY, qVariantFromValue(info));
 	}
-	
+
 	if (info->trusted) {
 		return makeAsyncResult(Accept, QString());
-    }
-	
+	}
+
 	if (!message.isIncoming()) {
 		if (!message.property("autoreply", false))
 			info->trusted = true;
@@ -121,7 +121,7 @@ MessageHandlerAsyncResult Handler::doHandle(Message &message)
 	}
 
 	if (info->lastQuestionTime.isValid()
-	        && qAbs(info->lastQuestionTime.secsTo(QDateTime::currentDateTime())) < 5 * 60) {
+			&& qAbs(info->lastQuestionTime.secsTo(QDateTime::currentDateTime())) < 5 * 60) {
 		return makeAsyncResult(Reject, QString());
 	}
 	Message replyMessage(m_question);
@@ -145,23 +145,23 @@ bool Handler::eventFilter(QObject *obj, QEvent *event)
 			pseudoMessage.setChatUnit(reply->contact());
 			pseudoMessage.setIncoming(false);
 
-            bool accepted = true;
+			bool accepted = true;
 
 			doHandle(pseudoMessage).connect(this, [&accepted, reply] (Result result, const QString &reason) {
-                if (Error == result) {
-                    NotificationRequest request(Notification::BlockedMessage);
-                    request.setObject(reply->contact());
-                    request.setText(reason);
-                    request.send();
-                }
-                accepted = (result == Accept);
-            });
+				if (Error == result) {
+					NotificationRequest request(Notification::BlockedMessage);
+					request.setObject(reply->contact());
+					request.setText(reason);
+					request.send();
+				}
+				accepted = (result == Accept);
+			});
 
 			if (accepted)
 				return true;
 		}
 	}
-    return QObject::eventFilter(obj, event);
+	return QObject::eventFilter(obj, event);
 }
 
 void Handler::onServiceChanged(const QByteArray &name)

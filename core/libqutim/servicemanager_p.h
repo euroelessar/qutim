@@ -46,7 +46,7 @@ public:
 	QHash<QByteArray, QSharedPointer<ServicePointerData> > hash;
 	QList<ServicePointerData*> initializationOrder;
 	bool inited;
-	
+
 	void init();
 	void init(const QByteArray &service, const ExtensionInfo &info, QSet<QByteArray> &used);
 	void deinit();

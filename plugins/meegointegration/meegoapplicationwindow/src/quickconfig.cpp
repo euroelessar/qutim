@@ -6,7 +6,7 @@
 using namespace qutim_sdk_0_3;
 
 QuickConfig::QuickConfig(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
 }
 
@@ -21,21 +21,21 @@ QVariant QuickConfig::value(const QString &key, const QVariant &def, ValueFlags 
 void QuickConfig::setValue(const QString &key, const QVariant &value, ValueFlags type)
 {
 	qDebug() << "setValue" << key << value << type;
-    m_config.setValue(key, value, static_cast<Config::ValueFlag>(int(type)));
-    m_config.sync();
+	m_config.setValue(key, value, static_cast<Config::ValueFlag>(int(type)));
+	m_config.sync();
 }
 
 QString QuickConfig::path() const
 {
-    return m_path;
+	return m_path;
 }
 
 void QuickConfig::setPath(const QString &path)
 {
-    if (m_path != path) {
-        m_path = path;
-        m_config = Config(m_path);
-        emit pathChanged(path);
+	if (m_path != path) {
+		m_path = path;
+		m_config = Config(m_path);
+		emit pathChanged(path);
 	}
 }
 

@@ -72,7 +72,7 @@ public:
 	void setCurrentAccount(Account *currentAccount);
 	QVariantList bookmarks() const;
 	QVariantList recent() const;
-	
+
 	QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts();
 
 signals:
@@ -91,12 +91,12 @@ public slots:
 	void fillBookmarks(Account *account);
 	Q_INVOKABLE void onItemActivated(const QModelIndex &index);
 	void onBookmarksChanged();
-	
+
 	QVariant fields();
 	bool join(const qutim_sdk_0_3::DataItem &item);
 	bool remove(const qutim_sdk_0_3::DataItem &item);
 	bool save(const qutim_sdk_0_3::DataItem &item, const qutim_sdk_0_3::DataItem &oldItem);
-	
+
 protected slots:
 	void onAccountCreated(qutim_sdk_0_3::Account *account, bool first = true);
 	void onManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
@@ -105,7 +105,7 @@ protected slots:
 private:
 	void rebuildBookmarks();
 	void fillBookmarks(const QList<DataItem> &bookmarks, QVariantList &list);
-	
+
 	void fillBookmarks(const QList<DataItem> &bookmarks, bool recent = false);
 	Account *account(int index);
 	QAction *m_closeAction;
@@ -113,7 +113,7 @@ private:
 	BookmarksModel *m_bookmarksModel;
 	BookmarksModel *m_bookmarksBoxModel;
 	QStringList m_accountIds;
-	
+
 	Account *m_currentAccount;
 	QList<qutim_sdk_0_3::Account*> m_accounts;
 	QList<DataItem> m_bookmarks;

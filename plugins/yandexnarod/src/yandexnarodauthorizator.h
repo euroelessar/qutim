@@ -38,7 +38,7 @@ class YandexNarodCookieJar : public QNetworkCookieJar
 	Q_OBJECT
 public:
 	YandexNarodCookieJar(QNetworkAccessManager *manager);
-	
+
 	using QNetworkCookieJar::allCookies;
 	using QNetworkCookieJar::setAllCookies;
 };

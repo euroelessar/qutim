@@ -227,11 +227,11 @@ QScriptValue scriptSettingsRegister(QScriptContext *ctxt, QScriptEngine *e)
 		settingsItem->connect(SIGNAL(saved()), helper, SLOT(onSaved()));
 		qScriptConnect(helper, SIGNAL(saved()), item, onSaved);
 	}
-	
+
 	QScriptValue entries = item.property("entries");
-    quint32 len = entries.property(QLatin1String("length")).toUInt32();
-    for (quint32 i = 0; i < len; ++i) {
-        QScriptValue entry = entries.property(i);
+	quint32 len = entries.property(QLatin1String("length")).toUInt32();
+	for (quint32 i = 0; i < len; ++i) {
+		QScriptValue entry = entries.property(i);
 		text = qscriptvalue_cast<LocalizedString>(entry.property("text"));
 		ObjectGenerator *gen = 0;
 		QString type = entry.property("type").toString();
@@ -350,7 +350,7 @@ ScriptEngine::ScriptEngine(const QString &name, QObject *parent) :
 	qScriptRegisterMetaType(this, localizedStringToScriptValue, localizedStringFromScriptValue);
 	installTranslatorFunctions();
 	globalObject().setProperty("QT_TRANSLATE_NOOP", newFunction(translateNoopHook));
-	
+
 	QScriptValue client = newObject();
 	client.setProperty("log", newFunction(scriptConsoleLog, 1));
 	client.setProperty("debug", newFunction(scriptConsoleLog, 1));

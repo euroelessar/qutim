@@ -33,17 +33,17 @@
 #include <qutim/declarativeview.h>
 
 namespace Ui {
-    class PackageDownloadDialog;
+	class PackageDownloadDialog;
 }
 
 class PackageDownloadDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit PackageDownloadDialog(const QStringList &categories, const QString &path);
+	explicit PackageDownloadDialog(const QStringList &categories, const QString &path);
 	~PackageDownloadDialog();
-	
+
 private:
 	qutim_sdk_0_3::DeclarativeView *m_view;
 };

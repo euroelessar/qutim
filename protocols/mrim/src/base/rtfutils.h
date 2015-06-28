@@ -35,14 +35,14 @@ class RtfPrivate;
 class Rtf
 {
 public:
-    Rtf(const char *defaultEncoding = "utf-8");
-    ~Rtf();
+	Rtf(const char *defaultEncoding = "utf-8");
+	~Rtf();
 
-    static void parse(RtfTextReader *reader, const QString& rtfMsg, QString *plainText, QString *html);
-    void parse(const QString& rtfMsg, QString *plainText, QString *html);
+	static void parse(RtfTextReader *reader, const QString& rtfMsg, QString *plainText, QString *html);
+	void parse(const QString& rtfMsg, QString *plainText, QString *html);
 
 private:
-    QScopedPointer<RtfPrivate> p;    
+	QScopedPointer<RtfPrivate> p;
 };
 
 #endif // RTFUTILS_H

@@ -46,7 +46,7 @@ using namespace qutim_sdk_0_3;
 struct MobileSettingsWindowPrivate;
 class MobileSettingsWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit MobileSettingsWindow(const SettingsItemList &settings,QObject *controller);
 	void update(const SettingsItemList &settings);
@@ -57,7 +57,7 @@ public slots:
 protected:
 	void loadSettings(const SettingsItemList &settings);
 	void ensureActions();
-    virtual void closeEvent(QCloseEvent *ev);
+	virtual void closeEvent(QCloseEvent *ev);
 private:
 	QListWidgetItem *get(Settings::Type);
 	QScopedPointer<MobileSettingsWindowPrivate> p;
@@ -65,7 +65,7 @@ private slots:
 	void onCategoryActivated(const QModelIndex &index);
 	void onCategoryActivated(QListWidgetItem *item);
 	void onCurrentItemActivated(const QModelIndex &index);
-    void onModifiedChanged(bool haveChanges);
+	void onModifiedChanged(bool haveChanges);
 	void onWidgetDestroyed(QObject *obj);
 	void slideUp();
 	void slideDown(QWidget *w);

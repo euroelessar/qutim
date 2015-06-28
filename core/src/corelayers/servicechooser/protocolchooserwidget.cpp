@@ -91,7 +91,7 @@ void ProtocolChoooserWidget::loadImpl()
 		if (selected.value(name).toString() == ServiceChoooser::className(info))
 			item->setCheckState(Qt::Checked);
 		item->setData(QLatin1String(ServiceChoooser::className(info)),
-		              ServiceItem::ExtentionInfoRole);
+					  ServiceItem::ExtentionInfoRole);
 		m_protocol_items.value(name)->appendRow(item);
 	}
 }

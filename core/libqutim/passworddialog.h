@@ -40,7 +40,7 @@ class LIBQUTIM_EXPORT PasswordDialog : public QObject
 	Q_DECLARE_PRIVATE(PasswordDialog)
 public:
 	enum DialogCode { Rejected, Accepted };
-	
+
 	static PasswordDialog *request(Account *account);
 	static PasswordDialog *request(const QString &windowTitle, const QString &description);
 
@@ -66,13 +66,13 @@ protected:
 	void apply(const QString &login, const QString &password, bool remember);
 	void apply(const QString &password, bool remember);
 	void reject();
-	
+
 	enum PasswordDialogHook {
 		SetTextHook = 1,
 		SetShowSaveHook,
 		SetShowLoginHook
 	};
-	
+
 	struct SetTextArgument
 	{
 		QString title;

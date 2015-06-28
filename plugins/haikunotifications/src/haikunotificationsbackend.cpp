@@ -60,7 +60,7 @@ void HaikuNotificationsBackend::handleNotification(qutim_sdk_0_3::Notification *
 		BBitmap *bitmap = request.image().toHaikuBitmap();
 		notify.SetIcon(bitmap);
 	}
-		
+
 	notify.Send();
 }
 

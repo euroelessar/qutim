@@ -149,7 +149,7 @@ ToryWidget::ToryWidget() : d_ptr(new ToryWidgetPrivate())
 
 	QAction *searchBtn = new QAction(Icon("edit-find"), tr("Search contact"), this);
 	searchBtn->setCheckable(true);
-    d->searchBar = new LineEdit(this);
+	d->searchBar = new LineEdit(this);
 	d->searchBar->setVisible(false);
 	connect(searchBtn, SIGNAL(toggled(bool)), SLOT(onSearchButtonToggled(bool)));
 	d->mainToolBar->addAction(searchBtn);

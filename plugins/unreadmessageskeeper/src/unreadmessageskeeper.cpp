@@ -62,9 +62,9 @@ bool UnreadMessagesKeeper::load()
 				if(!u)
 					continue;
 				int count = cfg.value(id,0);
-                if (count) {
+				if (count) {
 					ChatSession *s = ChatLayer::get(u,true);
-                    MessageList list = History::instance()->readSync(u, count);
+					MessageList list = History::instance()->readSync(u, count);
 					foreach(Message m,list) {
 						m.setProperty("store",false);
 						m.setProperty("fake",true); //mega spike

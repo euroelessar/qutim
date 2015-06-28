@@ -46,7 +46,7 @@ typedef QList<ActivityGroup> ActivityGroups;
 
 static ActivityGroups init_activity_groups()
 {
-    ActivityGroups activities;
+	ActivityGroups activities;
 	{
 		ActivityGroup group(Jreen::Activity::DoingChores);
 		group.items.push_back(Jreen::Activity::BuyingGroceries);
@@ -158,7 +158,7 @@ static ActivityGroups init_activity_groups()
 		group.items.push_back(Jreen::Activity::Writing);
 		activities.push_back(group);
 	}
-    return activities;
+	return activities;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(ActivityGroups, allActivityGroups, (init_activity_groups()))

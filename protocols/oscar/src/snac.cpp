@@ -61,7 +61,7 @@ SNAC SNAC::fromByteArray(const QByteArray &d)
 		// Some unknown data
 		int offset = snac.read<quint16>() + 2; // sizeof(quint16)
 		snac.m_data = QByteArray::fromRawData(snac.m_data.constData() + offset,
-		                                      snac.m_data.size() - offset);
+											  snac.m_data.size() - offset);
 	}
 	return snac;
 }

@@ -38,7 +38,7 @@
 namespace KdeIntegration
 {
 	class ProtocolSeparatorActionGenerator;
-	
+
 	class StatusAction: public QAction
 	{
 		Q_OBJECT
@@ -58,9 +58,9 @@ class KdeTrayIcon : public qutim_sdk_0_3::MenuController, public qutim_sdk_0_3::
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
 public:
-    explicit KdeTrayIcon(QObject *parent = 0);
+	explicit KdeTrayIcon(QObject *parent = 0);
 	void onActivated();
-	
+
 private slots:
 	void onAccountDestroyed(QObject *obj);
 	void onAccountCreated(qutim_sdk_0_3::Account *);

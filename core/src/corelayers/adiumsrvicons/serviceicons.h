@@ -38,7 +38,7 @@ namespace Adium
 	public:
 		ServiceIcons();
 		virtual ~ServiceIcons();
-		
+
 		virtual QIcon doLoadIcon(const QString &name);
 		virtual QMovie *doLoadMovie(const QString &name);
 		virtual QString doIconPath(const QString &name, uint iconSize);

@@ -7,23 +7,23 @@ namespace qutim_sdk_0_3 {
 
 class QmlSettingsWidget : public SettingsWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit QmlSettingsWidget(const QString &name, QWidget *parent = 0);
+	explicit QmlSettingsWidget(const QString &name, QWidget *parent = 0);
 
-    void setController(QObject *controller);
+	void setController(QObject *controller);
 
 protected slots:
-    void onModifiedChanged();
+	void onModifiedChanged();
 
 protected:
-    void loadImpl();
-    void saveImpl();
-    void cancelImpl();
+	void loadImpl();
+	void saveImpl();
+	void cancelImpl();
 
 private:
-    QScopedPointer<QObject> m_wrapper;
-    QObject *m_object;
+	QScopedPointer<QObject> m_wrapper;
+	QObject *m_object;
 };
 
 } // namespace qutim_sdk_0_3

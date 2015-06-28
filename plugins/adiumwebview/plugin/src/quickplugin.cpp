@@ -13,15 +13,15 @@ QuickPlugin::QuickPlugin()
 
 void QuickPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 {
-    Q_UNUSED(engine);
-    Q_ASSERT(QLatin1String(uri) == QStringLiteral("org.qutim.adiumwebview"));
+	Q_UNUSED(engine);
+	Q_ASSERT(QLatin1String(uri) == QStringLiteral("org.qutim.adiumwebview"));
 }
 
 void QuickPlugin::registerTypes(const char *uri)
 {
-    Q_ASSERT(QLatin1String(uri) == QStringLiteral("org.qutim.adiumwebview"));
+	Q_ASSERT(QLatin1String(uri) == QStringLiteral("org.qutim.adiumwebview"));
 
-    qmlRegisterType<WebKitMessageViewStyle>("org.qutim.adiumwebview", 0, 4, "MessageViewStyle");
-    qmlRegisterType<MessageViewController>("org.qutim.adiumwebview", 0, 4, "MessageViewController");
+	qmlRegisterType<WebKitMessageViewStyle>("org.qutim.adiumwebview", 0, 4, "MessageViewStyle");
+	qmlRegisterType<MessageViewController>("org.qutim.adiumwebview", 0, 4, "MessageViewController");
 }
 }

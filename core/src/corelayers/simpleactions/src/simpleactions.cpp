@@ -191,8 +191,8 @@ void SimpleActions::onContactRenameAction(QObject *o)
 	Contact *contact = sender_cast<Contact*>(o);
 	QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
 	dialog->setWindowTitle(tr("Rename contact %1").arg(contact->title()));
-    dialog->setLabelText(tr("Input new name for contact %1").arg(contact->title()));
-    dialog->setTextValue(contact->name());
+	dialog->setLabelText(tr("Input new name for contact %1").arg(contact->title()));
+	dialog->setTextValue(contact->name());
 	dialog->setProperty("contact", qVariantFromValue(contact));
 	SystemIntegration::open(dialog);
 	connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onContactNameSelected(QString)));

@@ -28,30 +28,30 @@
 using namespace qutim_sdk_0_3;
 
 ContactListAccountModel::ContactListAccountModel(QObject *parent) :
-    ContactListBaseModel(parent)
+	ContactListBaseModel(parent)
 {
-    Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show accounts and contacts"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show accounts and contacts"));
 }
 
 void ContactListAccountModel::addAccount(Account *account)
 {
-    ensureAccount(account, rootNode());
+	ensureAccount(account, rootNode());
 }
 
 void ContactListAccountModel::removeAccount(Account *account)
 {
-    eraseAccount(account, rootNode());
+	eraseAccount(account, rootNode());
 }
 
 void ContactListAccountModel::addContact(Contact *contact)
 {
-    AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
-    ContactNode *contactNode = ensureContact(contact, accountNode);
-    Q_UNUSED(contactNode);
+	AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
+	ContactNode *contactNode = ensureContact(contact, accountNode);
+	Q_UNUSED(contactNode);
 }
 
 void ContactListAccountModel::removeContact(Contact *contact)
 {
-    AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
-    eraseContact(contact, accountNode);
+	AccountNode *accountNode = ensureAccount(contact->account(), rootNode());
+	eraseContact(contact, accountNode);
 }

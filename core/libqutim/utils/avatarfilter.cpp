@@ -48,7 +48,7 @@ AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*
 {
 	Q_D(AvatarFilter);
 	d->defaultSize = defaultSize;
-	d->mode = Qt::IgnoreAspectRatio;	
+	d->mode = Qt::IgnoreAspectRatio;
 	d->radius = 5;
 #if defined(QUTIM_MOBILE_UI) && !defined(Q_WS_MAEMO_5)
 	d->radius = 15;
@@ -90,7 +90,7 @@ bool AvatarFilter::draw(QPainter *painter, int x, int y,
 			painter.setRenderHint(QPainter::Antialiasing);
 			pen.setWidth(0);
 			painter.setPen(pen);
-			painter.setBrush(QBrush(QColor(255,255,255)));	
+			painter.setBrush(QBrush(QColor(255,255,255)));
 			painter.drawRoundedRect(QRectF(QPointF(0, 0),
 										   QSize(d->defaultSize.width() - 1,
 												 d->defaultSize.height() -1 )),
@@ -103,18 +103,18 @@ bool AvatarFilter::draw(QPainter *painter, int x, int y,
 		if (cropSize > d->defaultSize.width() * 2)
 			pixmap = pixmap.scaled(d->defaultSize * 2, d->mode, Qt::FastTransformation);
 		pixmap = pixmap.scaled(d->defaultSize, d->mode, Qt::SmoothTransformation);
-        {
+		{
 //            pixmap.setAlphaChannel(alpha);
-            QImage image = pixmap.toImage();
-            image.setAlphaChannel(alpha.toImage());
-            pixmap = QPixmap::fromImage(image);
-        }
+			QImage image = pixmap.toImage();
+			image.setAlphaChannel(alpha.toImage());
+			pixmap = QPixmap::fromImage(image);
+		}
 		QPixmapCache::insert(key, pixmap);
 	}
 	painter->drawPixmap(x, y, pixmap.width(), pixmap.height(), pixmap);
 	QSize overlaySize = d->defaultSize/(d->defaultSize.width() <= 16 ? 1.3 : 2);
-    QPixmap overlayPixmap = overlayIcon.pixmap(overlaySize);
-    overlaySize = overlayPixmap.size() / overlayPixmap.devicePixelRatio();
+	QPixmap overlayPixmap = overlayIcon.pixmap(overlaySize);
+	overlaySize = overlayPixmap.size() / overlayPixmap.devicePixelRatio();
 	painter->drawPixmap(x + d->defaultSize.width() - overlaySize.width(),
 						y + d->defaultSize.height() - overlaySize.height(),
 						overlayPixmap

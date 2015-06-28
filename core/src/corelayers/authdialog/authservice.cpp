@@ -43,7 +43,7 @@ bool AuthService::event(QEvent *event)
 					 request->body(),
 					 false);
 		return true;
-	} else if(event->type() == Reply::eventType()) {		
+	} else if(event->type() == Reply::eventType()) {
 		handleReply(static_cast<Reply*>(event));
 		return true;
 	}

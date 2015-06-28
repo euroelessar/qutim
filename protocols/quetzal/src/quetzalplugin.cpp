@@ -50,7 +50,7 @@
 struct QuetzalConversationHandler
 {
 	typedef QSharedPointer<QuetzalConversationHandler> Ptr;
-	
+
 	~QuetzalConversationHandler()
 	{
 		foreach (PurpleConversation *conversation, conversations) {
@@ -106,7 +106,7 @@ void quetzal_create_conversation(PurpleConversation *conv)
 		unit = new QuetzalChat(conv);
 		acc->addChatUnit(unit);
 	}
-	
+
 	/*else if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(unit)) {
 //			purple_blist_node_get_extended_menu
 			debug() << Q_FUNC_INFO;
@@ -170,7 +170,7 @@ void quetzal_write_chat(PurpleConversation *conv, const char *who,
 		PurpleConvChat *data = PURPLE_CONV_CHAT(chat->purple());
 		// Version older then 2.7.10
 		// do always
-//		if (purple_version_check(2, 7, 10) && 
+//		if (purple_version_check(2, 7, 10) &&
 		if (g_str_equal(conv->account->protocol_id, "prpl-jabber")) {
 			if (!(flags & (PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM)) && who && *who) {
 				// It looks like our outgoing message
@@ -495,11 +495,11 @@ static void quetzal_conversation_update(PurpleConversation *conv, PurpleConvUpda
 class QuetzalConnectionKillerEvent : public QEvent
 {
 public:
-	QuetzalConnectionKillerEvent(PurpleAccount *account) 
-	    : QEvent(eventType()), m_account(account)
+	QuetzalConnectionKillerEvent(PurpleAccount *account)
+		: QEvent(eventType()), m_account(account)
 	{
 	}
-	
+
 	~QuetzalConnectionKillerEvent()
 	{
 		purple_account_disconnect(m_account);
@@ -510,7 +510,7 @@ public:
 		static Type type = static_cast<Type>(registerEventType());
 		return type;
 	}
-	
+
 private:
 	PurpleAccount *m_account;
 };
@@ -725,7 +725,7 @@ void QuetzalPlugin::clearTemporaryDir()
 {
 //	if (m_tmpDir.isEmpty())
 //		return;
-	
+
 //	m_tmpDir.clear();
 }
 

@@ -201,23 +201,23 @@ void JProtocol::loadActions()
 	Settings::registerItem<JAccount>(d->mainSettings);
 
 	Settings::registerItem<JMUCSession>(new GeneralDataSettingsItem<JConferenceConfig>(
-	                                        Settings::Protocol,
-	                                        QIcon(),
-	                                        QT_TRANSLATE_NOOP("Settings", "Room configuration")));
+											Settings::Protocol,
+											QIcon(),
+											QT_TRANSLATE_NOOP("Settings", "Room configuration")));
 
 	ActionGenerator *generator  = new ActionGenerator(Icon("im-kick-user"),
-	                                                  QT_TRANSLATE_NOOP("Conference", "Kick"),
-	                                                  this, SLOT(onKickUser(QObject*)));
+													  QT_TRANSLATE_NOOP("Conference", "Kick"),
+													  this, SLOT(onKickUser(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler, this);
 	generator->addProperty("actionType", KickAction);
 	MenuController::addAction<JMUCUser>(generator);
-	
+
 	generator  = new ActionGenerator(Icon("im-ban-user"), QT_TRANSLATE_NOOP("Conference", "Ban"),
-	                                 this, SLOT(onBanUser(QObject*)));
+									 this, SLOT(onBanUser(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler, this);
 	generator->addProperty("actionType", BanAction);
 	MenuController::addAction<JMUCUser>(generator);
-	
+
 	//MenuController::addAction<JMessageSession>(
 	//			new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 	//								this, SLOT(onConvertToMuc(QObject*))));
@@ -265,10 +265,10 @@ void JProtocol::onKickUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
-	
+
 	QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
 	dialog->setWindowTitle(tr("Kick"));
-    dialog->setLabelText(tr("Enter kick reason for %1").arg(user->name()));
+	dialog->setLabelText(tr("Enter kick reason for %1").arg(user->name()));
 	dialog->setTextValue(QString());
 	dialog->setProperty("user", qVariantFromValue<QObject*>(user));
 	SystemIntegration::open(dialog);
@@ -288,10 +288,10 @@ void JProtocol::onBanUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
-	
+
 	QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
 	dialog->setWindowTitle(tr("Ban"));
-    dialog->setLabelText(tr("Enter ban reason for %1").arg(user->name()));
+	dialog->setLabelText(tr("Enter ban reason for %1").arg(user->name()));
 	dialog->setTextValue(QString());
 	dialog->setProperty("user", qVariantFromValue<QObject*>(user));
 	SystemIntegration::open(dialog);
@@ -503,18 +503,18 @@ bool JProtocol::event(QEvent *ev)
 			Q_ASSERT(c);
 			d->checkSubscribe(c, action);
 			connect(c, SIGNAL(subscriptionChanged(Jreen::RosterItem::SubscriptionType)),
-			        this, SLOT(_q_subscription_changed(Jreen::RosterItem::SubscriptionType)));
+					this, SLOT(_q_subscription_changed(Jreen::RosterItem::SubscriptionType)));
 		} else if (JMUCSession *s = qobject_cast<JMUCSession*>(controller)) {
 			if(event->generator() == d->bookmarksGen.data()) {
 				d->checkBookMark(s, action);
 				connect(s, SIGNAL(bookmarkChanged(Jreen::Bookmark::Conference)),
-				        this, SLOT(_q_conference_bookmark_changed()));
+						this, SLOT(_q_conference_bookmark_changed()));
 			}
 		}
 		return true;
 	} else if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
 		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
-		QAction *action = event->action();		
+		QAction *action = event->action();
 		JActionType type = static_cast<JActionType>(action->property("actionType").toInt());
 		if (event->isVisible()) {
 			switch (type) {

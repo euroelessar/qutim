@@ -11,8 +11,8 @@ class MacWidget;
 @interface CoreMacSearchField : NSSearchField
 {
 @public
-    Core::SimpleContactList::MacWidget *widget;
-    NSString *itemIdentifier;
+	Core::SimpleContactList::MacWidget *widget;
+	NSString *itemIdentifier;
 }
 @end
 

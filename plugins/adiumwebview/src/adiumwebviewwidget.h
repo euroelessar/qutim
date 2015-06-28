@@ -44,7 +44,7 @@ class WebViewWidget : public QWebView, public Core::AdiumChat::ChatViewWidget
 	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
 	WebViewWidget(QWidget *parent = 0);
-    virtual void setViewController(QObject* controller);
+	virtual void setViewController(QObject* controller);
 private:
 	QPointer<WebViewController> m_controller;
 	QString m_searcher;

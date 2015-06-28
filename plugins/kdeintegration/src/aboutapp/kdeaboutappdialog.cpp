@@ -42,9 +42,9 @@ KdeAboutAppDialog::KdeAboutAppDialog()
 {
 	if (MenuController *menu = ServiceManager::getByName<MenuController*>("ContactList")) {
 		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String("qutim")),
-		                                           QT_TRANSLATE_NOOP("Core", "About qutIM"),
-		                                           this,
-		                                           SLOT(showWidget()));
+												   QT_TRANSLATE_NOOP("Core", "About qutIM"),
+												   this,
+												   SLOT(showWidget()));
 		gen->setPriority(1);
 		gen->setType(ActionTypePreferences);
 		menu->addAction(gen);
@@ -67,7 +67,7 @@ void KdeAboutAppDialog::showWidget()
 	}
 	if (m_data)
 		delete m_data;
-	
+
 	QList<PersonInfo> authors = PersonInfo::authors();
 	const KAboutData *aboutData = KGlobal::activeComponent().aboutData();
 	m_data = new KAboutData(*aboutData);
@@ -84,14 +84,14 @@ void KdeAboutAppDialog::showWidget()
 	for (int i = 0; i < authors.size(); i++) {
 		const PersonInfo &info = authors.at(i);
 		m_data->addAuthor(ki18n(info.name().toString().toUtf8()),
-		                  ki18n(info.task().toString().toUtf8()),
-		                  info.email().toUtf8(),
-		                  info.web().toUtf8()
+						  ki18n(info.task().toString().toUtf8()),
+						  info.email().toUtf8(),
+						  info.web().toUtf8()
 #if KDE_IS_VERSION(4, 6, 0)
-		                  ,
-		                  info.ocsUsername().toUtf8()
+						  ,
+						  info.ocsUsername().toUtf8()
 #endif
-		                  );
+						  );
 	}
 	m_widget = new KAboutApplicationDialog(m_data);
 	m_widget.data()->setAttribute(Qt::WA_DeleteOnClose);

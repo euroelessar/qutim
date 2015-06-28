@@ -154,9 +154,9 @@ void JServiceBrowser::getInfo(QTreeWidgetItem *item)
 	reply->setProperty("item", qVariantFromValue(item));
 	p->cleanupHandler.add(reply);
 	connect(reply, SIGNAL(infoReceived(Jreen::Disco::Item)),
-	        SLOT(onInfoReceived(Jreen::Disco::Item)));
+			SLOT(onInfoReceived(Jreen::Disco::Item)));
 	connect(reply, SIGNAL(error(Jreen::Error::Ptr)),
-	        SLOT(onError(Jreen::Error::Ptr)));
+			SLOT(onError(Jreen::Error::Ptr)));
 	p->searchCount++;
 	p->ui->labelLoader->setVisible(true);
 }
@@ -169,9 +169,9 @@ void JServiceBrowser::getItems(QTreeWidgetItem *item)
 		reply->setProperty("item", qVariantFromValue(item));
 		p->cleanupHandler.add(reply);
 		connect(reply, SIGNAL(itemsReceived(Jreen::Disco::ItemList)),
-		        SLOT(onItemsReceived(Jreen::Disco::ItemList)));
+				SLOT(onItemsReceived(Jreen::Disco::ItemList)));
 		connect(reply, SIGNAL(error(Jreen::Error::Ptr)),
-		        SLOT(onError(Jreen::Error::Ptr)));
+				SLOT(onError(Jreen::Error::Ptr)));
 	}
 }
 
@@ -493,9 +493,9 @@ void JServiceBrowser::onJoin()
 	if (GroupChatManager *manager = p->account->groupChatManager()) {
 		DataItem fields;
 		fields.addSubitem(StringDataItem(QLatin1String("conference"), LocalizedString(),
-		                               p->currentMenuItem.jid().full()));
+									   p->currentMenuItem.jid().full()));
 		fields.addSubitem(StringDataItem(QLatin1String("nickname"), LocalizedString(),
-		                               p->account->name()));
+									   p->account->name()));
 		manager->join(fields);
 	}
 }

@@ -31,9 +31,9 @@
 
 class WebKitUtils
 {
-    WebKitUtils();
+	WebKitUtils();
 public:
-	
+
 	static QString convertTimeDate(const QString& mac_format, const QDateTime& datetime);
 	static QString &validateCpp(QString &text);
 };

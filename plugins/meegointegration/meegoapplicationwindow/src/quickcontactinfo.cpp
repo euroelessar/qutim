@@ -13,56 +13,56 @@ using namespace qutim_sdk_0_3;
 typedef InfoRequestFactory::SupportLevel SupportLevel;
 
 QuickContactInfo::QuickContactInfo()
-    : m_request(0),
-      m_object(0),
-      m_readWrite(false)
+	: m_request(0),
+	  m_object(0),
+	  m_readWrite(false)
 {
 }
 
 QObject *QuickContactInfo::object()
 {
-    return m_object;
+	return m_object;
 }
 
 void QuickContactInfo::setObject(QObject *object)
 {
-    show(object);
+	show(object);
 }
 
 DataItem QuickContactInfo::item()
 {
-    return m_item;
+	return m_item;
 }
 
 bool QuickContactInfo::readOnly()
 {
-    return !m_readWrite;
+	return !m_readWrite;
 }
 
 void QuickContactInfo::show(QObject *object)
 {
 	InfoRequestFactory *factory = InfoRequestFactory::factory(object);
-    SupportLevel type = factory ? factory->supportLevel(object) : InfoRequestFactory::Unavailable;
-    if (type <= InfoRequestFactory::Unavailable)
-        object = 0;
-    
-    if (m_object != object) {
-        m_object = object;
-        emit objectChanged(object);
-    }
-    if (!object) {
-        m_item = DataItem("No data");
-        emit itemChanged(m_item);
-        delete m_request;
-        m_request = 0;
-        return;
-    }
+	SupportLevel type = factory ? factory->supportLevel(object) : InfoRequestFactory::Unavailable;
+	if (type <= InfoRequestFactory::Unavailable)
+		object = 0;
+
+	if (m_object != object) {
+		m_object = object;
+		emit objectChanged(object);
+	}
+	if (!object) {
+		m_item = DataItem("No data");
+		emit itemChanged(m_item);
+		delete m_request;
+		m_request = 0;
+		return;
+	}
 	bool readWrite = (type == InfoRequestFactory::ReadWrite);
-    if (m_readWrite != readWrite) {
-        m_readWrite = readWrite;
-        emit readOnlyChanged(!readWrite);
-    }
-    delete m_request;
+	if (m_readWrite != readWrite) {
+		m_readWrite = readWrite;
+		emit readOnlyChanged(!readWrite);
+	}
+	delete m_request;
 	m_request = InfoRequestFactory::dataFormRequest(object);
 
 	if (m_request) {
@@ -89,15 +89,15 @@ void QuickContactInfo::show(QObject *object)
 	}
 	if (m_request)
 		onRequestStateChanged(m_request->state());
-    emit showRequest();
+	emit showRequest();
 }
 
 void QuickContactInfo::request()
 {
-    if (m_request) {
-        m_request->cancel();
-        m_request->requestData();
-    }
+	if (m_request) {
+		m_request->cancel();
+		m_request->requestData();
+	}
 }
 
 void QuickContactInfo::save(const qutim_sdk_0_3::DataItem &item)
@@ -180,8 +180,8 @@ void QuickContactInfo::onRequestStateChanged(InfoRequest::State state)
 		} else {
 			item = filterItems(item);
 		}
-        m_item = item;
-        emit itemChanged(item);
+		m_item = item;
+		emit itemChanged(item);
 	}
 }
 

@@ -49,7 +49,7 @@ public:
 	QString getLoc(QString key);
 	QString getCC(QString key);
 	QString getDayF(int day, QString key);
-	
+
 	static QString currentLangId();
 
 private slots:

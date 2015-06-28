@@ -60,7 +60,7 @@ class LIBQUTIM_EXPORT Account : public MenuController
 	Q_PROPERTY(qutim_sdk_0_3::Status userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	Q_PROPERTY(QVariantMap parameters READ parameters WRITE updateParameters NOTIFY parametersChanged)
-    Q_PROPERTY(State state READ state NOTIFY stateChanged)
+	Q_PROPERTY(State state READ state NOTIFY stateChanged)
 public:
 	enum AccountHookEnum {
 		// all values below are reserved for MenuController
@@ -74,7 +74,7 @@ public:
 		Connected,
 		Disconnecting
 	};
-    Q_ENUM(State)
+	Q_ENUM(State)
 
 	struct UpdateParametersArgument
 	{

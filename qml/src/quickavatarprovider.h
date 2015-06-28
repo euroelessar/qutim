@@ -8,9 +8,9 @@ namespace qutim_sdk_0_3 {
 class QuickAvatarProvider : public QQuickImageProvider
 {
 public:
-    QuickAvatarProvider();
+	QuickAvatarProvider();
 
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
+	QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
 };
 
 } // namespace qutim_sdk_0_3

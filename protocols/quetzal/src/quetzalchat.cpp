@@ -28,7 +28,7 @@
 #include <qutim/chatsession.h>
 #include <qutim/debug.h>
 
-QuetzalChat::QuetzalChat(PurpleConversation *conv) : 
+QuetzalChat::QuetzalChat(PurpleConversation *conv) :
 		Conference(reinterpret_cast<Account *>(conv->account->ui_data))
 {
 	m_conv = conv;

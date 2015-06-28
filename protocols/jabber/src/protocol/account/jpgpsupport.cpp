@@ -140,7 +140,7 @@
 //	QCA::setAppName(QCoreApplication::applicationName());
 //	QCA::setProperty("pgp-always-trust", true);
 //	d->isAvailable = QCA::isSupported("openpgp");
-	
+
 //	connect(&d->keyStoreManager, SIGNAL(busyFinished()),
 //	        SLOT(onKeyStoreManagerLoaded()));
 //	connect(&d->keyStoreManager, SIGNAL(keyStoreAvailable(QString)),
@@ -297,7 +297,7 @@
 //{
 //public:
 //	SignReply(QCA::SecureMessageSystem *system);
-	
+
 //	JAccount *account;
 //	Status status;
 //	Presence::Type type;
@@ -358,7 +358,7 @@
 //		Jreen::Client *client = reply->account->client();
 //		client->presence().addPayload(new Jreen::PGPSigned(signature));
 //		client->setPresence(reply->type, reply->text, reply->priority);
-		
+
 //		const Presence presence = client->presence();
 //		// We need this for peps
 //		Presence copy(presence.subtype(), client->jid().bareJID(), presence.status(), presence.priority());
@@ -386,7 +386,7 @@
 //{
 //public:
 //	EncryptReply(const Jreen::Message &m, QCA::SecureMessageSystem *system);
-	
+
 //	MessageSession *session;
 //	ChatUnit *unit;
 //	Jreen::Message message;
@@ -416,7 +416,7 @@
 
 //	QCA::SecureMessageKey key;
 //	key.setPGPPublicKey(keyEntry.pgpPublicKey());
-	
+
 //	EncryptReply *reply = new EncryptReply(message, new QCA::OpenPGP());
 //	reply->session = session;
 //	reply->unit = unit;
@@ -448,7 +448,7 @@
 //{
 //public:
 //	DecryptReply(const Jreen::Message &m, QCA::SecureMessageSystem *system);
-	
+
 //	JPGPDecryptReply *reply;
 //	QPointer<ChatUnit> unit;
 //	QPointer<ChatUnit> unitForSession;
@@ -466,7 +466,7 @@
 //	PGPEncrypted::Ptr encrypted = message.payload<Jreen::PGPEncrypted>();
 //	if (!encrypted)
 //		return 0;
-	
+
 //	DecryptReply *reply = new DecryptReply(message, new QCA::OpenPGP());
 //	reply->unit = unit;
 //	reply->unitForSession = unitForSession;
@@ -557,7 +557,7 @@
 //		} else {
 //			QString title = tr("%1 : OpenPGP Passphrase");
 //			QString description = tr("Your passphrase is needed to use OpenPGP security.");
-			
+
 //			QCA::KeyStoreEntry entry = event.keyStoreEntry();
 //			QString name;
 //			QString entryId;

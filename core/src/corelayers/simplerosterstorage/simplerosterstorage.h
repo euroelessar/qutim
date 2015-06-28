@@ -34,9 +34,9 @@ class SimpleRosterStorage : public qutim_sdk_0_3::RosterStorage
 {
 	Q_OBJECT
 public:
-    SimpleRosterStorage();
-    ~SimpleRosterStorage();
-	
+	SimpleRosterStorage();
+	~SimpleRosterStorage();
+
 	virtual QString load(qutim_sdk_0_3::Account *account);
 	virtual void addContact(qutim_sdk_0_3::Contact *contact, const QString &version = QString());
 	virtual void updateContact(qutim_sdk_0_3::Contact *contact, const QString &version = QString());

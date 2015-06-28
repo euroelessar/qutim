@@ -39,19 +39,19 @@ AnswerLine::AnswerLine(const QString &text, QListWidget *list)
 {
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	m_textEdit = new QPlainTextEdit(this);
-	
+
 	QPushButton *button = new QPushButton(tr("Remove"), this);
 	button->setIcon(qutim_sdk_0_3::Icon(QLatin1String("list-remove")));
 	layout->addWidget(m_textEdit);
 	layout->addWidget(button);
 	connect(button, SIGNAL(clicked()), SLOT(onButtonClicked()));
 	connect(m_textEdit, SIGNAL(textChanged()), SIGNAL(modified()));
-	
+
 	QSizePolicy policy = m_textEdit->sizePolicy();
 	policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
 	m_textEdit->setSizePolicy(policy);
 	m_textEdit->setMaximumHeight(100);
-	
+
 	m_item = new QListWidgetItem(list);
 	QObject *guard = new QObject();
 	connect(guard, SIGNAL(destroyed()), SLOT(deleteLater()));
@@ -73,10 +73,10 @@ void AnswerLine::onButtonClicked()
 }
 
 SettingsWidget::SettingsWidget()
-    : ui(new Ui::SettingsWidget)
+	: ui(new Ui::SettingsWidget)
 {
 	ui->setupUi(this);
-    setSizePolicy(sizePolicy().horizontalPolicy(), QSizePolicy::MinimumExpanding);
+	setSizePolicy(sizePolicy().horizontalPolicy(), QSizePolicy::MinimumExpanding);
 	QSizePolicy policy = ui->answersList->sizePolicy();
 	policy.setVerticalPolicy(QSizePolicy::MinimumExpanding);
 	ui->answersList->setSizePolicy(policy);

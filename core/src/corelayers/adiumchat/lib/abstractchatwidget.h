@@ -70,7 +70,7 @@ public:
 
 public slots:
 	virtual void addSession(ChatSessionImpl *session) = 0;
-    void addSessions(const QList<ChatSessionImpl*> &sessions);
+	void addSessions(const QList<ChatSessionImpl*> &sessions);
 	virtual void removeSession(ChatSessionImpl *session) = 0;
 	virtual void activate(ChatSessionImpl* session) = 0;
 	virtual void loadSettings() = 0;
@@ -80,7 +80,7 @@ signals:
 
 protected:
 	virtual void setTitle(ChatSessionImpl *s);
-	
+
 	QMenuBar *m_bar;
 	Attributes m_attributes;
 };

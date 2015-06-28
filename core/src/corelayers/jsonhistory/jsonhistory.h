@@ -42,61 +42,61 @@ class HistoryWindow;
 class JsonHistoryScope
 {
 public:
-    typedef QSharedPointer<JsonHistoryScope> Ptr;
+	typedef QSharedPointer<JsonHistoryScope> Ptr;
 
-    uint findEnd(QFile &file);
-    QString getFileName(const Message &message) const;
-    QString getFileName(const History::ContactInfo &info, const QDate &time) const;
-    QDir getAccountDir(const History::AccountInfo &info) const;
+	uint findEnd(QFile &file);
+	QString getFileName(const Message &message) const;
+	QString getFileName(const History::ContactInfo &info, const QDate &time) const;
+	QDir getAccountDir(const History::AccountInfo &info) const;
 
-    struct EndValue
-    {
-        EndValue(const QDateTime &t, uint e) : lastModified(t), end(e) {}
-        QDateTime lastModified;
-        uint end;
-    };
+	struct EndValue
+	{
+		EndValue(const QDateTime &t, uint e) : lastModified(t), end(e) {}
+		QDateTime lastModified;
+		uint end;
+	};
 
-    typedef QHash<QString, EndValue> EndCache;
-    bool hasRunnable;
-    EndCache cache;
-    QLinkedList<QPair<History::ContactInfo, Message>> queue;
-    QMutex mutex;
+	typedef QHash<QString, EndValue> EndCache;
+	bool hasRunnable;
+	EndCache cache;
+	QLinkedList<QPair<History::ContactInfo, Message>> queue;
+	QMutex mutex;
 };
 
 class JsonHistoryStoreJob : public QRunnable
 {
 public:
-    JsonHistoryStoreJob(JsonHistoryScope::Ptr scope);
-    void run() override;
-	
+	JsonHistoryStoreJob(JsonHistoryScope::Ptr scope);
+	void run() override;
+
 private:
-    JsonHistoryScope::Ptr d;
+	JsonHistoryScope::Ptr d;
 };
 
 class JsonHistoryJob : public QRunnable
 {
 public:
-    JsonHistoryJob(const std::function<void ()> &handler);
-    void run() override;
+	JsonHistoryJob(const std::function<void ()> &handler);
+	void run() override;
 
 private:
-    std::function<void ()> m_handler;
+	std::function<void ()> m_handler;
 };
 
 class JsonHistory : public History
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	JsonHistory();
-    virtual ~JsonHistory();
+	virtual ~JsonHistory();
 
-    void store(const Message &message) override;
-    AsyncResult<MessageList> read(const ContactInfo &info, const QDateTime &from, const QDateTime &to, int max_num) override;
-    AsyncResult<QVector<AccountInfo>> accounts() override;
-    AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) override;
-    AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) override;
-    AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) override;
-    void showHistory(const ChatUnit *unit) override;
+	void store(const Message &message) override;
+	AsyncResult<MessageList> read(const ContactInfo &info, const QDateTime &from, const QDateTime &to, int max_num) override;
+	AsyncResult<QVector<AccountInfo>> accounts() override;
+	AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) override;
+	AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) override;
+	AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) override;
+	void showHistory(const ChatUnit *unit) override;
 
 	static QString quote(const QString &str);
 	static QString unquote(const QString &str);
@@ -104,7 +104,7 @@ public:
 private slots:
 	void onHistoryActionTriggered(QObject *object);
 private:
-    JsonHistoryScope::Ptr m_scope;
+	JsonHistoryScope::Ptr m_scope;
 	QPointer<HistoryWindow> m_historyWindow;
 };
 }

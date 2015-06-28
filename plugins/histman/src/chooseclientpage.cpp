@@ -48,10 +48,10 @@ using namespace qutim_sdk_0_3;
 namespace HistoryManager {
 
 ChooseClientPage::ChooseClientPage(HistoryManagerWindow *parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::ChooseClientPage)
+	QWizardPage(parent),
+	m_ui(new Ui::ChooseClientPage)
 {
-    m_ui->setupUi(this);
+	m_ui->setupUi(this);
 	m_parent = parent;
 	setTitle(tr("Client"));
 	setSubTitle(tr("Choose client which history you want to import to qutIM."));
@@ -93,7 +93,7 @@ ChooseClientPage::ChooseClientPage(HistoryManagerWindow *parent) :
 
 ChooseClientPage::~ChooseClientPage()
 {
-    delete m_ui;
+	delete m_ui;
 	qDeleteAll(m_clients_list);
 	m_clients_list.clear();
 }
@@ -145,14 +145,14 @@ void ChooseClientPage::clientChanged(QListWidgetItem *current, QListWidgetItem *
 
 void ChooseClientPage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 }

@@ -25,7 +25,7 @@
 
 #ifndef INDICATOR_GS5D2FLA
 #define INDICATOR_GS5D2FLA
-	
+
 #include <qutim/plugin.h>
 #include "indicatorservice.h"
 

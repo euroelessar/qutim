@@ -29,10 +29,10 @@
 namespace HistoryManager {
 
 ChooseOrDumpPage::ChooseOrDumpPage(HistoryManagerWindow *parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::ChooseOrDumpPage)
+	QWizardPage(parent),
+	m_ui(new Ui::ChooseOrDumpPage)
 {
-    m_ui->setupUi(this);
+	m_ui->setupUi(this);
 	m_parent = parent;
 	setTitle(tr("What to do next?", "Dump history or choose next client"));
 	setSubTitle(tr("It is possible to choose another client for import history or dump history to the disk."));
@@ -40,7 +40,7 @@ ChooseOrDumpPage::ChooseOrDumpPage(HistoryManagerWindow *parent) :
 
 ChooseOrDumpPage::~ChooseOrDumpPage()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 void ChooseOrDumpPage::initializePage()
@@ -70,14 +70,14 @@ int ChooseOrDumpPage::nextId() const
 
 void ChooseOrDumpPage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 }

@@ -35,7 +35,7 @@ using namespace qutim_sdk_0_3;
 namespace Jabber {
 
 JProxyManager::JProxyManager()
-    : NetworkProxyManager(JProtocol::instance())
+	: NetworkProxyManager(JProtocol::instance())
 {
 }
 

@@ -25,53 +25,53 @@
  */
 class OrgKdeStatusNotifierWatcherInterface: public QDBusAbstractInterface
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    static inline const char *staticInterfaceName()
-    { return "org.kde.StatusNotifierWatcher"; }
+	static inline const char *staticInterfaceName()
+	{ return "org.kde.StatusNotifierWatcher"; }
 
 public:
-    OrgKdeStatusNotifierWatcherInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0);
+	OrgKdeStatusNotifierWatcherInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0);
 
-    ~OrgKdeStatusNotifierWatcherInterface();
+	~OrgKdeStatusNotifierWatcherInterface();
 
-    Q_PROPERTY(bool IsStatusNotifierHostRegistered READ isStatusNotifierHostRegistered)
-    inline bool isStatusNotifierHostRegistered() const
-    { return qvariant_cast< bool >(property("IsStatusNotifierHostRegistered")); }
+	Q_PROPERTY(bool IsStatusNotifierHostRegistered READ isStatusNotifierHostRegistered)
+	inline bool isStatusNotifierHostRegistered() const
+	{ return qvariant_cast< bool >(property("IsStatusNotifierHostRegistered")); }
 
-    Q_PROPERTY(int ProtocolVersion READ protocolVersion)
-    inline int protocolVersion() const
-    { return qvariant_cast< int >(property("ProtocolVersion")); }
+	Q_PROPERTY(int ProtocolVersion READ protocolVersion)
+	inline int protocolVersion() const
+	{ return qvariant_cast< int >(property("ProtocolVersion")); }
 
-    Q_PROPERTY(QStringList RegisteredStatusNotifierItems READ registeredStatusNotifierItems)
-    inline QStringList registeredStatusNotifierItems() const
-    { return qvariant_cast< QStringList >(property("RegisteredStatusNotifierItems")); }
+	Q_PROPERTY(QStringList RegisteredStatusNotifierItems READ registeredStatusNotifierItems)
+	inline QStringList registeredStatusNotifierItems() const
+	{ return qvariant_cast< QStringList >(property("RegisteredStatusNotifierItems")); }
 
 public Q_SLOTS: // METHODS
-    inline QDBusPendingReply<> RegisterStatusNotifierHost(const QString &service)
-    {
-        QList<QVariant> argumentList;
-        argumentList << QVariant::fromValue(service);
-        return asyncCallWithArgumentList(QLatin1String("RegisterStatusNotifierHost"), argumentList);
-    }
+	inline QDBusPendingReply<> RegisterStatusNotifierHost(const QString &service)
+	{
+		QList<QVariant> argumentList;
+		argumentList << QVariant::fromValue(service);
+		return asyncCallWithArgumentList(QLatin1String("RegisterStatusNotifierHost"), argumentList);
+	}
 
-    inline QDBusPendingReply<> RegisterStatusNotifierItem(const QString &service)
-    {
-        QList<QVariant> argumentList;
-        argumentList << QVariant::fromValue(service);
-        return asyncCallWithArgumentList(QLatin1String("RegisterStatusNotifierItem"), argumentList);
-    }
+	inline QDBusPendingReply<> RegisterStatusNotifierItem(const QString &service)
+	{
+		QList<QVariant> argumentList;
+		argumentList << QVariant::fromValue(service);
+		return asyncCallWithArgumentList(QLatin1String("RegisterStatusNotifierItem"), argumentList);
+	}
 
 Q_SIGNALS: // SIGNALS
-    void StatusNotifierHostRegistered();
-    void StatusNotifierHostUnregistered();
-    void StatusNotifierItemRegistered(const QString &in0);
-    void StatusNotifierItemUnregistered(const QString &in0);
+	void StatusNotifierHostRegistered();
+	void StatusNotifierHostUnregistered();
+	void StatusNotifierItemRegistered(const QString &in0);
+	void StatusNotifierItemUnregistered(const QString &in0);
 };
 
 namespace org {
   namespace kde {
-    typedef ::OrgKdeStatusNotifierWatcherInterface StatusNotifierWatcher;
+	typedef ::OrgKdeStatusNotifierWatcherInterface StatusNotifierWatcher;
   }
 }
 #endif

@@ -60,7 +60,7 @@ bool Roster::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedba
 {
 	if (error != FeedbagError::NoError)
 		return false;
-	
+
 	if (type == Feedbag::Remove)
 		handleRemoveCLItem(feedbag->account(), item);
 	else
@@ -106,8 +106,8 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item,
 		FeedbagItem group = account->feedbag()->groupItem(item.groupId());
 		Q_ASSERT(!group.isNull());
 		if (!group.containsField(SsiGroupDefault)
-		        && group.name().compare(QLatin1String("Not In List"), Qt::CaseInsensitive) != 0
-		        && !newTags.contains(group.name())) {
+				&& group.name().compare(QLatin1String("Not In List"), Qt::CaseInsensitive) != 0
+				&& !newTags.contains(group.name())) {
 			newTags.append(group.name());
 		}
 		if (newTags != d->tags) {

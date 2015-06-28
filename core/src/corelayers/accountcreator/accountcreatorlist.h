@@ -30,7 +30,7 @@
 #include "accountcreatorwizard.h"
 
 namespace Ui {
-    class AccountCreatorList;
+	class AccountCreatorList;
 }
 
 namespace qutim_sdk_0_3

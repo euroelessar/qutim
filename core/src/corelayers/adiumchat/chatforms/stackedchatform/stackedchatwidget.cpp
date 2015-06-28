@@ -418,16 +418,16 @@ void StackedChatWidget::onCurrentChanged(int index)
 
 void StackedChatWidget::fingerGesture( enum SlidingStackedWidget::SlideDirection direction)
 {
-    if (direction==SlidingStackedWidget::LeftToRight)
-    {
+	if (direction==SlidingStackedWidget::LeftToRight)
+	{
 		m_stack->slideInPrev();
 		m_contactView->blockSignals(true);
-    }
-    else if (direction==SlidingStackedWidget::RightToLeft)
-    {
+	}
+	else if (direction==SlidingStackedWidget::RightToLeft)
+	{
 		m_stack->slideInNext();
 		m_contactView->blockSignals(true);
-    }
+	}
 
 }
 

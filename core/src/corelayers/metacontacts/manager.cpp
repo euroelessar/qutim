@@ -42,7 +42,7 @@ namespace MetaContacts
 {
 using namespace qutim_sdk_0_3;
 
-Manager::Manager() : 
+Manager::Manager() :
 	m_storage(RosterStorage::instance()),
 	m_factory(new Factory(this)),
 	m_blockUpdate(false)
@@ -52,9 +52,9 @@ Manager::Manager() :
 	setContactsFactory(m_factory.data());
 	m_handler.reset(new MetaContactMessageHandler);
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
-	                                               QLatin1String("MetaContact"),
-	                                               qutim_sdk_0_3::MessageHandler::HighPriority,
-	                                               qutim_sdk_0_3::MessageHandler::HighPriority);
+												   QLatin1String("MetaContact"),
+												   qutim_sdk_0_3::MessageHandler::HighPriority,
+												   qutim_sdk_0_3::MessageHandler::HighPriority);
 	//TODO implement logic
 	m_name = Profile::instance()->value("name").toString();
 	if (m_name.isEmpty())
@@ -116,7 +116,7 @@ void Manager::onContactCreated(qutim_sdk_0_3::Contact *contact)
 
 void Manager::initActions()
 {
-	if (MenuController *cl = ServiceManager::getByName<MenuController*>("ContactList")) {	
+	if (MenuController *cl = ServiceManager::getByName<MenuController*>("ContactList")) {
 		ActionGenerator *gen = new ActionGenerator(Icon("list-remove-user"),
 												QT_TRANSLATE_NOOP("MetaContact","Split Metacontact"),
 												this,

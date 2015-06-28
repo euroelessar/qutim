@@ -34,28 +34,28 @@ namespace SimpleAbout {
 
 class AboutInfo : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(QString qutimVersion READ qutimVersion NOTIFY languageChanged)
-    Q_PROPERTY(QString qtVersion READ qtVersion NOTIFY languageChanged)
-    Q_PROPERTY(int wordSize READ wordSize NOTIFY languageChanged)
-    Q_PROPERTY(QString license READ license NOTIFY languageChanged)
-    Q_PROPERTY(QString developers READ developers NOTIFY languageChanged)
-    Q_PROPERTY(QString translators READ translators NOTIFY languageChanged)
+	Q_OBJECT
+	Q_PROPERTY(QString qutimVersion READ qutimVersion NOTIFY languageChanged)
+	Q_PROPERTY(QString qtVersion READ qtVersion NOTIFY languageChanged)
+	Q_PROPERTY(int wordSize READ wordSize NOTIFY languageChanged)
+	Q_PROPERTY(QString license READ license NOTIFY languageChanged)
+	Q_PROPERTY(QString developers READ developers NOTIFY languageChanged)
+	Q_PROPERTY(QString translators READ translators NOTIFY languageChanged)
 public:
-    explicit AboutInfo(QObject *parent = 0);
-    
-    QString qutimVersion() const;
-    QString qtVersion() const;
-    int wordSize() const;
-    QString license() const;
-    QString developers() const;
-    QString translators() const;
+	explicit AboutInfo(QObject *parent = 0);
+
+	QString qutimVersion() const;
+	QString qtVersion() const;
+	int wordSize() const;
+	QString license() const;
+	QString developers() const;
+	QString translators() const;
 
 protected:
 	QString toHtml(const QList<qutim_sdk_0_3::PersonInfo> &persons, bool useTask) const;
-    
+
 signals:
-    void languageChanged();
+	void languageChanged();
 
 private:
 	QString m_license;

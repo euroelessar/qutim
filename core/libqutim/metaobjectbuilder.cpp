@@ -70,7 +70,7 @@ static int ensureIndex(const QByteArray &name, QByteArray &data, QMap<QByteArray
 
 QMetaObject *MetaObjectBuilder::generate()
 {
-    return NULL;
+	return NULL;
 //	Q_D(MetaObjectBuilder);
 //	QMetaObject *meta = new QMetaObject;
 //	meta->d.superdata = d->parent;

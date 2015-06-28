@@ -99,10 +99,10 @@ QVariant KdeSystemIntegration::doProcess(Operation act, const QVariant &data) co
 bool KdeSystemIntegration::canHandle(Attribute attribute) const
 {
 	return attribute == UserLogin
-	        || attribute == UserName
-	        || attribute == TimeZone
-	        || attribute == TimeZoneName
-	        || attribute == TimeZoneShortName;
+			|| attribute == UserName
+			|| attribute == TimeZone
+			|| attribute == TimeZoneName
+			|| attribute == TimeZoneShortName;
 }
 
 bool KdeSystemIntegration::canHandle(Operation operation) const

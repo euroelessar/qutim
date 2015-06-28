@@ -59,10 +59,10 @@ bool UpdaterPlugin::load()
 	connect(m_manager.data(), SIGNAL(finished(QNetworkReply*)), SLOT(onReplyFinished(QNetworkReply*)));
 	m_watcher.reset(new QFutureWatcher<FileInfo>());
 	connect(m_watcher.data(), SIGNAL(finished()), this, SLOT(onCheckFinished()));
-	
+
 	// Check for updates once per day
 	m_timer.start(1000 * 60 * 60 * 24, this);
-	
+
 	updateIcons();
 	return true;
 }

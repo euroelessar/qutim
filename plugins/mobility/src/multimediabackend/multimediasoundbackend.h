@@ -36,15 +36,15 @@ namespace Core
 {
 class MultimediaSoundBackend : public SoundBackend
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    MultimediaSoundBackend();
-    virtual void playSound(const QString &filename);
-    virtual QStringList supportedFormats();
+	MultimediaSoundBackend();
+	virtual void playSound(const QString &filename);
+	virtual QStringList supportedFormats();
 
 private:
-    QCache<QString, QSoundEffect> m_cache;
-    QStringList m_formats;
+	QCache<QString, QSoundEffect> m_cache;
+	QStringList m_formats;
 };
 }
 

@@ -31,7 +31,7 @@ class PackageEntryData : public QSharedData
 {
 public:
 	PackageEntryData() : status(PackageEntry::Invalid) {}
-	
+
 	Attica::Content content;
 	PackageEntry::Status status;
 	QPixmap smallPreview;

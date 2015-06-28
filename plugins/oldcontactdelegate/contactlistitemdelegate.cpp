@@ -109,8 +109,8 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 	if (cg == QPalette::Normal && !(option.state & QStyle::State_Active))
 		cg = QPalette::Inactive;
 
-	QBrush selected = option.palette.brush(cg, QPalette::Highlight);  
-	
+	QBrush selected = option.palette.brush(cg, QPalette::Highlight);
+
 	QFont font = option.font;
 	QVariant var_font = index.data(Qt::FontRole);
 	if(var_font.canConvert(QVariant::Font))
@@ -411,7 +411,7 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 		statusText = fontMetrics.elidedText(statusText, Qt::ElideRight, status_rect.width());
 		painter->drawText(status_rect, Qt::AlignTop, statusText);
 	}
-	
+
 	// done
 	painter->restore();
 }
@@ -567,12 +567,12 @@ void ContactListItemDelegate::drawGradient(QPainter *painter, const QColor &up, 
 void ContactListItemDelegate::drawRect(QPainter *painter, const QColor & color/*, const QRect & rect, int type*/) const
 {
 	if (!m_styleType) {
-        QColor color2 = color;
-        color2.setAlpha(50);
-        painter->setBrush(color2);
-    }
-    else
-        painter->setBrush(color);
+		QColor color2 = color;
+		color2.setAlpha(50);
+		painter->setBrush(color2);
+	}
+	else
+		painter->setBrush(color);
 	//QPen pen = painter->pen();
 	//QBrush brush = painter->brush();
 	painter->setPen(QColor(255,255,255,0));
@@ -629,7 +629,7 @@ QPixmap ContactListItemDelegate::getAlphaMask(QPainter *painter, QRect rect, int
 		alpha_painter.drawRect(QRect(QPoint(0,y1),QSize(x2,y2)));
 	alpha_painter.end();
 	return alpha_buffer;
-	
+
 }
 
 void ContactListItemDelegate::draw(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QVariant &value) const
@@ -1089,7 +1089,7 @@ QVariant ContactListItemDelegate::getValue(const QString &name, const QVariant &
 	if (var.isValid())
 		return var;
 	return def;
-	
+
 }
 
 QColor ContactListItemDelegate::getColor(QVariant var) const

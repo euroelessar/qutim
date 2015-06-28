@@ -36,18 +36,18 @@ class ControlPlugin : public qutim_sdk_0_3::Plugin
 	Q_CLASSINFO("DebugName", "Control")
 public:
 	explicit ControlPlugin();
-	
+
 	virtual void init();
-    virtual bool load();
-    virtual bool unload();
-	
+	virtual bool load();
+	virtual bool unload();
+
 signals:
-	
+
 public slots:
-	
+
 private:
 	QScopedPointer<QObject> m_roster;
-	
+
 };
 
 } // namespace Control

@@ -132,7 +132,7 @@ class LIBOSCAR_EXPORT Feedbag : public QObject, public SNACHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
-public:		
+public:
 	enum ModifyType {
 		Add = ListsAddToList,
 		AddModify = ListsList,
@@ -149,32 +149,32 @@ public:
 		DontCheckGroup = 0x0040
 	};
 	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag)
-	
+
 	Feedbag(IcqAccount *acc);
 	virtual ~Feedbag();
-	
+
 	bool event(QEvent *event);
-	
+
 	bool removeItem(quint16 type, quint16 id);
 	bool removeItem(quint16 type, const QString &name);
-	
+
 	FeedbagItem buddyForChange(const QString &uin) const;
 	FeedbagItem itemByType(quint16 type, ItemLoadFlags flags = NoFlags) const;
-	
-	
+
+
 	FeedbagItem item(quint16 type, quint16 id, quint16 group, ItemLoadFlags flags = NoFlags) const;
 	FeedbagItem item(quint16 type, const QString &name, quint16 group, ItemLoadFlags flags = NoFlags) const;
 	FeedbagItem item(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
-	
+
 	QList<FeedbagItem> items(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
-	
+
 	FeedbagItem groupItem(quint16 id, ItemLoadFlags flags = NoFlags) const;
 	FeedbagItem groupItem(const QString &name, ItemLoadFlags flags = NoFlags) const;
 	bool containsItem(quint16 type, quint16 id) const;
 	bool containsItem(quint16 type, const QString &name) const;
-	
+
 	quint16 uniqueItemId(quint16 type) const;
-	
+
 	void registerHandler(FeedbagItemHandler *handler);
 	IcqAccount *account() const;
 	Config config();

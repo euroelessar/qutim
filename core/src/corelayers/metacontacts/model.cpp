@@ -45,7 +45,7 @@ Model::Model(QObject *parent) :
 	m_metaRoot = new QStandardItem(QT_TRANSLATE_NOOP("MetaContacts", "Contacts in metacontact"));
 	m_metaRoot->setData(true,SeparatorRole);
 	appendRow(m_metaRoot);
-	
+
 	m_searchRoot = new QStandardItem(QT_TRANSLATE_NOOP("MetaContacts", "Search results"));
 	m_searchRoot->setData(true,SeparatorRole);
 	appendRow(m_searchRoot);

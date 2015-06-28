@@ -50,7 +50,7 @@ Win7EventFilter::Win7EventFilter()
 	qApp->installNativeEventFilter(this);
 }
 
-bool Win7EventFilter::nativeEventFilter(const QByteArray &, void * message, long * result) 
+bool Win7EventFilter::nativeEventFilter(const QByteArray &, void * message, long * result)
 {
 	MSG *msg = static_cast<MSG *>(message);
 	//qDebug() << *msg;

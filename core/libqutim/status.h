@@ -41,10 +41,10 @@ class LIBQUTIM_EXPORT Status
 {
 	Q_GADGET
 	Q_ENUMS(Type ChangeReason)
-    Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(Type type READ type WRITE setType)
-    Q_PROPERTY(int subtype READ subtype WRITE setSubtype)
-    Q_PROPERTY(ChangeReason changeReason READ changeReason WRITE setChangeReason)
+	Q_PROPERTY(QString text READ text WRITE setText)
+	Q_PROPERTY(Type type READ type WRITE setType)
+	Q_PROPERTY(int subtype READ subtype WRITE setSubtype)
+	Q_PROPERTY(ChangeReason changeReason READ changeReason WRITE setChangeReason)
 public:
 	enum Type
 	{
@@ -101,7 +101,7 @@ public:
 
 	QVariant property(const char *name, const QVariant &def) const;
 	template<typename T>
-    T property(const char *name, const T &def) const;
+	T property(const char *name, const T &def) const;
 	void setProperty(const char *name, const QVariant &value);
 
 	void initIcon(const QString &protocol = QString());
@@ -109,9 +109,9 @@ public:
 	static QString iconName(Type type, const QString &protocol = QString());
 	static Status instance(Type type, const char *proto, int subtype = 0);
 	static bool remember(const Status &status, const char *proto);
-    static Status createConnecting(const Status &status, const char *proto);
-    static Status connectingGoal(const Status &status);
-    Status connectingGoal() const;
+	static Status createConnecting(const Status &status, const char *proto);
+	static Status connectingGoal(const Status &status);
+	Status connectingGoal() const;
 	void setExtendedInfo(const QString &name, const QVariantHash &status);
 	void removeExtendedInfo(const QString &name);
 	QVariantHash extendedInfo(const QString &name) const;
@@ -124,8 +124,8 @@ private:
 template<typename T>
 T Status::property(const char *name, const T &def) const
 {
-    QVariant var = property(name, QVariant::fromValue<T>(def));
-    return var.value<T>();
+	QVariant var = property(name, QVariant::fromValue<T>(def));
+	return var.value<T>();
 }
 
 /**

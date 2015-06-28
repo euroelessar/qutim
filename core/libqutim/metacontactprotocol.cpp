@@ -32,11 +32,11 @@ namespace qutim_sdk_0_3
 	{
 		d_func()->manager = manager;
 	}
-	
+
 	MetaProtocol::~MetaProtocol()
 	{
 	}
-	
+
 	QList<Account *> MetaProtocol::accounts() const
 	{
 		Q_D(const MetaProtocol);
@@ -44,7 +44,7 @@ namespace qutim_sdk_0_3
 		list << d->manager;
 		return list;
 	}
-	
+
 	Account *MetaProtocol::account(const QString &id) const
 	{
 		Q_D(const MetaProtocol);
@@ -52,7 +52,7 @@ namespace qutim_sdk_0_3
 			return d->manager;
 		return 0;
 	}
-	
+
 	void MetaProtocol::loadAccounts()
 	{
 	}

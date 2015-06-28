@@ -43,7 +43,7 @@ namespace nowplaying {
 		QUrl location;
 	};
 
-} 
+}
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::nowplaying::TrackInfo)

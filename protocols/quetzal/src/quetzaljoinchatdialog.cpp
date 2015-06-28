@@ -61,7 +61,7 @@ DataItem QuetzalJoinChatManager::fields(const char *alias, GHashTable *comps) co
 	PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(m_gc->prpl);
 	if (!info->chat_info)
 		return item;
-	
+
 	GList *chat_info = info->chat_info(m_gc);
 	for (GList *it = chat_info; it; it = it->next) {
 		proto_chat_entry *pce = reinterpret_cast<proto_chat_entry *>(it->data);

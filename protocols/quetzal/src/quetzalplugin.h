@@ -33,7 +33,7 @@ using namespace qutim_sdk_0_3;
 
 class QuetzalPlugin : public Plugin
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("DebugName", "quetzal")
 public:
 	virtual void init();

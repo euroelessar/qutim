@@ -31,7 +31,7 @@
 #include "historymanagerwindow.h"
 
 namespace Ui {
-    class DumpHistoryPage;
+	class DumpHistoryPage;
 }
 
 namespace HistoryManager {
@@ -48,8 +48,8 @@ private:
 };
 
 class DumpHistoryPage : public QWizardPage {
-    Q_OBJECT
-    Q_DISABLE_COPY(DumpHistoryPage)
+	Q_OBJECT
+	Q_DISABLE_COPY(DumpHistoryPage)
 public:
 	enum State
 	{
@@ -59,10 +59,10 @@ public:
 		Finished
 	};
 	explicit DumpHistoryPage(HistoryManagerWindow *parent = 0);
-    virtual ~DumpHistoryPage();
+	virtual ~DumpHistoryPage();
 
 protected:
-    virtual void changeEvent(QEvent *e);
+	virtual void changeEvent(QEvent *e);
 	virtual void initializePage();
 	virtual void cleanupPage();
 	virtual bool isComplete() const;
@@ -73,7 +73,7 @@ protected slots:
 	void completed();
 
 private:
-    Ui::DumpHistoryPage *m_ui;
+	Ui::DumpHistoryPage *m_ui;
 	HistoryManagerWindow *m_parent;
 	State m_state;
 	char m_format;

@@ -10,8 +10,8 @@ namespace qutim_sdk_0_3 {
 class DataSettingsObjectPrivate
 {
 public:
-    qutim_sdk_0_3::DataItem item;
-    QObject *controller;
+	qutim_sdk_0_3::DataItem item;
+	QObject *controller;
 };
 
 class DataSettingsWidget : public SettingsWidget
@@ -21,21 +21,21 @@ public:
 	DataSettingsWidget(DataSettingsObject *object);
 	virtual ~DataSettingsWidget();
 
-    void setController(QObject *controller);
-    
+	void setController(QObject *controller);
+
 protected slots:
-    void onItemChanged(const qutim_sdk_0_3::DataItem &item);
-    void onChanged();
-    
+	void onItemChanged(const qutim_sdk_0_3::DataItem &item);
+	void onChanged();
+
 protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
-    
+
 private:
 	QScopedPointer<DataSettingsObject> m_object;
-    QVBoxLayout *m_layout;
-    AbstractDataForm *m_form;
+	QVBoxLayout *m_layout;
+	AbstractDataForm *m_form;
 };
 
 class DataSettingsItemPrivate : public SettingsItemPrivate
@@ -48,11 +48,11 @@ class DataSettingsGenerator : public ObjectGenerator
 public:
 	DataSettingsGenerator(DataSettingsItem *item) : m_item(item) {}
 	virtual ~DataSettingsGenerator() {}
-    
+
 protected:
 	virtual QObject *generateHelper() const
 	{
-        return new DataSettingsWidget(m_item->createObject());
+		return new DataSettingsWidget(m_item->createObject());
 	}
 	virtual const QMetaObject *metaObject() const
 	{

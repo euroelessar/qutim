@@ -30,7 +30,7 @@
 #include <qutim/account.h>
 
 namespace Ui {
-    class SimplePasswordWidget;
+	class SimplePasswordWidget;
 }
 
 namespace Core
@@ -40,10 +40,10 @@ class SimplePasswordDialog;
 
 class SimplePasswordWidget : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	SimplePasswordWidget(Account *account, SimplePasswordDialog *parent);
-    ~SimplePasswordWidget();
+	~SimplePasswordWidget();
 
 	void setValidator(QValidator *validator);
 	void showSaveButton(bool show);
@@ -51,7 +51,7 @@ public:
 	void setText(const QString &title, const QString &description);
 
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 public slots:
 	void onAccept();
 	void onReject();
@@ -61,7 +61,7 @@ signals:
 private:
 	Account *m_account;
 	SimplePasswordDialog *m_parent;
-    Ui::SimplePasswordWidget *ui;
+	Ui::SimplePasswordWidget *ui;
 };
 }
 

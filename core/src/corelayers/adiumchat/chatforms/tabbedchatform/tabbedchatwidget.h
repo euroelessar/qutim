@@ -67,7 +67,7 @@ class ChatEdit;
 class ConferenceContactsView;
 class TabbedChatWidget : public AbstractChatWidget, public ActionHandler
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	TabbedChatWidget(const QString &key = QString(),QWidget *parent = 0);
 	virtual void handleActionAdded(int index, QAction *action);

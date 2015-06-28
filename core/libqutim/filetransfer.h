@@ -56,7 +56,7 @@ public:
 	FileTransferInfo(const FileTransferInfo &other);
 	~FileTransferInfo();
 	FileTransferInfo &operator =(const FileTransferInfo &other);
-	
+
 	// Relative file name
 	QString fileName() const;
 	void setFileName(const QString &fileName);
@@ -84,10 +84,10 @@ public:
 	enum Direction { Outgoing, Incoming };
 	enum ErrorType { NetworkError, Canceled, NotSupported, IOError, NoError };
 	enum State { Initiation, Started, Finished, Error };
-	
+
 	FileTransferJob(ChatUnit *unit, Direction direction, FileTransferFactory *factory);
 	virtual ~FileTransferJob();
-	
+
 	// Send some file or dir
 	void send(const QUrl &url, const QString &title = QString());
 	void send(const QDir &baseDir, const QStringList &files, const QString &title);
@@ -203,7 +203,7 @@ class LIBQUTIM_EXPORT FileTransferManager : public QObject
 public:
 	FileTransferManager();
 	~FileTransferManager();
-	
+
 	static bool checkAbility(ChatUnit *unit);
 	// If the factory is null, the file/directory will be sent through
 	// the most appropriate factory

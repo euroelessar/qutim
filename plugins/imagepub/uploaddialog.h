@@ -30,7 +30,7 @@
 #include <QDesktopWidget>
 #include "ui_uploaddialog.h"
 
-class uploadDialog : public QWidget  
+class uploadDialog : public QWidget
 {
 	Q_OBJECT;
 

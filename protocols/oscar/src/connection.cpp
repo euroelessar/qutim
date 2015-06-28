@@ -487,7 +487,7 @@ quint32 AbstractConnection::sendSnac(SNAC &snac)
 		snac.lock();
 		send(flap);
 	}
-    qWarning() << dbgStr
+	qWarning() << dbgStr
 					  .arg(snac.family(), 4, 16, QChar('0'))
 					  .arg(snac.subtype(), 4, 16, QChar('0'))
 					  .arg(metaObject()->className());

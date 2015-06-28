@@ -53,7 +53,7 @@ public:
 	void showImpl(QAction *, QObject *);
 private:
 	Protocol *m_proto;
-    mutable QPointer<QAction> m_action;
+	mutable QPointer<QAction> m_action;
 };
 
 #ifdef Q_OS_WIN
@@ -82,7 +82,7 @@ public:
 #endif
 
 SimpleTray::SimpleTray() :
-    NotificationBackend("Tray")
+	NotificationBackend("Tray")
 {
 	setDescription(QT_TR_NOOP("Blink icon in the tray"));
 
@@ -138,11 +138,11 @@ SimpleTray::SimpleTray() :
 	activationStateChangedTime = QDateTime::currentMSecsSinceEpoch();
 #endif
 
-    m_settingsItem = new QmlSettingsItem(QStringLiteral("trayicon"),
-                Settings::Plugin, Icon("user-desktop"),
-                QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
-    Settings::registerItem(m_settingsItem);
-    m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
+	m_settingsItem = new QmlSettingsItem(QStringLiteral("trayicon"),
+				Settings::Plugin, Icon("user-desktop"),
+				QT_TRANSLATE_NOOP("Plugin", "Notification Area Icon"));
+	Settings::registerItem(m_settingsItem);
+	m_settingsItem->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	reloadSettings();
 }
 
@@ -323,14 +323,14 @@ QIcon SimpleTray::getIconForNotification(Notification *notification)
 
 static QIcon addIcon(const QIcon &backing, QIcon &icon, const QSize &size, int number)
 {
-    QFont font = QApplication::font();
-    QPixmap pixmap = backing.pixmap(size);
+	QFont font = QApplication::font();
+	QPixmap pixmap = backing.pixmap(size);
 
-    QPainter painter(&pixmap);
-    font.setPixelSize(pixmap.height()/1.5);
-    painter.setFont(font);
-    painter.drawText(pixmap.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
-    icon.addPixmap(pixmap);
+	QPainter painter(&pixmap);
+	font.setPixelSize(pixmap.height()/1.5);
+	painter.setFont(font);
+	painter.drawText(pixmap.rect(), Qt::AlignHCenter | Qt::AlignVCenter, QString::number(number));
+	icon.addPixmap(pixmap);
 	return icon;
 }
 
@@ -438,7 +438,7 @@ QObject *ProtocolSeparatorActionGenerator::generateHelper() const
 #ifndef Q_OS_MAC
 	QToolButton *m_btn = new QToolButton();
 	QWidgetAction *widget = new QWidgetAction(action);
-    m_action = widget;
+	m_action = widget;
 	widget->setDefaultWidget(m_btn);
 	QObject::connect(widget, SIGNAL(destroyed()), action, SLOT(deleteLater()));
 	QObject::connect(widget, SIGNAL(destroyed()), m_btn, SLOT(deleteLater()));

@@ -36,20 +36,20 @@ class ExtensionInfo;
 
 class LIBQUTIM_EXPORT CryptoService : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    static QVariant crypt(const QVariant &value);
-    static QVariant decrypt(const QVariant &value);
-    virtual QVariant cryptImpl(const QVariant &value) const = 0;
-    virtual QVariant decryptImpl(const QVariant &value) const = 0;
-    virtual void setPassword(const QString &password, const QVariant &data) = 0;
-    virtual QVariant generateData(const QString &profile) const = 0;
+	static QVariant crypt(const QVariant &value);
+	static QVariant decrypt(const QVariant &value);
+	virtual QVariant cryptImpl(const QVariant &value) const = 0;
+	virtual QVariant decryptImpl(const QVariant &value) const = 0;
+	virtual void setPassword(const QString &password, const QVariant &data) = 0;
+	virtual QVariant generateData(const QString &profile) const = 0;
 protected:
-    QVariant variantFromData(const QByteArray &data) const;
-    QByteArray dataFromVariant(const QVariant &val) const;
+	QVariant variantFromData(const QByteArray &data) const;
+	QByteArray dataFromVariant(const QVariant &val) const;
 public:
-    CryptoService();
-    virtual ~CryptoService();
+	CryptoService();
+	virtual ~CryptoService();
 };
 }
 

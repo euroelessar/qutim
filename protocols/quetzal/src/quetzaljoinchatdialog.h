@@ -32,7 +32,7 @@
 #include <QMetaTypeId>
 
 namespace Ui {
-    class QuetzalJoinChatDialog;
+	class QuetzalJoinChatDialog;
 }
 
 struct QuetzalChatGuard
@@ -48,7 +48,7 @@ class QuetzalJoinChatManager : public qutim_sdk_0_3::GroupChatManager
 public:
 	QuetzalJoinChatManager(QuetzalAccount *account);
 	~QuetzalJoinChatManager();
-	
+
 	virtual qutim_sdk_0_3::DataItem fields() const;
 	virtual bool join(const qutim_sdk_0_3::DataItem &fields);
 	virtual bool storeBookmark(const qutim_sdk_0_3::DataItem &fields, const qutim_sdk_0_3::DataItem &oldFields);

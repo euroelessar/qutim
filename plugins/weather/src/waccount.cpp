@@ -33,7 +33,7 @@
 WAccount::WAccount(WProtocol *protocol) : Account(QLatin1String("Weather"), protocol)
 {
 	m_settings = new GeneralSettingsItem<WSettings>(Settings::Plugin, QIcon(":/icons/weather.png"),
-	                                                QT_TRANSLATE_NOOP("Weather", "Weather"));
+													QT_TRANSLATE_NOOP("Weather", "Weather"));
 	m_settings->connect(SIGNAL(saved()), this, SLOT(loadSettings()));
 	Settings::registerItem(m_settings);
 	connect(&m_manager, SIGNAL(finished(QNetworkReply*)), SLOT(onNetworkReply(QNetworkReply*)));
@@ -151,20 +151,20 @@ void WAccount::onNetworkReply(QNetworkReply *reply)
 	WContact *contact = qobject_cast<WContact*>(reply->request().originatingObject());
 	if (!contact)
 		return;
-	
+
 	QDomDocument doc;
 	if (!doc.setContent(reply->readAll()))
 		return;
 	bool needMessage = reply->property("needMessage").toBool();
 	QDomElement rootElement = doc.documentElement();
-	
+
 	QDomElement units = rootElement.namedItem(QLatin1String("units")).toElement();
 	QString tempUnit = units.namedItem(QLatin1String("temp")).toElement().text();
-	
+
 	QDomElement local = rootElement.namedItem(QLatin1String("local")).toElement();
 	QString cityName = local.namedItem(QLatin1String("city")).toElement().text();
 	contact->setNameInternal(cityName);
-	
+
 	QDomElement current = rootElement.namedItem(QLatin1String("current")).toElement();
 	if (!current.isNull()) {
 		QString temperature = current.namedItem(QLatin1String("temperature")).toElement().text();
@@ -174,10 +174,10 @@ void WAccount::onNetworkReply(QNetworkReply *reply)
 		if (needMessage) {
 			QString text = loadResourceFile(QLatin1String("Current.txt"));
 			QString html = loadResourceFile(QLatin1String("Current.html"));
-			
+
 			fillStrings(text, html, units, QLatin1String("%units"));
 			fillStrings(text, html, current, QLatin1String("%"));
-			
+
 			Message message(text);
 			message.setHtml(html);
 			message.setChatUnit(contact);
@@ -186,16 +186,16 @@ void WAccount::onNetworkReply(QNetworkReply *reply)
 			ChatLayer::get(contact, true)->appendMessage(message);
 		}
 	}
-	
+
 	QDomElement forecast = rootElement.namedItem(QLatin1String("forecast")).toElement();
 	if (needMessage && !forecast.isNull()) {
 		QString textResult = loadResourceFile(QLatin1String("ForecastTitle.txt"));
 		QString htmlResult = loadResourceFile(QLatin1String("ForecastTitle.html"));
 		QString textBody = loadResourceFile(QLatin1String("ForecastDay.txt"));
 		QString htmlBody = loadResourceFile(QLatin1String("ForecastDay.html"));
-		
+
 		fillStrings(textBody, htmlBody, units, QLatin1String("%units"));
-		
+
 		QDomNodeList days = forecast.elementsByTagName(QLatin1String("day"));
 		for (int i = 0; i < days.count(); ++i) {
 			if (!days.at(i).isElement())
@@ -207,7 +207,7 @@ void WAccount::onNetworkReply(QNetworkReply *reply)
 			textResult += text;
 			htmlResult += html;
 		}
-		
+
 		Message message(textResult);
 		message.setHtml(htmlResult);
 		message.setChatUnit(contact);
@@ -226,19 +226,19 @@ void WAccount::fillStrings(QString &text, QString &html, const QDomElement &elem
 		qDebug() << key;
 	}
 	key.chop(1);
-	
+
 	QDomNamedNodeMap attributes = element.attributes();
 	for (int i = 0; i < attributes.count(); ++i) {
 		QDomNode attribute = attributes.item(i);
 		QString attributeKey = key
-		        % QLatin1Char('/')
-		        % attribute.nodeName()
-		        % QLatin1Char('%');
+				% QLatin1Char('/')
+				% attribute.nodeName()
+				% QLatin1Char('%');
 		qDebug() << attributeKey;
 		text.replace(attributeKey, attribute.nodeValue());
 		html.replace(attributeKey, attribute.nodeValue().toHtmlEscaped());
 	}
-	
+
 	if (!key.endsWith(QLatin1Char('%')))
 		key += QLatin1Char('/');
 	QDomNodeList elementChildren = element.childNodes();
@@ -258,11 +258,11 @@ QString WAccount::loadResourceFile(const QString &fileName)
 	file.open(QFile::ReadOnly);
 	QString text = QString::fromUtf8(file.readAll());
 	int pos = 0;
-    while ((pos = regexp.indexIn(text, pos)) != -1) {
+	while ((pos = regexp.indexIn(text, pos)) != -1) {
 		QString translation = QCoreApplication::translate("Weather", regexp.cap(1).toUtf8());
 		text.replace(pos, regexp.matchedLength(), translation);
-        pos += translation.length();
-    }
+		pos += translation.length();
+	}
 	return text;
 }
 

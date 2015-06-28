@@ -84,14 +84,14 @@ bool Conference::event(QEvent *ev)
 {
 	if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-        QString text = QStringLiteral("<p><strong>")
-                % title().toHtmlEscaped()
-                % QStringLiteral("</strong> &lt;")
-                % id().toHtmlEscaped()
-                % QStringLiteral("&gt;</p>")
-                % QStringLiteral("<p>")
-                % topic().toHtmlEscaped()
-                % QStringLiteral("</p>");
+		QString text = QStringLiteral("<p><strong>")
+				% title().toHtmlEscaped()
+				% QStringLiteral("</strong> &lt;")
+				% id().toHtmlEscaped()
+				% QStringLiteral("&gt;</p>")
+				% QStringLiteral("<p>")
+				% topic().toHtmlEscaped()
+				% QStringLiteral("</p>");
 		event->addHtml(text, 90);
 	}
 	return ChatUnit::event(ev);

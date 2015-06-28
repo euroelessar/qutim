@@ -39,36 +39,36 @@ ContactListMimeData::~ContactListMimeData()
 
 void ContactListMimeData::setIndexes(const QModelIndexList &indexes)
 {
-    QList<QPersistentModelIndex> persistentIndexes;
-    foreach (const QModelIndex &index, indexes)
-        persistentIndexes << QPersistentModelIndex(index);
-    m_indexes = persistentIndexes;
+	QList<QPersistentModelIndex> persistentIndexes;
+	foreach (const QModelIndex &index, indexes)
+		persistentIndexes << QPersistentModelIndex(index);
+	m_indexes = persistentIndexes;
 }
 
 void ContactListMimeData::setIndexes(const QList<QPersistentModelIndex> &indexes)
 {
-    m_indexes = indexes;
+	m_indexes = indexes;
 }
 
 QList<QPersistentModelIndex> ContactListMimeData::indexes() const
 {
-    return m_indexes;
+	return m_indexes;
 }
 
 QString ContactListMimeData::modelIndexListMimeType()
 {
-    return QLatin1String("application/qutim-model-index-list");
+	return QLatin1String("application/qutim-model-index-list");
 }
 
 bool ContactListMimeData::hasFormat(const QString &mimetype) const
 {
-    if (mimetype == QLatin1String("application/qutim-model-index-list"))
-        return !m_indexes.isEmpty();
-    return MimeObjectData::hasFormat(mimetype);
+	if (mimetype == QLatin1String("application/qutim-model-index-list"))
+		return !m_indexes.isEmpty();
+	return MimeObjectData::hasFormat(mimetype);
 }
 
 QStringList ContactListMimeData::formats() const
 {
-    return MimeObjectData::formats()
-            << QLatin1String("application/qutim-model-index-list");
+	return MimeObjectData::formats()
+			<< QLatin1String("application/qutim-model-index-list");
 }

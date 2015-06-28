@@ -44,25 +44,25 @@ using namespace qutim_sdk_0_3;
 struct XSettingsWindowPrivate;
 class XSettingsWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit XSettingsWindow(const SettingsItemList &settings,QObject *controller, QWidget *parent = 0);
 	void update(const SettingsItemList &settings);
-    virtual ~XSettingsWindow();
+	virtual ~XSettingsWindow();
 public slots:
 	void save();
 	void cancel();
 protected:
 	void loadSettings(const SettingsItemList &settings);
 	void ensureActions();
-    virtual void closeEvent(QCloseEvent *ev);
+	virtual void closeEvent(QCloseEvent *ev);
 private:
 	QAction *get(Settings::Type);
 	QScopedPointer<XSettingsWindowPrivate> p;
 private slots:
-    void onGroupActionTriggered(QAction*);
+	void onGroupActionTriggered(QAction*);
 	void onCurrentItemChanged(QListWidgetItem* item);
-    void onModifiedChanged(bool haveChanges);
+	void onModifiedChanged(bool haveChanges);
 };
 
 }

@@ -34,7 +34,7 @@ namespace qutim_sdk_0_3
 {
 	struct SettingsWidgetPrivate;
 	class AutoSettingsGenerator;
-	
+
 //	class LIBQUTIM_EXPORT Settings
 //	{
 //	public:
@@ -54,7 +54,7 @@ namespace qutim_sdk_0_3
 		bool isModified() const;
 		virtual void setController(QObject *controller);
 
-        void paintEvent(QPaintEvent *event);
+		void paintEvent(QPaintEvent *event);
 	public slots:
 		void load();
 		void save();

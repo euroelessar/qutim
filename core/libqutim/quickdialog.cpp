@@ -74,8 +74,8 @@ public:
 			if (!dialog) {
 				qCritical() << "Failed to create object for component:" << component->url() << "errors:";
 				for (QQmlError error : component->errors()) {
-                    // Use this stuff to make QtCreator happy, so it could highlight urls in console
-                    QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO).critical() << qPrintable(error.toString());
+					// Use this stuff to make QtCreator happy, so it could highlight urls in console
+					QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO).critical() << qPrintable(error.toString());
 				}
 				return;
 			}
@@ -139,7 +139,7 @@ bool QuickDialog::isVisible()
 
 void QuickDialog::show()
 {
-    setVisible(true);
+	setVisible(true);
 }
 
 void QuickDialog::hide()

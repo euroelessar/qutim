@@ -186,10 +186,10 @@ public slots:
 	  It's equivalent for \code menu(true)->popup(pos) \endcode
 	*/
 	void showMenu(const QPoint &pos);
-    /*!
-     * Show menu at current cursor position
-     */
-    void showMenu();
+	/*!
+	 * Show menu at current cursor position
+	 */
+	void showMenu();
 protected:
 	/*!
 	  Add to menu of this object also actions from another \a controller.
@@ -214,7 +214,7 @@ class LIBQUTIM_EXPORT ActionHandler
 {
 public:
 	virtual ~ActionHandler();
-	
+
 	virtual void handleActionAdded(int index, QAction *action) = 0;
 	virtual void handleActionRemoved(int index) = 0;
 	virtual void handleActionsCleared() = 0;
@@ -237,12 +237,12 @@ public:
 	// Destructor, I think it shouldn't be virtual
 	~ActionContainer();
 
-    void setFilter(Filter filter, const QVariant &data);
-	
+	void setFilter(Filter filter, const QVariant &data);
+
 	void setController(MenuController *controller);
 	void show();
 	void hide();
-	
+
 	void addHandler(ActionHandler *handler);
 	void removeHandler(ActionHandler *handler);
 

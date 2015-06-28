@@ -35,15 +35,15 @@ using namespace qutim_sdk_0_3;
 namespace Core
 {
 MobileAboutDialog::MobileAboutDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::MobileAboutDialog)
+	QDialog(parent),
+	ui(new Ui::MobileAboutDialog)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose);
 	QList<PersonInfo> persons = PersonInfo::authors();
 	QString html;
 	html = tr("qutIM %1<br>Uses Qt %2<p>Developers:<p>").arg(QLatin1String(versionString()),
-	                                        QLatin1String(qVersion()));
+											QLatin1String(qVersion()));
 	for (int i = 0; i < persons.size(); i++) {
 		html += persons.at(i).name();
 		html += QLatin1String("<br>");
@@ -63,7 +63,7 @@ MobileAboutDialog::MobileAboutDialog(QWidget *parent) :
 
 MobileAboutDialog::~MobileAboutDialog()
 {
-    delete ui;
+	delete ui;
 }
 }
 

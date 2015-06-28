@@ -1,7 +1,7 @@
 /*
-  
+
 	Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
-	
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -29,12 +29,12 @@ class OtrSettingsWidget : public qutim_sdk_0_3::SettingsWidget
 	Q_OBJECT
 public:
 	OtrSettingsWidget();
-	
+
 protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
-	
+
 private slots:
 	void on_pushButton_released();
 	void on_forgetButton_released();
@@ -42,7 +42,7 @@ private slots:
 	void updateKeys();
 	void keyChanged(int row);
 	void fingerprintChanged(int row);
-	
+
 private:
 	Ui::OtrSettingsWidget *ui;
 	OtrSupport::OtrMessaging *m_otr;

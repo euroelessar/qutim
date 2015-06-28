@@ -41,14 +41,14 @@
 using namespace qutim_sdk_0_3;
 
 VPhotoViewer::VPhotoViewer(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
-    m_contactGen.reset(new ActionGenerator(Icon("camera-photo"),
-                                     QT_TRANSLATE_NOOP("Vkontakte", "View photoalbum"),
-                                     this,
-                                     SLOT(onViewPhotoTriggered(QObject*))));
-    m_contactGen->setType(ActionTypeContactList);
-    MenuController::addAction<VContact>(m_contactGen.data());
+	m_contactGen.reset(new ActionGenerator(Icon("camera-photo"),
+									 QT_TRANSLATE_NOOP("Vkontakte", "View photoalbum"),
+									 this,
+									 SLOT(onViewPhotoTriggered(QObject*))));
+	m_contactGen->setType(ActionTypeContactList);
+	MenuController::addAction<VContact>(m_contactGen.data());
 }
 
 VPhotoViewer::~VPhotoViewer()
@@ -57,21 +57,21 @@ VPhotoViewer::~VPhotoViewer()
 
 void VPhotoViewer::onViewPhotoTriggered(QObject *obj)
 {
-    VContact *contact = static_cast<VContact*>(obj);
-    DeclarativeView *view = new DeclarativeView();
-    view->rootContext()->setContextProperty("client", contact->client());
-    view->rootContext()->setContextProperty("contact", contact->buddy());
-    view->setResizeMode(DeclarativeView::SizeRootObjectToView);
+	VContact *contact = static_cast<VContact*>(obj);
+	DeclarativeView *view = new DeclarativeView();
+	view->rootContext()->setContextProperty("client", contact->client());
+	view->rootContext()->setContextProperty("contact", contact->buddy());
+	view->setResizeMode(DeclarativeView::SizeRootObjectToView);
 
-    QString theme_name = "default";
-    QString themePath = ThemeManager::path("vphotoalbum",theme_name);
-    QString filename =themePath % QLatin1Literal("/main.qml");
+	QString theme_name = "default";
+	QString themePath = ThemeManager::path("vphotoalbum",theme_name);
+	QString filename =themePath % QLatin1Literal("/main.qml");
 
-    view->setSource(QUrl::fromLocalFile(filename));
-    if (view->status() != DeclarativeView::Ready) {
-        qWarning() << "Unable to load qml file";
-        view->deleteLater();
-    } else {
+	view->setSource(QUrl::fromLocalFile(filename));
+	if (view->status() != DeclarativeView::Ready) {
+		qWarning() << "Unable to load qml file";
+		view->deleteLater();
+	} else {
 		view->show();
-    }
+	}
 }

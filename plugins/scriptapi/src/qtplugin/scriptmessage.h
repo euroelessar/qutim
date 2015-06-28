@@ -35,9 +35,9 @@ namespace qutim_sdk_0_3
 class ScriptMessage : public QScriptClass
 {
 public:
-    ScriptMessage(QScriptEngine *engine);
+	ScriptMessage(QScriptEngine *engine);
 	~ScriptMessage();
-	
+
 	virtual QueryFlags queryProperty(const QScriptValue &object,
 									 const QScriptString &name,
 									 QueryFlags flags, uint *id);
@@ -50,7 +50,7 @@ public:
 	virtual QScriptClassPropertyIterator *newIterator(const QScriptValue &object);
 	virtual QScriptValue prototype() const;
 	virtual QString name() const;
-	
+
 private:
 	QScriptString m_incoming;
 	QScriptValue m_prototype;

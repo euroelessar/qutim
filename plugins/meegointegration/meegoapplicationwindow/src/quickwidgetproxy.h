@@ -35,14 +35,14 @@ namespace MeegoIntegration
 
 class QuickWidgetProxy : public QDeclarativeItem
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_PROPERTY(QObject *widget READ widget WRITE setWidget NOTIFY widgetChanged)
 public:
-    explicit QuickWidgetProxy(QDeclarativeItem *parent = 0);
+	explicit QuickWidgetProxy(QDeclarativeItem *parent = 0);
 
 	QObject *widget() const;
 	void setWidget(QObject *widget);
-	
+
 signals:
 	void widgetChanged(QObject *widget);
 

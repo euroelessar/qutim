@@ -46,7 +46,7 @@ XSettingsLayerImpl::~XSettingsLayerImpl()
 void XSettingsLayerImpl::show(const SettingsItemList& settings, QObject* controller)
 {
 	XSettingsWindow *d = m_dialogs.value(controller).data();
-    if (!d) {
+	if (!d) {
 		d = new XSettingsWindow(settings, controller, qApp->activeWindow());
 		m_dialogs[controller] = d;
 	}

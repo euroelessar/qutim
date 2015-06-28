@@ -37,7 +37,7 @@ using namespace qutim_sdk_0_3;
 
 QStringList init_names()
 {
-    QStringList names = {
+	QStringList names = {
 		"nick",
 		"firstName",
 		"lastName",
@@ -52,13 +52,13 @@ QStringList init_names()
 		"faculty",
 		"graduation"
 	};
-    return names;
+	return names;
 }
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList, names, (init_names()))
 
 QList<LocalizedString> init_titles()
 {
-    QList<LocalizedString> titles;
+	QList<LocalizedString> titles;
 	titles << QT_TRANSLATE_NOOP("ContactInfo", "Nickname")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "First name")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "Last name")
@@ -72,18 +72,18 @@ QList<LocalizedString> init_titles()
 		   << QT_TRANSLATE_NOOP("ContactInfo", "University")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "Faculty")
 		   << QT_TRANSLATE_NOOP("ContactInfo", "Graduation year");
-    return titles;
+	return titles;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(QList<LocalizedString>, titles, (init_titles()))
 
 QList<LocalizedString> init_genders()
 {
-    QList<LocalizedString> genders;
+	QList<LocalizedString> genders;
 	genders << QT_TRANSLATE_NOOP("ContactInfo", "Undefined")
 			<< QT_TRANSLATE_NOOP("ContactInfo", "Female")
 			<< QT_TRANSLATE_NOOP("ContactInfo", "Male");
-    return genders;
+	return genders;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(QList<LocalizedString>, genders, (init_genders()))
@@ -313,7 +313,7 @@ void VInfoRequest::ensureAddress(DataType type)
 		m_data.insert(field, *obj);
 	} else {
 		QVariantMap data;
-        data.insert(QLatin1String("country"), QString::number(id));
+		data.insert(QLatin1String("country"), QString::number(id));
 		FuncPointerHelper *helper = new FuncPointerHelper;
 		helper->mapper = mapper;
 		Vreen::Reply *reply = m_client->request(method, data);

@@ -84,7 +84,7 @@ private:
 	ServicePointer<QAbstractItemModel> m_model;
 	ActionToolBar *m_mainToolBar;
 	QPushButton *m_statusBtn;
-    QLineEdit *m_searchBar;
+	QLineEdit *m_searchBar;
 	QHash<Account *, QAction *> m_actions;
 	QAction *m_status_action;
 	QList<QAction *> m_statusActions;

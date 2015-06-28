@@ -39,8 +39,8 @@ struct WebKitPreview
 class ADIUMWEBVIEW_EXPORT WebKitPreviewLoader
 {
 public:
-    WebKitPreviewLoader();
-	
+	WebKitPreviewLoader();
+
 	WebKitPreview::Ptr loadPreview(const QString &fileName);
 };
 

@@ -38,7 +38,7 @@ enum {
 };
 
 MenuModel::MenuModel()
-    : m_controller(0)
+	: m_controller(0)
 {
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(ActionRole, "action");

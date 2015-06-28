@@ -39,8 +39,8 @@ HistoryWindow::HistoryWindow(const TreeModelItem &item, SqlEngine *engine, QWidg
 	: QWidget(parent), m_item(item), m_engine(engine)
 {
 	ui.setupUi(this);
-	
-	ui.historyLog->setHtml("<p align='center'><span style='font-size:36pt;'>" 
+
+	ui.historyLog->setHtml("<p align='center'><span style='font-size:36pt;'>"
 			+ tr("No History") + "</span></p>");
 
   ui.label_in->setText(tr("In: %L1").arg(0));
@@ -59,20 +59,20 @@ HistoryWindow::HistoryWindow(const TreeModelItem &item, SqlEngine *engine, QWidg
 	m_history_path = engine->getHistoryPath();
 	setIcons();
 	fillAccountComboBox();
-	
+
 	connect(ui.accountComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fillContactComboBox(int)));
 //	connect(ui.dateTreeWidget, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(fillMonth(QTreeWidgetItem*)));
 	ui.dateTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui.dateTreeWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 	connect(ui.dateTreeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemClicked(QTreeWidgetItem*, int)));
-	
+
 	QStringList account_data; account_data<<m_item.protocol<<m_item.account;
 	int account_index = ui.accountComboBox->findData(account_data);
 	if ( !account_index )
 		fillContactComboBox(0);
 	else
 		ui.accountComboBox->setCurrentIndex(account_index);
-	
+
 	connect(ui.fromComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fillDateTreeWidget(int)));
 	connect(ui.searchButton, SIGNAL(pressed()), this, SLOT(fillDateTreeWidget()));
 	ui.searchButton->setCheckable(1);
@@ -80,13 +80,13 @@ HistoryWindow::HistoryWindow(const TreeModelItem &item, SqlEngine *engine, QWidg
 // delete actions (macek)
 	deleteCurrentAction = new QAction(tr("&Delete"), this);
 	connect(deleteCurrentAction, SIGNAL(triggered()), this, SLOT(deleteCurrent()));
-  
+
 	deleteDayAction = new QAction(tr("&Delete day"), this);
 	connect(deleteDayAction, SIGNAL(triggered()), this, SLOT(deleteDay()));
 
 	deleteSelectedAction = new QAction(tr("&Delete  %L1 messages"), this);
 	connect(deleteSelectedAction, SIGNAL(triggered()), this, SLOT(deleteSelectedItems()));
-  
+
 	clearSelectedAction = new QAction(tr("&Clear selection"), this);
 	connect(clearSelectedAction, SIGNAL(triggered()), this, SLOT(clearSelectedItems()));
 
@@ -168,7 +168,7 @@ void HistoryWindow::fillDateTreeWidget() {
   if (!m_search_word.isEmpty() & ui.searchButton->isChecked() ) {
   	m_search_word = "";
   }
-  ui.searchEdit->setEnabled(m_search_word.isEmpty()); 
+  ui.searchEdit->setEnabled(m_search_word.isEmpty());
   fillDateTreeWidget(ui.fromComboBox->currentIndex());
 }
 
@@ -190,11 +190,11 @@ void HistoryWindow::fillDateTreeWidget(int index)
 		QStringList years;
 		QHash<QString, QStringList> months;
 		while (query.next()) {
-      //QString text = query.value(0).toString();
-      //if (!m_search_word.isEmpty()) {
-      //  if (text.indexOf(m_search_word, 0, Qt::CaseInsensitive) == -1)
-      //    continue;
-      //}
+	  //QString text = query.value(0).toString();
+	  //if (!m_search_word.isEmpty()) {
+	  //  if (text.indexOf(m_search_word, 0, Qt::CaseInsensitive) == -1)
+	  //    continue;
+	  //}
 		QDateTime datetime = QDateTime::fromTime_t(query.value(1).toUInt());
 			QString year = datetime.toString("yyyy");
 			QString month = datetime.toString("MM");
@@ -264,11 +264,11 @@ void HistoryWindow::fillMonth(QTreeWidgetItem *month_item)
 		QStringList days;
 		QSqlQuery query("select text, datetime from history where protocol='"+protocol+"' and account='"+account+"' and itemname='"+itemname+"' and datetime>="+QString::number(from_date_ts)+" and datetime<"+QString::number(to_date_ts)+like_clause + " order by datetime");
 		while (query.next()) {
-    //  QString text = query.value(0).toString();
-    //  if (!m_search_word.isEmpty()) {
-    //    if (text.indexOf(m_search_word, 0, Qt::CaseInsensitive) == -1)
-    //     continue;
-    //    }
+	//  QString text = query.value(0).toString();
+	//  if (!m_search_word.isEmpty()) {
+	//    if (text.indexOf(m_search_word, 0, Qt::CaseInsensitive) == -1)
+	//     continue;
+	//    }
 		QDateTime rowdate = QDateTime::fromTime_t(query.value(1).toUInt());
 			QString rowday = rowdate.toString("dd");
 			if (!days.contains(rowday)) days.append(rowday);
@@ -362,10 +362,10 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				}
 			}
 			ui.historyLog->setHtml(history_html);
- 
+
 			// if (!m_search_word.isEmpty())
 			//   ui.historyLog->find(m_search_word);
-      
+	
 			//macek: display counters
 			ui.label_in->setText( QString(tr( "In: %L1")).arg( in ) );
 			ui.label_out->setText( tr( "Out: %L1").arg( out ) );
@@ -385,18 +385,18 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 void HistoryWindow::itemClicked(QTreeWidgetItem * item, int  )
 {
  if (item) {
-    QStringList item_data = item->data(0, Qt::UserRole).toStringList();
-    if (item_data.count()==9) {
-        //add checked item to list
-     if (item->checkState(0) == Qt::Checked)
-     {  
-          if (!selectedItems.contains(item))
+	QStringList item_data = item->data(0, Qt::UserRole).toStringList();
+	if (item_data.count()==9) {
+		//add checked item to list
+	 if (item->checkState(0) == Qt::Checked)
+	 {
+		  if (!selectedItems.contains(item))
  	          selectedItems.append(item);
-     } else
-     { 
-          if (selectedItems.contains(item))
+	 } else
+	 {
+		  if (selectedItems.contains(item))
  	          selectedItems.removeAll(item);
-     }
+	 }
 		}
 	}
 }
@@ -409,41 +409,41 @@ void HistoryWindow::contextMenuRequested (const QPoint &pos)
 
  if (item)
  {
-    QStringList item_data = item->data(0, Qt::UserRole).toStringList();
-    
-    if (item_data.count()==6) {
+	QStringList item_data = item->data(0, Qt::UserRole).toStringList();
+
+	if (item_data.count()==6) {
 	QMenu *menu = new QMenu;
 
-    	QString month = item_data[4];
-    	QString day = item_data[5];
-    	QString monthName = QDate::longMonthName(month.toUInt(), QDate::StandaloneFormat); 
+		QString month = item_data[4];
+		QString day = item_data[5];
+		QString monthName = QDate::longMonthName(month.toUInt(), QDate::StandaloneFormat);
 
  	deleteDayAction->setText(tr("Delete &")  + " " + monthName + ", " + day);
   	menu->addAction(deleteDayAction);
 	menu->exec(ui.dateTreeWidget->mapToGlobal(pos));
-   } else	
-    if (item_data.count()==9) {
-    	QString month = item_data[4];
-    	QString day = item_data[5];
-    	QString monthName = QDate::longMonthName(month.toUInt(), QDate::StandaloneFormat); 
+   } else
+	if (item_data.count()==9) {
+		QString month = item_data[4];
+		QString day = item_data[5];
+		QString monthName = QDate::longMonthName(month.toUInt(), QDate::StandaloneFormat);
 
 	QMenu *menu = new QMenu;
  	deleteDayAction->setText(tr("Delete &") + " " + monthName + ", " + day);
   	menu->addAction(deleteDayAction);
 
-        if (selectedItems.count() > 0 ) { 
+		if (selectedItems.count() > 0 ) {
 		deleteSelectedAction->setText(tr("Delete %L1 &messages").arg(selectedItems.count()));
   		menu->addAction(deleteSelectedAction);
   		menu->addAction(clearSelectedAction);
 	}
 	else
 	{
-		deleteCurrentAction->setText(tr("&Delete") + " " + item_data[6]);  	
+		deleteCurrentAction->setText(tr("&Delete") + " " + item_data[6]);
 		menu->addAction(deleteCurrentAction);
-	}	
+	}
 	menu->exec(ui.dateTreeWidget->mapToGlobal(pos));
-   }	
- } 
+   }
+ }
 }
 
 
@@ -452,19 +452,19 @@ void HistoryWindow::deleteCurrent()
  QTreeWidgetItem* item = ui.dateTreeWidget->currentItem();
  if (item)
  {
-    QStringList item_data = item->data(0, Qt::UserRole).toStringList();
-    //build WHERE clause
-    QString where_clause = "id=" + item_data[7];
-    QSqlQuery query;
-    query.prepare("delete from history where " + where_clause ); 
-    query.exec();
+	QStringList item_data = item->data(0, Qt::UserRole).toStringList();
+	//build WHERE clause
+	QString where_clause = "id=" + item_data[7];
+	QSqlQuery query;
+	query.prepare("delete from history where " + where_clause );
+	query.exec();
 
-    QTreeWidgetItem *  parent = item->parent();
-    on_dateTreeWidget_currentItemChanged(parent, NULL);
-    // delete item from tree	  
-    if (parent!=NULL)  {
+	QTreeWidgetItem *  parent = item->parent();
+	on_dateTreeWidget_currentItemChanged(parent, NULL);
+	// delete item from tree	
+	if (parent!=NULL)  {
 	parent->removeChild(item);
-    	//remove parent node if empty
+		//remove parent node if empty
  	if (parent->childCount() == 0)
  	{
 		QTreeWidgetItem * grandParent = parent->parent();
@@ -472,7 +472,7 @@ void HistoryWindow::deleteCurrent()
 			 grandParent->removeChild(parent);
 		parent = grandParent;
 
-        } 
+		}
    }
  }
 }
@@ -482,7 +482,7 @@ void HistoryWindow::clearSelectedItems()
 {
  foreach(QTreeWidgetItem * item, selectedItems){
   item->setCheckState(0, Qt::Unchecked);
- } 
+ }
  selectedItems.clear();
 }
 
@@ -498,30 +498,30 @@ void HistoryWindow::deleteSelectedItems()
 
  //build IN clause
  foreach(QTreeWidgetItem * item, selectedItems){
-    QStringList item_data = item->data(0, Qt::UserRole).toStringList();
-    in_clause += (in_clause == "") ? item_data[7] : ", " + item_data[7];
- }	
- //remove from database 
- query.prepare("delete from history where id in (" + in_clause + ")"); 
+	QStringList item_data = item->data(0, Qt::UserRole).toStringList();
+	in_clause += (in_clause == "") ? item_data[7] : ", " + item_data[7];
+ }
+ //remove from database
+ query.prepare("delete from history where id in (" + in_clause + ")");
  query.exec();
 
  //remove from tree
  foreach(QTreeWidgetItem * item, selectedItems){
-    if (parent!= item->parent()){
-    	parent = item->parent();
+	if (parent!= item->parent()){
+		parent = item->parent();
  	on_dateTreeWidget_currentItemChanged(parent, NULL);
-    }
-    if (parent!=NULL) {
+	}
+	if (parent!=NULL) {
 	 parent->removeChild(item);
-    	//remove parent node if empty
+		//remove parent node if empty
  	if (parent->childCount() == 0)
  	{
 		QTreeWidgetItem * grandParent = parent->parent();
 		if (grandParent!=NULL)
 			 grandParent->removeChild(parent);
-        } 
-      }	
- }	
+		}
+	  }
+ }
 
  selectedItems.clear();
 }
@@ -532,37 +532,37 @@ void HistoryWindow::deleteDay()
  QTreeWidgetItem* item = ui.dateTreeWidget->currentItem();
  if (item)
  {
-    QStringList item_data = item->data(0, Qt::UserRole).toStringList();
-    QString year = item_data[3];
-    QString month = item_data[4];
-    QString day = item_data[5];
-    uint from_date_ts = QDateTime::fromString(year+"-"+month+"-"+day+" 00:00:00", "yyyy-MM-dd HH:mm:ss").toTime_t();
-    uint to_date_ts = QDateTime::fromString(year+"-"+month+"-"+day+" 23:59:59", "yyyy-MM-dd HH:mm:ss").toTime_t();
+	QStringList item_data = item->data(0, Qt::UserRole).toStringList();
+	QString year = item_data[3];
+	QString month = item_data[4];
+	QString day = item_data[5];
+	uint from_date_ts = QDateTime::fromString(year+"-"+month+"-"+day+" 00:00:00", "yyyy-MM-dd HH:mm:ss").toTime_t();
+	uint to_date_ts = QDateTime::fromString(year+"-"+month+"-"+day+" 23:59:59", "yyyy-MM-dd HH:mm:ss").toTime_t();
 
-    //build WHERE clause
-    QString where_clause = "datetime>="+QString::number(from_date_ts)+" and datetime<="+QString::number(to_date_ts);
-    // Delete only filtered, if filter active
-    QString like_clause = (!m_search_word.isEmpty())? " and text like '%" + m_search_word + "%'" : ""; 
+	//build WHERE clause
+	QString where_clause = "datetime>="+QString::number(from_date_ts)+" and datetime<="+QString::number(to_date_ts);
+	// Delete only filtered, if filter active
+	QString like_clause = (!m_search_word.isEmpty())? " and text like '%" + m_search_word + "%'" : "";
 
-    QSqlQuery query;
-    query.prepare("delete from history where " + where_clause + like_clause); 
-    query.exec();
+	QSqlQuery query;
+	query.prepare("delete from history where " + where_clause + like_clause);
+	query.exec();
 
-    //store parent to select after delete
-    QTreeWidgetItem *  parent = NULL;
-    if (item_data.count()==9) 
+	//store parent to select after delete
+	QTreeWidgetItem *  parent = NULL;
+	if (item_data.count()==9)
  	parent = item->parent();
-    else
+	else
  	parent = item;
 
-   //remove all children from tree and selection list	
+   //remove all children from tree and selection list
    if (parent!=NULL)  {
-	foreach(QTreeWidgetItem * child, parent->takeChildren())     
+	foreach(QTreeWidgetItem * child, parent->takeChildren())
  		selectedItems.removeAll(child);
-        item = parent;
+		item = parent;
  	parent = item->parent();
-    }
-    
+	}
+
    if (parent!=NULL)  parent->removeChild(item);
 
  }

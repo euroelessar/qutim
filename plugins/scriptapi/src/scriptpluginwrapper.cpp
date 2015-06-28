@@ -35,20 +35,20 @@ using namespace qutim_sdk_0_3;
 static const uint qutim_meta_data_ScriptPlugin_hook[] = {
 
  // content:
-       4,       // revision
-       0,       // classname
-       0,    0, // classinfo
-       0,    0, // methods
-       0,    0, // properties
-       0,    0, // enums/sets
-       0,    0, // constructors
-       0,       // flags
-       0,       // signalCount
+	   4,       // revision
+	   0,       // classname
+	   0,    0, // classinfo
+	   0,    0, // methods
+	   0,    0, // properties
+	   0,    0, // enums/sets
+	   0,    0, // constructors
+	   0,       // flags
+	   0,       // signalCount
 
-       0        // eod
+	   0        // eod
 };
 
-ScriptPluginWrapper::ScriptPluginWrapper(const QString &name) : 
+ScriptPluginWrapper::ScriptPluginWrapper(const QString &name) :
 		m_name(name), m_engine(0), m_apiInited(false)
 {
 	QMetaObject *meta = new QMetaObject;
@@ -94,7 +94,7 @@ void ScriptPluginWrapper::init()
 				  qscriptvalue_cast<LocalizedString>(author.property("task")),
 				  author.property("email").toString(),
 				  author.property("web").toString());
-	}		
+	}
 }
 
 bool ScriptPluginWrapper::load()

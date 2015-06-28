@@ -31,7 +31,7 @@
 namespace qutim_sdk_0_3
 {
 ScriptMessagePropertyIterator::ScriptMessagePropertyIterator(const QScriptValue &object, Message *msg)
-    : QScriptClassPropertyIterator(object), m_msg(msg), m_id(-1)
+	: QScriptClassPropertyIterator(object), m_msg(msg), m_id(-1)
 {
 }
 

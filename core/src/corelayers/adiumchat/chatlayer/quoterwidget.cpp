@@ -75,7 +75,7 @@ QString getUnitNick(const qutim_sdk_0_3::Message &message)
 }
 
 QuoterWidget::QuoterWidget(const MessageList &messages, QObject *controller)
-    : m_controller(controller)
+	: m_controller(controller)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);

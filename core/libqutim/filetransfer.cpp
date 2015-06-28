@@ -96,11 +96,11 @@ static QList<FileTransferFactory*> sortFactories(const QStringList &names,
 Q_GLOBAL_STATIC(FileTransferScope, scope)
 
 FileTransferScope::Observer::Observer()
-    : abilities(scope()->factories.size()),
+	: abilities(scope()->factories.size()),
 #ifdef REMEMBER_ALL_ABILITIES
-      setCount(0)
+	  setCount(0)
 #else
-      ability(0)
+	  ability(0)
 #endif
 {
 }
@@ -213,8 +213,8 @@ QIODevice *FileTransferJobPrivate::device(int index)
 }
 
 FileTransferJob::FileTransferJob(ChatUnit *unit, FileTransferJob::Direction direction,
-                                 FileTransferFactory *factory) :
-    QObject(unit), d_ptr(new FileTransferJobPrivate(direction, this))
+								 FileTransferFactory *factory) :
+	QObject(unit), d_ptr(new FileTransferJobPrivate(direction, this))
 {
 	Q_D(FileTransferJob);
 	d->unit = unit;
@@ -431,8 +431,8 @@ void FileTransferJob::setFileProgress(qint64 fileProgress)
 {
 	Q_D(FileTransferJob);
 	qint64 delta = fileProgress - d->fileProgress;
-    if (delta <= 0)
-        return;
+	if (delta <= 0)
+		return;
 	d->fileProgress = fileProgress;
 	d->progress += delta;
 	emit progressChanged(d->progress);
@@ -537,7 +537,7 @@ void FileTransferObserverPrivate::_q_clearObserverData(QObject *unit)
 }
 
 FileTransferObserver::FileTransferObserver(ChatUnit *unit) :
-    d_ptr(new FileTransferObserverPrivate(this))
+	d_ptr(new FileTransferObserverPrivate(this))
 {
 	Q_D(FileTransferObserver);
 	d->scope = scope()->observers.find(unit);
@@ -605,7 +605,7 @@ public:
 
 FileTransferFactory::FileTransferFactory(const LocalizedString &name,
 										 FileTransferFactory::Capabilities capabilities) :
-    d_ptr(new FileTransferFactoryPrivate)
+	d_ptr(new FileTransferFactoryPrivate)
 {
 	Q_D(FileTransferFactory);
 	d->capabilities = capabilities;
@@ -695,12 +695,12 @@ FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivat
 {
 	scope()->manager = this;
 	scope()->inited = true;
-	
+
 	// TODO: Think, may be we should move such checks to ModuleManager?
 	QList<QLatin1String> protocols;
 	foreach (Protocol *protocol, Protocol::all())
 		protocols.append(QLatin1String(protocol->metaObject()->className()));
-	
+
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FileTransferFactory>()) {
 		const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
 		if (qstrlen(proto) > 0 && !protocols.contains(QLatin1String(proto)))

@@ -36,8 +36,8 @@ class ScriptExtensionPlugin : public QScriptExtensionPlugin
 	Q_OBJECT
 public:
 	ScriptExtensionPlugin(QObject *parent = 0);
-    virtual QStringList keys() const;
-    virtual void initialize(const QString &key, QScriptEngine *engine);
+	virtual QStringList keys() const;
+	virtual void initialize(const QString &key, QScriptEngine *engine);
 };
 }
 

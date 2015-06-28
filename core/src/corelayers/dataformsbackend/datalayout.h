@@ -43,12 +43,12 @@ class DataLayout : public QGridLayout, public AbstractDataWidget
 {
 	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-    DataLayout(const qutim_sdk_0_3::DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
+	DataLayout(const qutim_sdk_0_3::DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
 	~DataLayout();
-    qutim_sdk_0_3::DataItem item() const;
-    qutim_sdk_0_3::DataItem item(bool hasSubitems) const;
-    void addDataItem(const qutim_sdk_0_3::DataItem &item);
-    void addDataItems(const QList<qutim_sdk_0_3::DataItem> &items);
+	qutim_sdk_0_3::DataItem item() const;
+	qutim_sdk_0_3::DataItem item(bool hasSubitems) const;
+	void addDataItem(const qutim_sdk_0_3::DataItem &item);
+	void addDataItems(const QList<qutim_sdk_0_3::DataItem> &items);
 	void addSpacer();
 	void addRow(QWidget *widget) { addRow(0, widget); }
 	void addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment = 0);
@@ -58,7 +58,7 @@ protected:
 	Qt::Alignment labelAlignment();
 private:
 	mutable Qt::Alignment m_labelAlignment;
-    mutable QPointer<QStyle> m_style;
+	mutable QPointer<QStyle> m_style;
 	int m_row;
 	struct WidgetLine {
 		WidgetLine(QWidget *t, QWidget *d) :

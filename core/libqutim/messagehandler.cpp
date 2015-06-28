@@ -36,7 +36,7 @@ struct MessageHandlerInfo
 	int priority;
 	QString name;
 	MessageHandler *handler;
-	
+
 	bool operator <(const MessageHandlerInfo &o) const
 	{
 		return priority < o.priority || (priority == o.priority && handler < o.handler);
@@ -99,43 +99,43 @@ struct MessageHandler::StateType : public std::enable_shared_from_this<StateType
 {
 	StateType(const Message &message, const MessageHandlerList &list)
 		: index(0), message(message), messageId(message.id()), list(list)
-    {
-        this->message.setChatUnit(message.chatUnit());
-    }
+	{
+		this->message.setChatUnit(message.chatUnit());
+	}
 
-    void onResult(MessageHandler::Result result, const QString &error)
-    {
-        if (result != MessageHandler::Accept) {
+	void onResult(MessageHandler::Result result, const QString &error)
+	{
+		if (result != MessageHandler::Accept) {
 			handler.handle(message, result, error);
-            return;
-        }
+			return;
+		}
 
-        using namespace std::placeholders;
-        if (index < list.size()) {
-            currentMessageIdHook = messageId;
+		using namespace std::placeholders;
+		if (index < list.size()) {
+			currentMessageIdHook = messageId;
 			list[index++].handler->doHandle(message).connect(std::bind(&StateType::onResult, shared_from_this(), _1, _2));
-        } else {
+		} else {
 			handler.handle(message, MessageHandler::Accept, QString());
-        }
-    }
+		}
+	}
 
-    int index;
-    Message message;
-    quint64 messageId;
-    const MessageHandlerList list;
+	int index;
+	Message message;
+	quint64 messageId;
+	const MessageHandlerList list;
 	AsyncResultHandler<Message, MessageHandler::Result, QString> handler;
 };
 
 AsyncResult<Message, MessageHandler::Result, QString> MessageHandler::handle(const Message &message)
 {
-    const MessageHandlerList &list = (message.isIncoming() ? scope()->incoming : scope()->outgoing);
+	const MessageHandlerList &list = (message.isIncoming() ? scope()->incoming : scope()->outgoing);
 
-    if (list.isEmpty()) {
+	if (list.isEmpty()) {
 		return makeAsyncResult(message, Accept, QString());
-    }
+	}
 
 	auto state = std::make_shared<StateType>(message, list);
-    state->onResult(Accept, QString());
+	state->onResult(Accept, QString());
 
 	return state->handler.result();
 }
@@ -155,12 +155,12 @@ void MessageHandler::traceHandlers()
 				dbg << " -> ";
 			dbg << "(0x" << QByteArray::number(info.priority, 16).constData() << ", " << info.name << ")";
 		}
-    }
+	}
 }
 
 quint64 MessageHandler::originalMessageId()
 {
-    return currentMessageIdHook;
+	return currentMessageIdHook;
 }
 
 }

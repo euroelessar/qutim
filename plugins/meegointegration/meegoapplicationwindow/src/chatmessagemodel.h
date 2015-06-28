@@ -33,17 +33,17 @@ namespace MeegoIntegration
 {
 class ChatMessageModel : public QAbstractListModel
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit ChatMessageModel(QObject *parent = 0);
+	explicit ChatMessageModel(QObject *parent = 0);
 
 	void append(qutim_sdk_0_3::Message &msg);
 	bool eventFilter(QObject *, QEvent *);
-	
+
 	// QAbstractListModel
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
 signals:
 
 public slots:

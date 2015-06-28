@@ -29,7 +29,7 @@
 #include <qutim/configbase.h>
 
 KdeSpellerSettings::KdeSpellerSettings() :
-    m_ui(new Ui::KdeSpellerSettings)
+	m_ui(new Ui::KdeSpellerSettings)
 {
 	m_ui->setupUi(this);
 	lookForWidgetState(m_ui->dictionaryComboBox);
@@ -38,7 +38,7 @@ KdeSpellerSettings::KdeSpellerSettings() :
 
 KdeSpellerSettings::~KdeSpellerSettings()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 QString KdeSpellerSettings::suggestLanguage(QString lang, Speller *speller)
@@ -76,12 +76,12 @@ void KdeSpellerSettings::saveImpl()
 
 void KdeSpellerSettings::changeEvent(QEvent *e)
 {
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 

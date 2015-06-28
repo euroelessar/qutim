@@ -52,7 +52,7 @@ Maemo5Tray::Maemo5Tray() :
 	Maemo5Docklet::SetIcon(m_offlineIconPath,false);
 
 	connect(Maemo5Docklet::Instance(), SIGNAL(ButtonClicked()),this, SLOT(onActivated()));
-	
+
 	QMap<QString, Protocol*> protocols;
 	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);

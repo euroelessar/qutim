@@ -61,41 +61,41 @@ file.read(var);
 */
 class LIBQUTIM_EXPORT JsonFile
 {
-    Q_DISABLE_COPY(JsonFile)
-    Q_DECLARE_PRIVATE(JsonFile)
+	Q_DISABLE_COPY(JsonFile)
+	Q_DECLARE_PRIVATE(JsonFile)
 public:
 #ifndef Q_QDOC
-    enum OpenMode { ReadOnly, ReadWrite };
+	enum OpenMode { ReadOnly, ReadWrite };
 #endif
-    /**
-    * @brief Constructor
-    *
-    * @param name File name
-    */
-    JsonFile(const QString &name = QString());
-    /**
-    * Destructor
-    */
-    virtual ~JsonFile();
-    /**
-    * @brief Set file name to @a name
-    */
-    void setFileName(const QString &name);
-    /**
-    * @brief Load file's json data to @a variant
-    *
-    * @return @b True if file was successfully parsed, else @b false
-    */
-    bool load(QVariant &variant);
-    /**
-    * @brief Save content of @a variant as json to file
-    *
-    * @return @b True if file was successfully parsed, else @b false
-    */
-    bool save(const QVariant &variant);
+	/**
+	* @brief Constructor
+	*
+	* @param name File name
+	*/
+	JsonFile(const QString &name = QString());
+	/**
+	* Destructor
+	*/
+	virtual ~JsonFile();
+	/**
+	* @brief Set file name to @a name
+	*/
+	void setFileName(const QString &name);
+	/**
+	* @brief Load file's json data to @a variant
+	*
+	* @return @b True if file was successfully parsed, else @b false
+	*/
+	bool load(QVariant &variant);
+	/**
+	* @brief Save content of @a variant as json to file
+	*
+	* @return @b True if file was successfully parsed, else @b false
+	*/
+	bool save(const QVariant &variant);
 #ifndef Q_QDOC
 private:
-    QScopedPointer<JsonFilePrivate> d_ptr;
+	QScopedPointer<JsonFilePrivate> d_ptr;
 #endif
 };
 }

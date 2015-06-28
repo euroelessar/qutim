@@ -42,7 +42,7 @@ public:
 	inline CodecWrapper() {}
 protected:
 	QByteArray name() const { return utf8Codec()->name() + " wrapper"; }
-	
+
 	QString convertToUnicode(const char *chars, int len, ConverterState *state) const
 	{
 		if (Json::isValidUtf8(chars, len, false))
@@ -50,12 +50,12 @@ protected:
 		else
 			return _asciiCodec->toUnicode(chars, len, state);
 	}
-	
+
 	QByteArray convertFromUnicode(const QChar *input, int number, ConverterState *state) const
 	{
 		return utf8Codec()->fromUnicode(input, number, state);
 	}
-	
+
 	int mibEnum() const { return utf8Codec()->mibEnum(); }
 };
 

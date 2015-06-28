@@ -31,20 +31,20 @@
 #include "historymanagerwindow.h"
 
 namespace Ui {
-    class ChooseClientPage;
+	class ChooseClientPage;
 }
 
 namespace HistoryManager {
 
 class ChooseClientPage : public QWizardPage {
-    Q_OBJECT
-    Q_DISABLE_COPY(ChooseClientPage)
+	Q_OBJECT
+	Q_DISABLE_COPY(ChooseClientPage)
 public:
 	explicit ChooseClientPage(HistoryManagerWindow *parent = 0);
-    virtual ~ChooseClientPage();
+	virtual ~ChooseClientPage();
 
 protected:
-    virtual void changeEvent(QEvent *e);
+	virtual void changeEvent(QEvent *e);
 	virtual void initializePage();
 	virtual void cleanupPage();
 	virtual bool isComplete() const;
@@ -54,7 +54,7 @@ protected slots:
 	void clientChanged(QListWidgetItem *current = 0, QListWidgetItem *previous = 0);
 
 private:
-    Ui::ChooseClientPage *m_ui;
+	Ui::ChooseClientPage *m_ui;
 	HistoryManagerWindow *m_parent;
 	bool m_valid;
 	QList<HistoryImporter *> m_clients_list;

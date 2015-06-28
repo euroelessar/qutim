@@ -60,23 +60,23 @@ MessageUnitData::MessageUnitData()
 }
 
 MessageUnitData::MessageUnitData(const QString &id, const QString &title, const QString &avatar)
-    : m_id(id), m_title(title), m_avatar(avatar)
+	: m_id(id), m_title(title), m_avatar(avatar)
 {
 }
 
 QString MessageUnitData::id() const
 {
-    return m_id;
+	return m_id;
 }
 
 QString MessageUnitData::title() const
 {
-    return m_title;
+	return m_title;
 }
 
 QString MessageUnitData::avatar() const
 {
-    return m_avatar;
+	return m_avatar;
 }
 
 QScriptValue messageToScriptValue(QScriptEngine *engine, const Message &mes)
@@ -205,45 +205,45 @@ void Message::setProperty(const char *name, const QVariant &value)
 
 QList<QByteArray> Message::dynamicPropertyNames() const
 {
-    return p->names;
+	return p->names;
 }
 
 QVariant Message::property(const QString &name, const QVariant &def) const
 {
-    return property(name.toUtf8().constData(), def);
+	return property(name.toUtf8().constData(), def);
 }
 
 bool Message::hasProperty(const QString &name) const
 {
-    return dynamicPropertyNames().contains(name.toUtf8().constData());
+	return dynamicPropertyNames().contains(name.toUtf8().constData());
 }
 
 QString Message::formattedHtml() const
 {
-    QString html = UrlParser::parseUrls(this->html(), UrlParser::Html);
+	QString html = UrlParser::parseUrls(this->html(), UrlParser::Html);
 
-    if (property("topic", false))
-        return html;
+	if (property("topic", false))
+		return html;
 
-    return Emoticons::theme().parseEmoticons(html);
+	return Emoticons::theme().parseEmoticons(html);
 }
 
 bool Message::isSimiliar(const Message &other, int flags) const
 {
-    const auto &a = *this;
-    const auto &b = other;
+	const auto &a = *this;
+	const auto &b = other;
 
-    if (a.chatUnit() == b.chatUnit()
-            && ((flags & IgnoreActions) || (!a.isAction() && !b.isAction()))
-            && a.isIncoming() == b.isIncoming()
-            && a.property("senderName", QString()) == b.property("senderName", QString())
-            && a.property("service", false) == b.property("service", false)
-            && a.property("history", false) == b.property("history", false)
-            && a.property("mention", false) == b.property("mention", false)) {
-        // TODO: Make configurable
-        return qAbs(a.time().secsTo(b.time())) < 300;
-    }
-    return false;
+	if (a.chatUnit() == b.chatUnit()
+			&& ((flags & IgnoreActions) || (!a.isAction() && !b.isAction()))
+			&& a.isIncoming() == b.isIncoming()
+			&& a.property("senderName", QString()) == b.property("senderName", QString())
+			&& a.property("service", false) == b.property("service", false)
+			&& a.property("history", false) == b.property("history", false)
+			&& a.property("mention", false) == b.property("mention", false)) {
+		// TODO: Make configurable
+		return qAbs(a.time().secsTo(b.time())) < 300;
+	}
+	return false;
 }
 
 const QString &Message::text() const
@@ -273,22 +273,22 @@ const QDateTime &Message::time() const
 
 void Message::setTime(const QDateTime &time)
 {
-    p->time = time;
+	p->time = time;
 }
 
 QString Message::formatTime(const QString &format)
 {
-    return p->time.toString(format);
+	return p->time.toString(format);
 }
 
 bool Message::isIncoming() const
 {
-    return p->in;
+	return p->in;
 }
 
 bool Message::isAction() const
 {
-    return html().startsWith(QStringLiteral("/me "));
+	return html().startsWith(QStringLiteral("/me "));
 }
 
 void Message::setIncoming(bool input)
@@ -298,23 +298,23 @@ void Message::setIncoming(bool input)
 
 ChatUnit* Message::chatUnit() const
 {
-    return p->chatUnit.data();
+	return p->chatUnit.data();
 }
 
 MessageUnitData Message::unitData() const
 {
-    QObject *source = 0;
-    QString id = property("senderId", QString());
-    QString title = property("senderName", QString());
-    QString avatar = property("senderAvatar", QString());
-    if (!title.isEmpty()) {
-        if (avatar.isEmpty()) {
-            if (!id.isEmpty())
-                source = chatUnit()->account()->getUnit(id, false);
-            if (source)
-                avatar = source->property("avatar").toString();
-        }
-        return MessageUnitData(id, title, avatar);
+	QObject *source = 0;
+	QString id = property("senderId", QString());
+	QString title = property("senderName", QString());
+	QString avatar = property("senderAvatar", QString());
+	if (!title.isEmpty()) {
+		if (avatar.isEmpty()) {
+			if (!id.isEmpty())
+				source = chatUnit()->account()->getUnit(id, false);
+			if (source)
+				avatar = source->property("avatar").toString();
+		}
+		return MessageUnitData(id, title, avatar);
 	}
 	if (!source && chatUnit()) {
 		if (!isIncoming()) {
@@ -327,18 +327,18 @@ MessageUnitData Message::unitData() const
 			source = chatUnit();
 		}
 	}
-    if (!source)
-        return MessageUnitData(id, title, avatar);
-    if (avatar.isEmpty())
-        avatar = source->property("avatar").toString();
+	if (!source)
+		return MessageUnitData(id, title, avatar);
+	if (avatar.isEmpty())
+		avatar = source->property("avatar").toString();
 	if (ChatUnit *unit = qobject_cast<ChatUnit*>(source)) {
-        id = unit->id();
-        title = unit->title();
+		id = unit->id();
+		title = unit->title();
 	} else if (Account *account = qobject_cast<Account*>(source)) {
-        id = account->id();
-        title = account->name();
-    }
-    return MessageUnitData(id, title, avatar);
+		id = account->id();
+		title = account->name();
+	}
+	return MessageUnitData(id, title, avatar);
 }
 
 quint64 Message::id() const
@@ -371,7 +371,7 @@ QString unescape(const QString &html)
 	document()->data()->setHtml(html);
 	QString plainText = document()->data()->toPlainText();
 	document()->data()->clearUndoRedoStacks();
-    return plainText;
+	return plainText;
 }
 
 }

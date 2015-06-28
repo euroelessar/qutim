@@ -28,17 +28,17 @@
 using namespace qutim_sdk_0_3;
 
 ContactListPlainModel::ContactListPlainModel(QObject *parent) :
-    ContactListBaseModel(parent)
+	ContactListBaseModel(parent)
 {
-    Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show only contacts"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show only contacts"));
 }
 
 void ContactListPlainModel::addContact(Contact *contact)
 {
-    ensureContact(contact, rootNode());
+	ensureContact(contact, rootNode());
 }
 
 void ContactListPlainModel::removeContact(Contact *contact)
 {
-    eraseContact(contact, rootNode());
+	eraseContact(contact, rootNode());
 }

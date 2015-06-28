@@ -50,7 +50,7 @@ protected:
 
 class MobileNotificationSettings : public qutim_sdk_0_3::SettingsWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	enum
 	{

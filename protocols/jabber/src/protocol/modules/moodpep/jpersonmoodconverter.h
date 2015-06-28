@@ -38,7 +38,7 @@ namespace Jabber
 	public:
 		JPersonMoodConverter();
 		virtual ~JPersonMoodConverter();
-		
+
 		virtual QString name() const;
 		virtual int entityType() const;
 		virtual QSharedPointer<Jreen::Payload> convertTo(const QVariantHash &map) const;

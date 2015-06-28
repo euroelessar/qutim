@@ -39,31 +39,31 @@ class PackageEngine : public QObject
 public:
 	PackageEngine(QObject *parent = 0);
 	~PackageEngine();
-	
+
 	bool isInitialized();
 	qint64 requestContents(const Attica::Category::List &categories = Attica::Category::List(),
 						   const QString& search = QString(),
-	                       Attica::Provider::SortMode mode = Attica::Provider::Rating,
-	                       uint page = 0, uint pageSize = 10);
+						   Attica::Provider::SortMode mode = Attica::Provider::Rating,
+						   uint page = 0, uint pageSize = 10);
 	Attica::Category::List resolveCategories(const QStringList &categoriesNames) const;
 	void remove(const PackageEntry &entry);
 	void install(const PackageEntry &entry, const QString &path);
 	void loadPreview(const PackageEntry &entry);
-	
+
 signals:
 	void engineInitialized();
 	void contentsReceived(const PackageEntry::List &list, qint64 id);
 	void previewLoaded(const QString &id, const QPixmap &preview);
 	void entryChanged(const QString &id);
-	
+
 private slots:
-    void onProviderAdded(Attica::Provider provider);
+	void onProviderAdded(Attica::Provider provider);
 	void onCategoriesJobFinished(Attica::BaseJob *job);
 	void onContentJobFinished(Attica::BaseJob *job);
 	void onDownloadJobFinished(Attica::BaseJob *job);
 	void onPreviewRequestFinished();
 	void onNetworkRequestFinished();
-	
+
 private:
 	qint64 m_idCounter;
 	Attica::Category::List m_categories;

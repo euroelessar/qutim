@@ -43,7 +43,7 @@ protected:
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
-    void clearItems();
+	void clearItems();
 	virtual void changeEvent(QEvent *e);
 
 private slots:

@@ -76,7 +76,7 @@ void MrimPacket::setHeader(const mrim_packet_header_t& header)
 }
 
 void MrimPacket::setBody(const QByteArray& body)
-{    
+{
 	m_body.clear();
 	m_body.append(body);
 	m_header.dlen = m_body.length();
@@ -137,16 +137,16 @@ QByteArray MrimPacket::toByteArray()
 bool MrimPacket::readFrom(QIODevice& device)
 {
 	Q_ASSERT(mode() == Receive);
-	
+
 	if (state() == ReadHeader)
 	{
 		m_headerData += device.read(HEADER_SIZE - m_headerData.size());
 		if (m_headerData.size() != HEADER_SIZE)
 			return true;
-		
+
 		setHeader(m_headerData);
 		m_headerData.clear();
-		
+
 		if (isHeaderCorrect())
 		{
 			debug(DebugVeryVerbose)<<"Packet body size:" << dataLength();
@@ -159,12 +159,12 @@ bool MrimPacket::readFrom(QIODevice& device)
 			setError(HeaderCorrupted);
 		}
 	}
-	
+
 	if (state() == ReadData && m_bytesLeft != 0)
 	{
 		char *data = m_body.data() + m_body.size() - m_bytesLeft;
 		qint64 bytesRead = device.read(data,m_bytesLeft);
-		
+
 		if (bytesRead < 0)
 		{//read error, connection lost
 			setError(CannotReadFromSocket);
@@ -172,7 +172,7 @@ bool MrimPacket::readFrom(QIODevice& device)
 		}
 		m_bytesLeft -= bytesRead;
 	}
-	
+
 	if (m_bytesLeft == 0)
 	{
 		setState(Finished);
@@ -224,7 +224,7 @@ qint64 MrimPacket::writeTo(QIODevice *device, bool waitForWritten)
 	Q_ASSERT(mode() == Compose);
 	Q_ASSERT(device);
 	qint64 written = device->write(toByteArray());
-	
+
 	if (waitForWritten)
 	{
 		device->waitForBytesWritten(10000);

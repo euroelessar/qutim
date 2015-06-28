@@ -169,7 +169,7 @@ bool ConferenceContactsView::event(QEvent *event)
 
 ConferenceContactsView::~ConferenceContactsView()
 {
-	
+
 }
 
 void ConferenceContactsView::mouseReleaseEvent(QMouseEvent *e)

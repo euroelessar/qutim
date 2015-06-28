@@ -40,8 +40,8 @@ class QuetzalAccountWizardPage : public QWizardPage
 	Q_OBJECT
 public:
 	QuetzalAccountWizardPage(QuetzalProtocol *proto, QWidget *parent = 0);
-    void initializePage();
-    void cleanupPage();
+	void initializePage();
+	void cleanupPage();
 	bool validatePage();
 	bool isComplete() const;
 	void handleRegisterResult(PurpleAccount *account, bool result);

@@ -32,65 +32,65 @@ private:
 };
 
 AutoReplyMessageHandler::AutoReplyMessageHandler(AutoReplyPlugin *plugin)
-    : m_plugin(plugin)
+	: m_plugin(plugin)
 {
 }
 
 static void appendWord(QString &str, int number, const char *word)
 {
-    if (number > 0) {
-        str += QString::number(number);
-        str += QLatin1Char(' ');
-        str += QLatin1String(word);
-        str += QLatin1String(number > 1 ? "s " : " ");
-    }
+	if (number > 0) {
+		str += QString::number(number);
+		str += QLatin1Char(' ');
+		str += QLatin1String(word);
+		str += QLatin1String(number > 1 ? "s " : " ");
+	}
 }
 
 QString AutoReplyMessageHandler::fuzzyTimeDelta(const QDateTime &from, const QDateTime &to)
 {
-    int totalDelta = from.secsTo(to);
-    bool negative = totalDelta < 0;
+	int totalDelta = from.secsTo(to);
+	bool negative = totalDelta < 0;
 
 	if (negative)
 		return QString();
 
-    totalDelta = qAbs(totalDelta);
-    const int seconds = totalDelta % 60;
-    totalDelta /= 60;
-    const int minutes = totalDelta % 60;
-    totalDelta /= 60;
-    const int hours = totalDelta % 24;
-    totalDelta /= 24;
-    const int days = totalDelta;
-    const int numbers[] = {
-        days,
-        hours,
-        minutes,
-        seconds
-    };
-    const char *words[] = {
-        "day",
-        "hour",
-        "minute",
-        "second"
-    };
-    QString timeString;
-    for (int i = 0; i < 4; ++i) {
-        if (numbers[i] > 0) {
-            appendWord(timeString, numbers[i], words[i]);
-            if (i + 1 < 4)
-                appendWord(timeString, numbers[i + 1], words[i + 1]);
-            break;
-        }
-    }
-    if (timeString.isEmpty())
-        timeString = QLatin1String("right now");
-    else if (negative)
-        timeString += QLatin1String("ago");
-    else
-        timeString.prepend(QLatin1String("in "));
-    while (timeString.endsWith(QLatin1Char(' ')))
-        timeString.chop(1);
+	totalDelta = qAbs(totalDelta);
+	const int seconds = totalDelta % 60;
+	totalDelta /= 60;
+	const int minutes = totalDelta % 60;
+	totalDelta /= 60;
+	const int hours = totalDelta % 24;
+	totalDelta /= 24;
+	const int days = totalDelta;
+	const int numbers[] = {
+		days,
+		hours,
+		minutes,
+		seconds
+	};
+	const char *words[] = {
+		"day",
+		"hour",
+		"minute",
+		"second"
+	};
+	QString timeString;
+	for (int i = 0; i < 4; ++i) {
+		if (numbers[i] > 0) {
+			appendWord(timeString, numbers[i], words[i]);
+			if (i + 1 < 4)
+				appendWord(timeString, numbers[i + 1], words[i + 1]);
+			break;
+		}
+	}
+	if (timeString.isEmpty())
+		timeString = QLatin1String("right now");
+	else if (negative)
+		timeString += QLatin1String("ago");
+	else
+		timeString.prepend(QLatin1String("in "));
+	while (timeString.endsWith(QLatin1Char(' ')))
+		timeString.chop(1);
 	return QString("I'll be back %1").arg(timeString);
 }
 
@@ -113,22 +113,22 @@ MessageHandlerAsyncResult AutoReplyMessageHandler::doHandle(Message &message)
 	QMutableListIterator<CacheItem> it(m_cache);
 	while (it.hasNext()) {
 		CacheItem &item = it.next();
-        if (item.time.secsTo(QDateTime::currentDateTime()) > m_plugin->deltaTime()) {
+		if (item.time.secsTo(QDateTime::currentDateTime()) > m_plugin->deltaTime()) {
 			it.remove();
 		} else if (item.unit == message.chatUnit()) {
 			return makeAsyncResult(Accept, QString());
-        }
+		}
 	}
-    if (message.isIncoming() && m_plugin->isActive() && !m_plugin->replyText().isEmpty()) {
-        QString replyText = m_plugin->replyText();
-        updateText(replyText, m_plugin->backTime());
-        Message replyMessage(replyText);
-        replyMessage.setIncoming(false);
-        replyMessage.setChatUnit(message.chatUnit());
+	if (message.isIncoming() && m_plugin->isActive() && !m_plugin->replyText().isEmpty()) {
+		QString replyText = m_plugin->replyText();
+		updateText(replyText, m_plugin->backTime());
+		Message replyMessage(replyText);
+		replyMessage.setIncoming(false);
+		replyMessage.setChatUnit(message.chatUnit());
 		replyMessage.setProperty("autoreply", true);
 		CacheItem cacheItem = { QDateTime::currentDateTime(), message.chatUnit() };
 		m_cache << cacheItem;
 		qApp->postEvent(m_plugin, new AutoReplyMessageEvent(replyMessage));
-    }
+	}
 	return makeAsyncResult(Accept, QString());
 }

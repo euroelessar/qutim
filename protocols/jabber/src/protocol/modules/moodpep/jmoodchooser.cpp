@@ -99,7 +99,7 @@ void JMoodChooser::init(qutim_sdk_0_3::Account *account)
 	m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
 	// Add action to context menu
 	m_actionGenerator.reset(new JMoodChooserAction(QIcon(), tr("Set mood"),
-	                                               this, SLOT(showMoodChooser(QObject*))));
+												   this, SLOT(showMoodChooser(QObject*))));
 	m_actionGenerator->setType(0x60000);
 	m_actionGenerator->setPriority(30);
 	account->addAction(m_actionGenerator.data());

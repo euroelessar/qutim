@@ -111,7 +111,7 @@ Contact *QuetzalContactsFactory::addContact(const QString &id, const QVariantMap
 		group = data.value(QLatin1String("tags")).toStringList().value(0).toUtf8();
 	}
 	QString name = data.value(QLatin1String("name")).toString();
-	
+
 	const char *groupName = group.isEmpty() ? "Buddies" : group.constData();
 	PurpleGroup *pg = purple_find_group(groupName);
 	if (!pg) {
@@ -330,9 +330,9 @@ void QuetzalAccount::load(Config cfg)
 		}
 	}
 	cfg.endGroup();
-	
+
 	RosterStorage::instance()->load(this);
-	
+
 	int size = cfg.beginArray(QLatin1String("chats"));
 	QString name = QLatin1String("name");
 	QString recent = QLatin1String("recent");
@@ -359,7 +359,7 @@ void QuetzalAccount::load(Config cfg)
 		PurpleChat *pc = purple_chat_new(m_account, alias.constData(), comps);
 		purple_blist_add_chat(pc, NULL, NULL);
 	}
-	
+
 	_purple_buddy_icons_blist_loaded_cb();
 }
 

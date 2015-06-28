@@ -43,10 +43,10 @@ void Maemo5SettingsPlugin::init()
 							   QT_TRANSLATE_NOOP("plugin","Specific Maemo 5 settings"));
 m_item = new GeneralSettingsItem<Maemo5Settings>(Settings::Plugin, Icon("maemo5"), QT_TRANSLATE_NOOP("Settings","Maemo 5 Settings"));
 	Settings::registerItem(m_item);
-	
+
 	}
 bool Maemo5SettingsPlugin::load() {return true; }
 bool Maemo5SettingsPlugin::unload() { return true; }
-	
+
 QUTIM_EXPORT_PLUGIN(Maemo5SettingsPlugin)
 

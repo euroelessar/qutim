@@ -11,65 +11,65 @@ namespace qutim_sdk_0_3 {
 
 class QuickConfig : public QObject, public QQmlParserStatus
 {
-    Q_OBJECT
-    Q_INTERFACES(QQmlParserStatus)
-    Q_PROPERTY(QObject* object READ object WRITE setObject NOTIFY objectChanged)
-    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
-    Q_PROPERTY(QString group READ group WRITE setGroup NOTIFY groupChanged)
+	Q_OBJECT
+	Q_INTERFACES(QQmlParserStatus)
+	Q_PROPERTY(QObject* object READ object WRITE setObject NOTIFY objectChanged)
+	Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
+	Q_PROPERTY(QString group READ group WRITE setGroup NOTIFY groupChanged)
 public:
-    explicit QuickConfig(QObject *parent = 0);
-    
-    void setPath(const QString &path);
-    QString path() const;
-    
-    void setGroup(const QString &group);
-    QString group() const;
+	explicit QuickConfig(QObject *parent = 0);
 
-    QObject *object() const;
-    void setObject(QObject *object);
-    
-    void classBegin();
-    void componentComplete();
+	void setPath(const QString &path);
+	QString path() const;
 
-    void syncProperties(QObject *object);
+	void setGroup(const QString &group);
+	QString group() const;
+
+	QObject *object() const;
+	void setObject(QObject *object);
+
+	void classBegin();
+	void componentComplete();
+
+	void syncProperties(QObject *object);
 
 public slots:
-    QVariant value(const QString &name, const QVariant &defaultValue);
-    void setValue(const QString &name, const QVariant &value);
-    
-    void beginGroup(const QString &name);
-    void endGroup();
+	QVariant value(const QString &name, const QVariant &defaultValue);
+	void setValue(const QString &name, const QVariant &value);
+
+	void beginGroup(const QString &name);
+	void endGroup();
 
 private slots:
 	void forceSync();
 
 signals:
-    void pathChanged();
-    void groupChanged();
-    
-    void objectChanged(QObject* arg);
+	void pathChanged();
+	void groupChanged();
+
+	void objectChanged(QObject* arg);
 
 private:
-    Config m_config;
-    QString m_path;
-    QString m_group;
-    QPointer<QObject> m_object;
+	Config m_config;
+	QString m_path;
+	QString m_group;
+	QPointer<QObject> m_object;
 };
 
 class QuickConfigListener : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QObject *object, QuickConfig *parent);
+	QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QObject *object, QuickConfig *parent);
 
 public slots:
-    void onPropertyChanged();
+	void onPropertyChanged();
 
 private:
-    QString m_path;
-    QString m_group;
-    QMetaProperty m_property;
-    QObject *m_object;
+	QString m_path;
+	QString m_group;
+	QMetaProperty m_property;
+	QObject *m_object;
 };
 
 } // namespace qutim_sdk_0_3

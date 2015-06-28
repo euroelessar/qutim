@@ -36,13 +36,13 @@ using namespace Sonnet;
 using namespace qutim_sdk_0_3;
 
 namespace Ui {
-    class KdeSpellerSettings;
+	class KdeSpellerSettings;
 }
 
 class KdeSpellerSettings : public SettingsWidget
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(KdeSpellerSettings)
+	Q_OBJECT
+	Q_DISABLE_COPY(KdeSpellerSettings)
 public:
 	explicit KdeSpellerSettings();
 	virtual ~KdeSpellerSettings();
@@ -54,7 +54,7 @@ protected:
 	void cancelImpl() { loadImpl(); }
 
 protected:
-    virtual void changeEvent(QEvent *e);
+	virtual void changeEvent(QEvent *e);
 
 private:
 	Ui::KdeSpellerSettings *m_ui;

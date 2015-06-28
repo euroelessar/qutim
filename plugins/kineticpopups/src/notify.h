@@ -9,24 +9,24 @@ namespace KineticPopups {
 
 class Action : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(QString text READ text CONSTANT)
+	Q_OBJECT
+	Q_PROPERTY(QString text READ text CONSTANT)
 public:
-    Action(const qutim_sdk_0_3::NotificationAction &action, QObject *parent = 0);
+	Action(const qutim_sdk_0_3::NotificationAction &action, QObject *parent = 0);
 
-    QString text() const;
+	QString text() const;
 
 public slots:
-    void trigger();
+	void trigger();
 
 private:
-    qutim_sdk_0_3::NotificationAction m_action;
+	qutim_sdk_0_3::NotificationAction m_action;
 };
 
 class Notify : public QObject
 {
-    Q_OBJECT
-    Q_ENUMS(qutim_sdk_0_3::Notification::Type)
+	Q_OBJECT
+	Q_ENUMS(qutim_sdk_0_3::Notification::Type)
 
 	Q_PROPERTY(QString title READ title CONSTANT)
 	Q_PROPERTY(QString text  READ text CONSTANT)
@@ -36,7 +36,7 @@ class Notify : public QObject
 	Q_PROPERTY(QQmlListProperty<KineticPopups::Action> actions READ actions CONSTANT)
 	Q_PROPERTY(QVariantMap additional READ additional CONSTANT)
 public:
-    explicit Notify(qutim_sdk_0_3::Notification *parent = 0);
+	explicit Notify(qutim_sdk_0_3::Notification *parent = 0);
 
 	QString title() const;
 	QString text() const;
@@ -49,19 +49,19 @@ public:
 	qutim_sdk_0_3::Notification *notification() const;
 
 public slots:
-    void accept();
-    void ignore();
-    void remove();
+	void accept();
+	void ignore();
+	void remove();
 
 protected:
-    static int list_count(QQmlListProperty<Action> *list);
-    static Action *list_at(QQmlListProperty<Action> *list, int index);
+	static int list_count(QQmlListProperty<Action> *list);
+	static Action *list_at(QQmlListProperty<Action> *list, int index);
 
 private:
-    qutim_sdk_0_3::Notification *m_notify;
+	qutim_sdk_0_3::Notification *m_notify;
 	QPointer<qutim_sdk_0_3::Notification> m_safeNotify;
 	qutim_sdk_0_3::NotificationRequest m_request;
-    QVariantMap m_additional;
+	QVariantMap m_additional;
 	QList<Action *> m_actions;
 };
 

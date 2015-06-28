@@ -39,7 +39,7 @@ namespace Control {
 using namespace qutim_sdk_0_3;
 
 QuickAnswerButtonActionGenerator::QuickAnswerButtonActionGenerator(QObject *object, const char *slot)
-    : ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Control", "Answer"), object, slot)
+	: ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Control", "Answer"), object, slot)
 {
 	setType(ActionTypeChatButton);
 }
@@ -50,7 +50,7 @@ QObject *QuickAnswerButtonActionGenerator::generateHelper() const
 }
 
 QuickAnswerButtonAction::QuickAnswerButtonAction(QObject *parent)
-    : QWidgetAction(parent)
+	: QWidgetAction(parent)
 {
 }
 
@@ -67,7 +67,7 @@ QWidget *QuickAnswerButtonAction::createWidget(QWidget *parent)
 	QMenu *menu = new QMenu(button);
 	QAction *action = menu->addAction(tr("Update answers"));
 	connect(action, SIGNAL(triggered()),
-	        RosterManager::instance()->networkManager(), SLOT(updateAnswers()));
+			RosterManager::instance()->networkManager(), SLOT(updateAnswers()));
 	button->setMenu(menu);
 	return button;
 }
@@ -78,7 +78,7 @@ void QuickAnswerButtonAction::deleteWidget(QWidget *widget)
 }
 
 ItemDeledate::ItemDeledate(QObject *parent)
-    : QStyledItemDelegate(parent)
+	: QStyledItemDelegate(parent)
 {
 }
 
@@ -103,7 +103,7 @@ QSize ItemDeledate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
 {
 	QStyleOptionViewItemV4 opt4(option);
 	opt4.features |= QStyleOptionViewItemV4::WrapText;
-	
+
 	return QStyledItemDelegate::sizeHint(opt4, index);
 }
 
@@ -135,7 +135,7 @@ QuickAnswerMenu::QuickAnswerMenu(ChatUnit *contact) : m_contact(contact)
 	menu->show();
 	connect(contact, SIGNAL(destroyed()), SLOT(close()));
 	connect(this, SIGNAL(itemPressed(QListWidgetItem*)),
-	        SLOT(onItemClicked(QListWidgetItem*)));
+			SLOT(onItemClicked(QListWidgetItem*)));
 }
 
 void QuickAnswerMenu::mousePressEvent(QMouseEvent *ev)
@@ -156,9 +156,9 @@ void QuickAnswerMenu::onItemClicked(QListWidgetItem *item)
 	ChatSession *session = ChatLayer::get(m_contact);
 	debug() << item->text() << session << session->getInputField();
 	QMetaObject::invokeMethod(ChatLayer::instance(),
-	                          "insertText",
-	                          Q_ARG(qutim_sdk_0_3::ChatSession*, session),
-	                          Q_ARG(QString, item->text()));
+							  "insertText",
+							  Q_ARG(qutim_sdk_0_3::ChatSession*, session),
+							  Q_ARG(QString, item->text()));
 	close();
 }
 

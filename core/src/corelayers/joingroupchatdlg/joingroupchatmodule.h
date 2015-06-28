@@ -36,26 +36,26 @@ using namespace qutim_sdk_0_3;
 
 class JoinGroupChatModule : public QObject
 {
-    Q_OBJECT
-    Q_CLASSINFO("Service", "JoinGroupChat")
-    Q_CLASSINFO("Uses", "IconLoader")
-    Q_CLASSINFO("Uses", "ContactList")
+	Q_OBJECT
+	Q_CLASSINFO("Service", "JoinGroupChat")
+	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "ContactList")
 public:
-    explicit JoinGroupChatModule();
-    virtual ~JoinGroupChatModule();
+	explicit JoinGroupChatModule();
+	virtual ~JoinGroupChatModule();
 	void openConference(const QString &uri);
 public slots:
 	void onJoinGroupChatTriggered(const QString &uri = QString());
 private:
-    QPointer<JoinGroupChat> m_chat;
-    QScopedPointer<ActionGenerator> m_gen;
+	QPointer<JoinGroupChat> m_chat;
+	QScopedPointer<ActionGenerator> m_gen;
 };
 
 class JoinGroupChatGenerator : public ActionGenerator
 {
 public:
-    JoinGroupChatGenerator(QObject *module);
-    void showImpl(QAction *action, QObject *obj);
+	JoinGroupChatGenerator(QObject *module);
+	void showImpl(QAction *action, QObject *obj);
 };
 
 }

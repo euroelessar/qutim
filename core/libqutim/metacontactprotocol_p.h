@@ -31,13 +31,13 @@
 namespace qutim_sdk_0_3
 {
 	class MetaContactManager;
-	
+
 	class MetaProtocolPrivate : public ProtocolPrivate
 	{
 	public:
 		MetaContactManager *manager;
 	};
-	
+
 	class MetaProtocol : public Protocol
 	{
 		Q_OBJECT

@@ -43,78 +43,78 @@ class MrimContact;
 struct MrimConnectionPrivate;
 
 class MrimConnection : public QObject,
-                       public PacketHandler
+					   public PacketHandler
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    enum ConnectionState
-    {
-        Unconnected = 0,
-        RecievingGoodIMServer = 1,
-        ConnectingToIMServer = 2,
-        ConnectedToIMServer = 3,
-        UnknownState = 4
-    };
+	enum ConnectionState
+	{
+		Unconnected = 0,
+		RecievingGoodIMServer = 1,
+		ConnectingToIMServer = 2,
+		ConnectedToIMServer = 3,
+		UnknownState = 4
+	};
 
-    enum FeatureFlag
-    {
-        FeatureFlagRtfMessage       =   0x00000001,
-        FeatureFlagBaseSmiles       =   0x00000002,
-        FeatureFlagAdvancedSmiles   =   0x00000004,
-        FeatureFlagContactsExchange =   0x00000008,
-        FeatureFlagWakeup           =   0x00000010,
-        FeatureFlagMults            =   0x00000020,
-        FeatureFlagFileTransfer     =   0x00000040,
-        FeatureFlagVoice            =   0x00000080,
-        FeatureFlagVideo            =   0x00000100,
-        FeatureFlagGames            =   0x00000200,
-        FeatureFlagLast             =   FeatureFlagGames,
-        FeatureFlagUAMask           =   ((FeatureFlagLast << 1) - 1)
-    };
-    Q_DECLARE_FLAGS(FeatureFlags,FeatureFlag)
+	enum FeatureFlag
+	{
+		FeatureFlagRtfMessage       =   0x00000001,
+		FeatureFlagBaseSmiles       =   0x00000002,
+		FeatureFlagAdvancedSmiles   =   0x00000004,
+		FeatureFlagContactsExchange =   0x00000008,
+		FeatureFlagWakeup           =   0x00000010,
+		FeatureFlagMults            =   0x00000020,
+		FeatureFlagFileTransfer     =   0x00000040,
+		FeatureFlagVoice            =   0x00000080,
+		FeatureFlagVideo            =   0x00000100,
+		FeatureFlagGames            =   0x00000200,
+		FeatureFlagLast             =   FeatureFlagGames,
+		FeatureFlagUAMask           =   ((FeatureFlagLast << 1) - 1)
+	};
+	Q_DECLARE_FLAGS(FeatureFlags,FeatureFlag)
 
 public:
-    MrimConnection(MrimAccount *account);
-    void start();
-    void close();
-    virtual ~MrimConnection();
+	MrimConnection(MrimAccount *account);
+	void start();
+	void close();
+	virtual ~MrimConnection();
 
-    Config config();
-    ConfigGroup config(const QString &group);
-    ConnectionState state() const;
-    void registerPacketHandler(PacketHandler *handler);
-    FeatureFlags protoFeatures() const;
+	Config config();
+	ConfigGroup config(const QString &group);
+	ConnectionState state() const;
+	void registerPacketHandler(PacketHandler *handler);
+	FeatureFlags protoFeatures() const;
 	Status setStatus(const Status &status);
 
-    void sendPacket(MrimPacket &packet);
-    MrimAccount *account() const;
-    MrimMessages *messages() const;
+	void sendPacket(MrimPacket &packet);
+	MrimAccount *account() const;
+	MrimMessages *messages() const;
 
 signals:
-    void loggedOut(); //please do a queued connection
-    void loggedIn(); //please do a queued connection
+	void loggedOut(); //please do a queued connection
+	void loggedIn(); //please do a queued connection
 
 public slots:
 
 protected slots:
-    void connected();
-    void disconnected();
-    void readyRead();
-    void sendPing();
+	void connected();
+	void disconnected();
+	void readyRead();
+	void sendPing();
 
 protected:
-    virtual bool processPacket();
+	virtual bool processPacket();
 	void sendStatusPacket();
-    virtual void sendGreetings();
-    virtual void login();
-    virtual QList<quint32> handledTypes();
-    virtual bool handlePacket(class MrimPacket& packet);
-    virtual void loginRejected(const QString& reason);
+	virtual void sendGreetings();
+	virtual void login();
+	virtual QList<quint32> handledTypes();
+	virtual bool handlePacket(class MrimPacket& packet);
+	virtual void loginRejected(const QString& reason);
 
 private:
-    Q_DISABLE_COPY(MrimConnection)
-    QScopedPointer<MrimConnectionPrivate> p;
+	Q_DISABLE_COPY(MrimConnection)
+	QScopedPointer<MrimConnectionPrivate> p;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MrimConnection::FeatureFlags)

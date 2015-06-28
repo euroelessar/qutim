@@ -177,12 +177,12 @@ QList<PersonInfo> PersonInfo::authors()
 	// May be we should use QMap and get result finally from it withour QVector and qSort?
 	StringPersonHash authors;
 	StringPersonHash::iterator it;
-    foreach (QPointer<Plugin> plugin, pluginsList()) {
-        foreach (const PersonInfo &person, plugin.data()->info().authors()) {
+	foreach (QPointer<Plugin> plugin, pluginsList()) {
+		foreach (const PersonInfo &person, plugin.data()->info().authors()) {
 			it = authors.find(person.name());
 			if (it == authors.end())
 				it = authors.insert(person.name(), qMakePair(person, 0));
-            it.value().second += plugin.data()->avaiableExtensions().size();
+			it.value().second += plugin.data()->avaiableExtensions().size();
 		}
 	}
 	QVector<PersonIntPair> persons;
@@ -223,9 +223,9 @@ QList<PersonInfo> PersonInfo::translators()
 		QStringList webList = localizedWebs.split(QLatin1Char(','), QString::KeepEmptyParts);
 		for (int i = 0; i < nameList.size(); i++) {
 			persons << PersonInfo(nameList.at(i).toUtf8(),
-			                      task,
-			                      emailList.value(i),
-			                      webList.value(i));
+								  task,
+								  emailList.value(i),
+								  webList.value(i));
 		}
 	}
 	return persons;

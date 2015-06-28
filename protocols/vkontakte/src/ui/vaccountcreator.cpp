@@ -54,7 +54,7 @@ VAccountWizardPage::VAccountWizardPage(VAccountCreator* account_wizard) : m_acco
 }
 bool VAccountWizardPage::validatePage()
 {
-    if (email().isEmpty())
+	if (email().isEmpty())
 		return false;
 	m_account_wizard->finished();
 	return true;

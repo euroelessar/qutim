@@ -69,17 +69,17 @@ static quint64 encryptedMessageId;
 static bool encryptedMessageIdInited = false;
 
 AccountId::AccountId(qutim_sdk_0_3::Account *account)
-    : id(account->id()), protocol(account->protocol()->id())
+	: id(account->id()), protocol(account->protocol()->id())
 {
 }
 
 AccountId::AccountId(const QString &id, const QString &protocol)
-    : id(id), protocol(protocol)
+	: id(id), protocol(protocol)
 {
 }
 
 ActionList::ActionList()
-    : m_first(0), m_last(0)
+	: m_first(0), m_last(0)
 {
 }
 
@@ -182,12 +182,12 @@ void ActionList::remove(Action *action)
 }
 
 NetworkManager::NetworkManager(QObject *parent) :
-    QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
+	QNetworkAccessManager(parent), m_answersReply(0), m_currentReply(0)
 {
-    connect(this, SIGNAL(finished(QNetworkReply*)),
-            SLOT(onReplyFinished(QNetworkReply*)));
-    connect(this, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
-            SLOT(onSslErrors(QNetworkReply*,QList<QSslError>)));
+	connect(this, SIGNAL(finished(QNetworkReply*)),
+			SLOT(onReplyFinished(QNetworkReply*)));
+	connect(this, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
+			SLOT(onSslErrors(QNetworkReply*,QList<QSslError>)));
 	const QDir shareDir = SystemInfo::getDir(SystemInfo::SystemShareDir);
 	struct {
 		const char *fileName;
@@ -217,14 +217,14 @@ NetworkManager::NetworkManager(QObject *parent) :
 			request.setText(files[i].error.arg(file));
 			request.send();
 		}
-    }
-    Config config("control");
-    m_crypter = new Crypter(QByteArray::fromHex(config.value("general/key", QString()).toLatin1()));
+	}
+	Config config("control");
+	m_crypter = new Crypter(QByteArray::fromHex(config.value("general/key", QString()).toLatin1()));
 }
 
 NetworkManager::~NetworkManager()
 {
-    delete m_crypter;
+	delete m_crypter;
 }
 
 void NetworkManager::timerEvent(QTimerEvent *event)
@@ -321,12 +321,12 @@ void NetworkManager::sendMessage(const qutim_sdk_0_3::Message &message)
 	if (message.property("otrEncrypted", false))
 		action->encryption << QLatin1String("otr");
 	if (message.property("pgpEncrypted", false)
-	        || (encryptedMessageIdInited
-	            && encryptedMessageId == message.id())) {
+			|| (encryptedMessageIdInited
+				&& encryptedMessageId == message.id())) {
 		action->encryption << QLatin1String("pgp");
 	}
-    if (message.property("autoreply", false))
-        action->encryption << QLatin1String("autoreply");
+	if (message.property("autoreply", false))
+		action->encryption << QLatin1String("autoreply");
 	m_actions << action;
 	trySend();
 }
@@ -366,8 +366,8 @@ QNetworkReply *NetworkManager::post(const QUrl &url, const QByteArray &body)
 {
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    bool ok = false;
-    QByteArray data = "body=" + paranoicEscape(m_crypter->encode(body, &ok));
+	bool ok = false;
+	QByteArray data = "body=" + paranoicEscape(m_crypter->encode(body, &ok));
 	return QNetworkAccessManager::post(request, data);
 }
 
@@ -389,12 +389,12 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 	reply->deleteLater();
 	debug() << Q_FUNC_INFO << reply->errorString() << reply->error() << reply->rawHeaderPairs();
 	if (reply->error() != QNetworkReply::NoError
-	        && reply->error() != QNetworkReply::AuthenticationRequiredError) {
+			&& reply->error() != QNetworkReply::AuthenticationRequiredError) {
 		NotificationRequest request(Notification::System);
 		request.setTitle(tr("Control plugin"));
 		request.setText(tr("Error connecting to %1:\n%2")
-		                .arg(reply->request().url().toString())
-		                .arg(reply->errorString()));
+						.arg(reply->request().url().toString())
+						.arg(reply->errorString()));
 		request.send();
 	}
 	const QByteArray readData = reply->readAll();
@@ -417,9 +417,9 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 			ChatSession *session = ChatLayer::get(contact, true);
 			QString text = QString::fromUtf8(readData);
 			QMetaObject::invokeMethod(ChatLayer::instance(),
-			                          "insertText",
-			                          Q_ARG(qutim_sdk_0_3::ChatSession*, session),
-			                          Q_ARG(QString, text));
+									  "insertText",
+									  Q_ARG(qutim_sdk_0_3::ChatSession*, session),
+									  Q_ARG(QString, text));
 			NotificationRequest request(Notification::System);
 			request.setTitle(tr("Control plugin"));
 			request.setText(tr("Received reply from server:\n%1").arg(text));
@@ -475,9 +475,9 @@ void NetworkManager::onReplyFinished(QNetworkReply *reply)
 }
 
 static const char *actionTypes[] = {
-    "add",
-    "update",
-    "remove"
+	"add",
+	"update",
+	"remove"
 };
 
 static Action *loadAction(Config &config, int index)
@@ -559,8 +559,8 @@ void NetworkManager::onMessageEncrypted(quint64 id)
 void NetworkManager::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
 #ifdef DO_NOT_CHECK_SERVER_CERTIFICATE
-    Q_UNUSED(errors);
-    reply->ignoreSslErrors();
+	Q_UNUSED(errors);
+	reply->ignoreSslErrors();
 #else
 	bool onlyNoError = true;
 	foreach (const QSslError &error, errors) {
@@ -657,14 +657,14 @@ void NetworkManager::onTimer()
 			MessageAction *message = static_cast<MessageAction*>(action);
 			const qint64 time = message->time.toMSecsSinceEpoch() / 1000;
 			const int account = RosterManager::instance()
-			                    ->accountId(message->account.protocol, message->account.id);
-            data.insert("time", time);
+								->accountId(message->account.protocol, message->account.id);
+			data.insert("time", time);
 			data.insert("account", account);
 			data.insert("contact", message->contact);
 			data.insert("message", message->text);
-            data.insert("incoming", message->incoming);
-            data.insert("encryption", message->encryption);
-            data.insert("info", message->encryption);
+			data.insert("incoming", message->incoming);
+			data.insert("encryption", message->encryption);
+			data.insert("info", message->encryption);
 			messages << data;
 		}
 		body = messages;

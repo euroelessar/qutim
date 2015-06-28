@@ -39,13 +39,13 @@ using namespace qutim_sdk_0_3;
 QuickChatViewFactory::QuickChatViewFactory()
 {
 	m_appearanceSettings = new QmlSettingsItem(QStringLiteral("qmlchat"),
-        Settings::Appearance, Icon("view-choose"),QT_TRANSLATE_NOOP("Settings","Chat"));
+		Settings::Appearance, Icon("view-choose"),QT_TRANSLATE_NOOP("Settings","Chat"));
 	Settings::registerItem(m_appearanceSettings);
 }
 
 QObject* QuickChatViewFactory::createViewController()
 {
-    return new QuickChatController();
+	return new QuickChatController();
 }
 
 QWidget* QuickChatViewFactory::createViewWidget()
@@ -59,7 +59,7 @@ QuickChatViewFactory::~QuickChatViewFactory()
 	delete m_appearanceSettings;
 }
 
-	
+
 } // namespace AdiumChat
 } // namespace Core
 

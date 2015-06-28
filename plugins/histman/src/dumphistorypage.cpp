@@ -51,10 +51,10 @@ void DumpHistoryPageHelper::run()
 }
 
 DumpHistoryPage::DumpHistoryPage(HistoryManagerWindow *parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::DumpHistoryPage)
+	QWizardPage(parent),
+	m_ui(new Ui::DumpHistoryPage)
 {
-    m_ui->setupUi(this);
+	m_ui->setupUi(this);
 	m_parent = parent;
 	setFinalPage(true);
 	m_state = PreInit;
@@ -76,7 +76,7 @@ DumpHistoryPage::DumpHistoryPage(HistoryManagerWindow *parent) :
 
 DumpHistoryPage::~DumpHistoryPage()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 void DumpHistoryPage::initializePage()
@@ -152,14 +152,14 @@ void DumpHistoryPage::completed()
 
 void DumpHistoryPage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 }

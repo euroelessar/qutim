@@ -40,10 +40,10 @@ namespace Jabber
 {
 	using namespace Jreen;
 	using namespace qutim_sdk_0_3;
-	
+
 //	typedef QMap<Account*, JPersonEventSupport*> SupportMap;
 //	Q_GLOBAL_STATIC(SupportMap, supportMap);
-	
+
 //	JPersonalEventFilterFactory::JPersonalEventFilterFactory()
 //	{
 //	}
@@ -87,17 +87,17 @@ namespace Jabber
 //			}
 //		}
 //	}
-	
+
 	JPersonEventSupport::JPersonEventSupport() : m_account(0), m_manager(0), m_eventId(0)
 	{
 	}
-	
+
 	JPersonEventSupport::~JPersonEventSupport()
 	{
 //		supportMap()->remove(m_account);
 //		delete m_manager;
 	}
-	
+
 	void JPersonEventSupport::init(Account *account)
 	{
 //		supportMap()->insert(account, this);
@@ -114,7 +114,7 @@ namespace Jabber
 			m_manager->addEntityType(converter->entityType());
 		}
 	}
-	
+
 	bool JPersonEventSupport::eventFilter(QObject *obj, QEvent *ev)
 	{
 		if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
@@ -140,7 +140,7 @@ namespace Jabber
 		}
 		return false;
 	}
-	
+
 	void JPersonEventSupport::onEventReceived(const Jreen::PubSub::Event::Ptr &event, const Jreen::JID &from)
 	{
 		QObject *receiver = 0;

@@ -30,7 +30,7 @@
 
 
 namespace Ui {
-    class kb_Qwerty;
+	class kb_Qwerty;
 }
 namespace Core
 {
@@ -42,33 +42,33 @@ namespace AdiumChat
 
 class kb_Qwerty : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit kb_Qwerty(QWidget *parent = 0);
-    ~kb_Qwerty();
-    static const QString DELETE;
-    static const QString NEWLINE;
-    static const QString SPACE;
+	explicit kb_Qwerty(QWidget *parent = 0);
+	~kb_Qwerty();
+	static const QString DELETE;
+	static const QString NEWLINE;
+	static const QString SPACE;
 
 private:
-    Ui::kb_Qwerty *ui;
-    int m_nActiveModifiers;
-    void setButtonsLabel();
+	Ui::kb_Qwerty *ui;
+	int m_nActiveModifiers;
+	void setButtonsLabel();
 
 public slots:
-    void directInputClicked();
-           // void settingsChanged(int);
+	void directInputClicked();
+		   // void settingsChanged(int);
 signals:
-    void input(QString);
+	void input(QString);
 
 private slots:
-    void maiuscClicked(/*int nForceCheck = 0*/);
-    void symClicked();
-    void newLineClicked();
-    void spaceClicked();
-    void deleteClicked();
-    void accentClicked();
+	void maiuscClicked(/*int nForceCheck = 0*/);
+	void symClicked();
+	void newLineClicked();
+	void spaceClicked();
+	void deleteClicked();
+	void accentClicked();
 
 };
 }

@@ -113,7 +113,7 @@ public:
 		ReadData = 0x0004
 	};
 	explicit OftSocket(QObject *parent = 0);
-    OftSocket(qintptr socketDescriptor, QObject *parent = 0);
+	OftSocket(qintptr socketDescriptor, QObject *parent = 0);
 	const OftHeader &lastHeader() const { return m_lastHeader; }
 	OftHeader &lastHeader() { return m_lastHeader; }
 	ReadingState readingState() const { return m_state; }
@@ -167,7 +167,7 @@ signals:
 	void closed(OftConnection *conn);
 	void timeout(OftConnection *conn);
 protected:
-    void incomingConnection(qintptr socketDescriptor);
+	void incomingConnection(qintptr socketDescriptor);
 private slots:
 	void onTimeout();
 private:

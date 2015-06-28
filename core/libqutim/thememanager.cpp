@@ -83,7 +83,7 @@ QStringList ThemeManager::list(const QString &category)
 		theme_list << listThemes(dir, category);
 	foreach (const QDir &dir, data()->categoryPaths.values(category))
 		theme_list << listThemes(dir, category);
-    theme_list.removeDuplicates();
+	theme_list.removeDuplicates();
 	return theme_list;
 }
 

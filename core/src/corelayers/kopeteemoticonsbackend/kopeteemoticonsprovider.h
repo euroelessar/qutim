@@ -32,10 +32,10 @@ class KopeteEmoticonsProvider : public EmoticonsProvider
 public:
 	KopeteEmoticonsProvider(const QString& themePath);
 	KopeteEmoticonsProvider();
-    virtual bool addEmoticon(const QString& imgPath, const QStringList& codes);
-    virtual bool removeEmoticon(const QStringList& codes);
-    virtual bool saveTheme();
-    virtual QString themeName() const;
+	virtual bool addEmoticon(const QString& imgPath, const QStringList& codes);
+	virtual bool removeEmoticon(const QStringList& codes);
+	virtual bool saveTheme();
+	virtual QString themeName() const;
 	void loadTheme(const QString &themePath);
 	void loadTheme();
 	void setThemePath(const QString& themePath);

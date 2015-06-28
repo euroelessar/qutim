@@ -74,11 +74,11 @@ void Maemo5Vibra::enableVibration()
 
 void Maemo5Vibra::vibrate(int aTimeout)
 {
-    if (display_off || vibrateWhenDisplayOn)
-    {
+	if (display_off || vibrateWhenDisplayOn)
+	{
 		mDbusInterface->call(MCE_ACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
 		QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));
-    }
+	}
 }
 
 

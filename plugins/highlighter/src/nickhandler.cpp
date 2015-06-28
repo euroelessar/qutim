@@ -35,7 +35,7 @@ using namespace qutim_sdk_0_3;
 
 NickHandler::NickHandler()
 {
-    loadSettings();
+	loadSettings();
 }
 void NickHandler::loadSettings()
 {

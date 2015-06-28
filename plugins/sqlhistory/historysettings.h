@@ -34,26 +34,26 @@ namespace SqlHistoryNamespace {
 
 class SqlHistorySettings : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	SqlHistorySettings(const QString &profile_name,QWidget *parent = 0);
 	~SqlHistorySettings();
-    void loadSettings();
-    void saveSettings();
-    
+	void loadSettings();
+	void saveSettings();
+
 private slots:
 	void widgetStateChanged() { changed = true; emit settingsChanged(); }
 	void boxSqlEngineChanged(int);
 
 signals:
   	void settingsChanged();
-    void settingsSaved();
+	void settingsSaved();
 
 private:
 	Ui::SqlHistorySettingsClass ui;
-    bool changed;
-    QString m_profile_name;
+	bool changed;
+	QString m_profile_name;
 
 };
 

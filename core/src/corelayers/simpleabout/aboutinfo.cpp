@@ -34,7 +34,7 @@ namespace SimpleAbout {
 using namespace qutim_sdk_0_3;
 
 AboutInfo::AboutInfo(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
 	QFile licenseFile(QStringLiteral(":/GPL"));
 	if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -109,7 +109,7 @@ QString AboutInfo::toHtml(const QList<PersonInfo> &persons, bool useTask) const
 
 void registerTypes()
 {
-    qmlRegisterType<AboutInfo>("org.qutim.simpleabout", 0, 4, "AboutInfo");
+	qmlRegisterType<AboutInfo>("org.qutim.simpleabout", 0, 4, "AboutInfo");
 }
 
 } // namespace SimpleAbout

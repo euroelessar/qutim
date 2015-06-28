@@ -112,7 +112,7 @@ void AddAccountDialogWrapper::showDialog()
 {
 	for (int i = 0; i < m_managers()->count();i++)
 	{
-        m_managers()->at(i)->loadAccounts();
+		m_managers()->at(i)->loadAccounts();
 		emit m_managers()->at(i)->shown();
 	}
 }

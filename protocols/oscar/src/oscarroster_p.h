@@ -45,9 +45,9 @@ class Roster : public QObject, public SNACHandler, public FeedbagItemHandler
 	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	Roster();
-	
+
 	QStringList readTags(const FeedbagItem &item);
-	
+
 protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	void handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item, Feedbag::ModifyType type);

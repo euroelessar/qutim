@@ -53,6 +53,6 @@ int main(int argc, char *argv[])
 //	writer.close();
 //	qDebug() << info.toString();
 
-    return a.exec();
+	return a.exec();
 }
 

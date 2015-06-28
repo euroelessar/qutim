@@ -40,16 +40,16 @@ class RosterManager : public QObject, public qutim_sdk_0_3::MessageHandler
 public:
 	explicit RosterManager();
 	~RosterManager();
-	
+
 	virtual bool event(QEvent *);
-	
+
 	static RosterManager *instance();
-	
+
 	int accountId(const QString &protocol, const QString &id) const;
 	void setAccountId(const QString &protocol, const QString &id, int pid);
 	qutim_sdk_0_3::MessageList messages(qutim_sdk_0_3::ChatUnit *unit);
 	NetworkManager *networkManager();
-	
+
 protected slots:
 	void loadSettings(bool init = false);
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
@@ -61,13 +61,13 @@ protected slots:
 	void onAutoReplyClicked(QAction *action, QObject *object);
 	void onQuickAnswerClicked(QObject *object);
 	void onGroupsClicked(QAction *action);
-	
+
 protected:
 	void connectAccount(qutim_sdk_0_3::Account *account);
 	void connectContact(qutim_sdk_0_3::Contact *contact);
 	virtual Result doHandle(qutim_sdk_0_3::Message &message, QString *reason);
 	void onStarted();
-	
+
 private:
 	struct AccountContext
 	{

@@ -40,13 +40,13 @@ class QuoterWidget : public QListWidget
 public:
 	QuoterWidget(const qutim_sdk_0_3::MessageList &messages, QObject *controller);
 	~QuoterWidget();
-	
+
 signals:
 	void quoteChoosed(const QString &quote, QObject *controller);
-	
+
 public slots:
 	void nextRow();
-	
+
 private:
 	QTimer m_timer;
 	QPointer<QObject> m_controller;

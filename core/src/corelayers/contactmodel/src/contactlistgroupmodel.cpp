@@ -28,47 +28,47 @@
 using namespace qutim_sdk_0_3;
 
 ContactListGroupModel::ContactListGroupModel(QObject *parent) :
-    ContactListBaseModel(parent)
+	ContactListBaseModel(parent)
 {
-    Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show tags and contacts"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("ContactList", "Show tags and contacts"));
 }
 
 void ContactListGroupModel::updateContactTags(Contact *contact, const QStringList &pseudoCurrent, const QStringList &pseudoPrevious)
 {
-    const QStringList current = fixTags(pseudoCurrent);
-    const QStringList previous = fixTags(pseudoPrevious);
-    foreach (const QString &tag, previous) {
-        if (!current.contains(tag)) {
-            TagNode *tagNode = ensureTag(tag, rootNode());
-            eraseContact(contact, tagNode);
-        }
-    }
-    foreach (const QString &tag, current) {
-        if (!previous.contains(tag)) {
-            TagNode *tagNode = ensureTag(tag, rootNode());
-            ensureContact(contact, tagNode);
-        }
-    }
+	const QStringList current = fixTags(pseudoCurrent);
+	const QStringList previous = fixTags(pseudoPrevious);
+	foreach (const QString &tag, previous) {
+		if (!current.contains(tag)) {
+			TagNode *tagNode = ensureTag(tag, rootNode());
+			eraseContact(contact, tagNode);
+		}
+	}
+	foreach (const QString &tag, current) {
+		if (!previous.contains(tag)) {
+			TagNode *tagNode = ensureTag(tag, rootNode());
+			ensureContact(contact, tagNode);
+		}
+	}
 }
 
 void ContactListGroupModel::addContact(Contact *contact)
 {
-    foreach (const QString &tag, fixTags(contact->tags())) {
-        TagNode *tagNode = ensureTag(tag, rootNode());
-        ContactNode *contactNode = ensureContact(contact, tagNode);
-        Q_UNUSED(contactNode);
-    }
+	foreach (const QString &tag, fixTags(contact->tags())) {
+		TagNode *tagNode = ensureTag(tag, rootNode());
+		ContactNode *contactNode = ensureContact(contact, tagNode);
+		Q_UNUSED(contactNode);
+	}
 }
 
 void ContactListGroupModel::removeContact(Contact *contact)
 {
-    const QStringList tags = contact->tags();
-    if (tags.isEmpty()) {
-        eraseContact(contact, rootNode());
-    } else {
-        foreach (const QString &tag, tags) {
-            TagNode *tagNode = ensureTag(tag, rootNode());
-            eraseContact(contact, tagNode);
-        }
-    }
+	const QStringList tags = contact->tags();
+	if (tags.isEmpty()) {
+		eraseContact(contact, rootNode());
+	} else {
+		foreach (const QString &tag, tags) {
+			TagNode *tagNode = ensureTag(tag, rootNode());
+			eraseContact(contact, tagNode);
+		}
+	}
 }

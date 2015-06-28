@@ -76,7 +76,7 @@ public:
 };
 
 class IrcChannelListForm : public QWidget {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	IrcChannelListForm(IrcAccount *account, QWidget *parent = 0);
 	~IrcChannelListForm();
@@ -86,7 +86,7 @@ public slots:
 	void addChannel(const QString &channel, const QString &users, const QString &topic);
 	void error(const QString &error);
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 private slots:
 	void onStartSearch();
 	void onDoubleClick(const QModelIndex &index);

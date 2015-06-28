@@ -68,10 +68,10 @@ public:
 		GenericServerError = 500,
 		RateLimitReached = 607
 	};
-	
+
 	OscarResponse(const QByteArray &json);
 	~OscarResponse();
-	
+
 	Config data() const;
 	ResultCode result() const;
 	AbstractConnection::ConnectionError error() const;
@@ -158,7 +158,7 @@ QVariantMap OscarResponse::rawResult() const
 }
 
 OscarAuth::OscarAuth(IcqAccount *account) :
-    QObject(account), m_account(account), m_state(Invalid)
+	QObject(account), m_account(account), m_state(Invalid)
 {
 	QNetworkProxy proxy = NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account));
 	m_manager.setProxy(proxy);
@@ -229,15 +229,15 @@ void OscarAuth::onPasswordDialogFinished(int result)
 
 static QByteArray sha256hmac(const QByteArray &array, const QByteArray &sessionSecret)
 {
-    QMessageAuthenticationCode code(QCryptographicHash::Sha256, sessionSecret);
-    code.addData(array);
-    return code.result().toBase64();
+	QMessageAuthenticationCode code(QCryptographicHash::Sha256, sessionSecret);
+	code.addData(array);
+	return code.result().toBase64();
 }
 
 void OscarAuth::clientLogin(bool longTerm, const QString &password)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_LOGIN_URL);
-    QUrlQuery urlQuery;
+	QUrlQuery urlQuery;
 	urlQuery.addQueryItem(QLatin1String("devId"), QUTIM_DEV_ID);
 	urlQuery.addQueryItem(QLatin1String("f"), QLatin1String("json"));
 	urlQuery.addQueryItem(QLatin1String("s"), m_account->id());
@@ -313,7 +313,7 @@ void OscarAuth::onClientLoginFinished(QNetworkReply *reply, const QString &passw
 void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionKey)
 {
 	QUrl url = QUrl::fromEncoded(ICQ_START_SESSION_URL);
-    QUrlQuery query;
+	QUrlQuery query;
 	query.addQueryItem("a", QString::fromLatin1(token));
 	query.addQueryItem(QLatin1String("distId"), getDistId());
 	query.addQueryItem(QLatin1String("f"), QLatin1String("json"));
@@ -334,7 +334,7 @@ void OscarAuth::startSession(const QByteArray &token, const QByteArray &sessionK
 	query.addQueryItem("useTLS", m_account->connection()->isSslEnabled() ? "1" : "0");
 	query.addQueryItem("sig_sha256", QString::fromLatin1(generateSignature("GET", sessionKey, url, query)));
 	DEBUG() << query.toString(QUrl::FullyEncoded);
-    url.setQuery(query);
+	url.setQuery(query);
 	QNetworkRequest request(url);
 	//	Some strange error at ICQ servers. I receive "Parameter error" if it is set no anything else
 	request.setRawHeader("Accept-Language", generateLanguage().toLatin1());
@@ -359,7 +359,7 @@ void OscarAuth::onStartSessionFinished()
 	DEBUG() << Q_FUNC_INFO << response.rawResult();
 	Config data = response.data();
 	if (response.result() == OscarResponse::InvalidRequest
-	        && response.detailCode() == 1015) {
+			&& response.detailCode() == 1015) {
 		// Invalid local time
 		int hostTime = data.value(QLatin1String("ts"), 0);
 		int localTime = QDateTime::currentDateTime().toUTC().toTime_t();
@@ -399,17 +399,17 @@ QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const
 {
 	const char *value[2] = {
 #if   defined(Q_OS_WIN)
-	    "21000", "QutIM Windows Client"
+		"21000", "QutIM Windows Client"
 #elif defined(Q_WS_HAIKU)
-	    "21031", "QutIM Haiku Client"
+		"21031", "QutIM Haiku Client"
 #elif defined(Q_OS_OS2)
-	    "21032", "QutIM OS2 Client"
+		"21032", "QutIM OS2 Client"
 #elif defined(Q_OS_UNIX)
 # if   defined(Q_OS_MAC)
 #  if   defined(Q_OS_IOS)
-	    "21021", "QutIM iOS Client"
+		"21021", "QutIM iOS Client"
 #  else
-	    "21020", "QutIM MacOS Client"
+		"21020", "QutIM MacOS Client"
 #  endif
 # elif defined(Q_OS_LINUX)
 #  if   defined(Q_WS_MAEMO_5)
@@ -417,14 +417,14 @@ QPair<QLatin1String, QLatin1String> OscarAuth::getDistInfo() const
 #  elif defined(Q_WS_MEEGO) || defined(MEEGO_EDITION)
 		"21012", "QutIM Meego Client"
 #  elif defined(Q_WS_ANDROID)
-	    "21015", "QutIM Android Client"
+		"21015", "QutIM Android Client"
 #  else
-	    "21010", "QutIM Linux Client"
+		"21010", "QutIM Linux Client"
 #  endif
 # elif defined(Q_OS_BSD4)
-	    "21013", "QutIM BSD Client"
+		"21013", "QutIM BSD Client"
 # elif defined(Q_OS_SOLARIS)
-	    "21014", "QutIM Solaris Client"
+		"21014", "QutIM Solaris Client"
 # endif
 #endif // defined(Q_OS_UNIX)
 	};
@@ -453,13 +453,13 @@ QString OscarAuth::generateLanguage()
 
 QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArray &sessionSecret, const QUrl &url, const QUrlQuery &query)
 {
-    QList<QPair<QString, QString> > items = query.queryItems(QUrl::FullyDecoded);
+	QList<QPair<QString, QString> > items = query.queryItems(QUrl::FullyDecoded);
 	qSort(items);
 	QByteArray array = method;
 	array += '&';
 	QString str;
 	str = url.toString(QUrl::RemoveUserInfo | QUrl::RemovePort
-	                   | QUrl::RemoveQuery | QUrl::RemoveFragment);
+					   | QUrl::RemoveQuery | QUrl::RemoveFragment);
 	array += QUrl::toPercentEncoding(str);
 	array += '&';
 	str.clear();
@@ -472,7 +472,7 @@ QByteArray OscarAuth::generateSignature(const QByteArray &method, const QByteArr
 	str.chop(1);
 	array += QUrl::toPercentEncoding(str, QByteArray(), "&=");
 
-    DEBUG() << "signature" << array;
+	DEBUG() << "signature" << array;
 
 	return sha256hmac(array, sessionSecret);
 }

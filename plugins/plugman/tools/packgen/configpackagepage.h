@@ -29,17 +29,17 @@
 #include <QHash>
 
 namespace Ui {
-    class ConfigPackagePage;
+	class ConfigPackagePage;
 }
 
 class GeneratorWindow;
 
 class ConfigPackagePage : public QWizardPage {
-    Q_OBJECT
-    Q_DISABLE_COPY(ConfigPackagePage)
+	Q_OBJECT
+	Q_DISABLE_COPY(ConfigPackagePage)
 public:
 	explicit ConfigPackagePage(GeneratorWindow *parent = 0);
-    virtual ~ConfigPackagePage();
+	virtual ~ConfigPackagePage();
 	virtual int nextId() const;
 	virtual void initializePage();
 	virtual bool validatePage();
@@ -51,7 +51,7 @@ protected:
 	virtual void changeEvent(QEvent *e);
 
 private:
-    Ui::ConfigPackagePage *m_ui;
+	Ui::ConfigPackagePage *m_ui;
 	GeneratorWindow *m_parent;
 	QHash<QString, QString> m_packages;
 };

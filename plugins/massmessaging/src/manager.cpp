@@ -84,7 +84,7 @@ void Manager::reload()
 				account_item->appendRow(contact_item);
 				m_contacts.append(contact_item);
 			}
-			
+
 			proto_item->appendRow(account_item);
 		}
 		if (proto_item->columnCount())

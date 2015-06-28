@@ -35,37 +35,37 @@ namespace MeegoIntegration
 {
 class ContactListModel : public QAbstractListModel
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_PROPERTY(QString statusPrefix READ statusPrefix WRITE setStatusPrefix NOTIFY statusPrefixChanged)
 	Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
 	Q_PROPERTY(bool showOffline READ showOffline WRITE setShowOffline NOTIFY showOfflineChanged)
 	Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 public:
-	
-    ContactListModel();
+
+	ContactListModel();
 	virtual ~ContactListModel();
-	
+
 	QString statusPrefix();
 	void setStatusPrefix(const QString &prefix);
 	QString filter() const;
 	void setFilter(const QString &filter);
 	bool showOffline() const;
 	void setShowOffline(bool showOffline);
-	
+
 	Q_INVOKABLE QVariant get(int index);
-	
+
 	// QAbstractListModel
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 public slots:
-	
+
 signals:
 	void statusPrefixChanged(const QString &prefix);
 	void filterChanged(const QString &filter);
 	void showOfflineChanged(bool showOffline);
 	void countChanged(int count);
-	
+
 private slots:
 	void onAccountCreated(qutim_sdk_0_3::Account *account);
 	void onAccountDeath(QObject *object);
@@ -73,7 +73,7 @@ private slots:
 	void onContactTitleChanged(const QString &title, const QString &oldTitle);
 	void onContactStatusChanged(const qutim_sdk_0_3::Status &status);
 	void onContactDeath(QObject *object);
-	
+
 private:
 	void checkVisibility();
 	void checkVisibility(qutim_sdk_0_3::Contact *contact, bool forced = false);
@@ -82,7 +82,7 @@ private:
 	struct Item {
 		QString title;
 		qutim_sdk_0_3::Contact *contact;
-		
+
 		bool operator <(const Item &o) const;
 	};
 	QHash<QObject*, QString> m_titles;

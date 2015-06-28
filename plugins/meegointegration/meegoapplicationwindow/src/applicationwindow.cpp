@@ -114,13 +114,13 @@ ApplicationWindow::ApplicationWindow()
 //	setAttribute(Qt::WA_OpaquePaintEvent);
 //	viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
 //	viewport()->setAttribute(Qt::WA_NoSystemBackground);
-	
+
 	QString filePath = ThemeManager::path(QLatin1String("declarative"),
-	                                      QLatin1String("meego"));
+										  QLatin1String("meego"));
 	m_view->rootContext()->setContextProperty(QLatin1String("application"), this);
 	m_view->setSource(QUrl::fromLocalFile(filePath + QLatin1String("/Main.qml")));
 	m_view->showFullScreen();
-	
+
 }
 
 ApplicationWindow::~ApplicationWindow()

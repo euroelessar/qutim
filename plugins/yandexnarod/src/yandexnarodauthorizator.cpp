@@ -39,7 +39,7 @@ using namespace qutim_sdk_0_3;
 #define CLIENT_SECRET "14d62c76005a4b68b4501d1e3f754fc8"
 
 YandexNarodCookieJar::YandexNarodCookieJar(QNetworkAccessManager *manager)
-    : QNetworkCookieJar(manager)
+	: QNetworkCookieJar(manager)
 {
 	manager->setCookieJar(this);
 }
@@ -51,7 +51,7 @@ YandexNarodAuthorizator::YandexNarodAuthorizator(QNetworkAccessManager *parent) 
 	Config config;
 	config.beginGroup(QLatin1String("yandex"));
 	m_token = config.value(QLatin1String("token"), QString(), Config::Crypted);
-	
+
 	if (!m_token.isEmpty())
 		m_stage = Already;
 	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), SLOT(onRequestFinished(QNetworkReply*)));
@@ -137,7 +137,7 @@ void YandexNarodAuthorizator::onRequestFinished(QNetworkReply *reply)
 	QVariantMap::Iterator expiresIn = data.find(QLatin1String("expires_in"));
 	if (expiresIn != data.end()) {
 		expiresAt = QDateTime::currentDateTime();
-        expiresAt = expiresAt.addSecs(expiresIn.value().toInt());
+		expiresAt = expiresAt.addSecs(expiresIn.value().toInt());
 	}
 	qDebug() << accessToken << data;
 	m_token = accessToken;

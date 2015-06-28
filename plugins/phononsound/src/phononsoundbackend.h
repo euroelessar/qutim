@@ -38,7 +38,7 @@ class PhononSoundBackend : public SoundBackend
 {
 	Q_OBJECT
 public:
-    PhononSoundBackend();
+	PhononSoundBackend();
 	virtual void playSound(const QString &filename);
 	virtual QStringList supportedFormats();
 public slots:

@@ -26,7 +26,7 @@
 #include "webkitpreviewunits_p.h"
 
 WebKitPreviewChatUnit::WebKitPreviewChatUnit(const QVariantMap &data, qutim_sdk_0_3::Account *account)
-    : ChatUnit(account), m_data(data)
+	: ChatUnit(account), m_data(data)
 {
 }
 
@@ -56,7 +56,7 @@ bool WebKitPreviewChatUnit::sendMessage(const qutim_sdk_0_3::Message &message)
 }
 
 WebKitPreviewAccount::WebKitPreviewAccount(const QVariantMap &data, qutim_sdk_0_3::Protocol *protocol)
-    : Account(data.value(QLatin1String("UID")).toString(), protocol), m_data(data)
+	: Account(data.value(QLatin1String("UID")).toString(), protocol), m_data(data)
 {
 }
 

@@ -76,7 +76,7 @@ void ActionWidget::onStateChanged(qutim_sdk_0_3::FileTransferJob::State state)
 }
 
 FileTransferDialog::FileTransferDialog(FileTransferJobModel *model) :
-    ui(new Ui::FileTransferDialog)
+	ui(new Ui::FileTransferDialog)
 {
 	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -136,14 +136,14 @@ int FileTransferDialog::currentJob()
 
 void FileTransferDialog::changeEvent(QEvent *e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QDialog::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 void FileTransferDialog::createActionWidget(int row)

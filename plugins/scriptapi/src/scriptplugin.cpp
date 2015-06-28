@@ -38,7 +38,7 @@ class ScriptScopeContext
 {
 public:
 	ScriptScopeContext(ScriptMessageHandler *handler, ChatUnit *unit)
-	    : m_handler(handler)
+		: m_handler(handler)
 	{
 		m_handler->openContext(unit);
 	}
@@ -55,7 +55,7 @@ ScriptMessageHandler::ScriptMessageHandler(ScriptPlugin *parent)
 {
 	m_engine = ScriptTools::engineInstance();
 	QObject::connect(m_engine, SIGNAL(signalHandlerException(QScriptValue)),
-	                 parent, SLOT(onException(QScriptValue)));
+					 parent, SLOT(onException(QScriptValue)));
 	m_engine->importExtension(QLatin1String("qt.core"));
 	m_engine->importExtension(QLatin1String("qt.gui"));
 	m_engine->importExtension(QLatin1String("qutim"));
@@ -69,13 +69,13 @@ MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString 
 	QLatin1Literal command("/script");
 	QString text = message.text();
 	if (text.size() < command.size() + 2
-	        || !text.startsWith(QLatin1String(command.data()))
-	        || !text.at(command.size()).isSpace()) {
+			|| !text.startsWith(QLatin1String(command.data()))
+			|| !text.at(command.size()).isSpace()) {
 		static QRegExp regexp("\\[\\[(.*)\\]\\]", Qt::CaseInsensitive);
 		Q_ASSERT(regexp.isValid());
-	    int pos = 0;
+		int pos = 0;
 		bool first = true;
-	    while ((pos = regexp.indexIn(text, pos)) != -1) {
+		while ((pos = regexp.indexIn(text, pos)) != -1) {
 			if (first) {
 				first = false;
 				openContext(message.chatUnit());
@@ -83,8 +83,8 @@ MessageHandler::Result ScriptMessageHandler::doHandle(Message &message, QString 
 			QString result = m_engine->evaluate(regexp.cap(1)).toString();
 			debug() << regexp.cap(1) << result;
 			text.replace(pos, regexp.matchedLength(), result);
-	        pos += result.length();
-	    }
+			pos += result.length();
+		}
 		if (!first) {
 			closeContext();
 			message.setText(text);
@@ -143,9 +143,9 @@ bool ScriptPlugin::load()
 		return true;
 	m_handler.reset(new ScriptMessageHandler(this));
 	MessageHandler::registerHandler(m_handler.data(),
-	                                QLatin1String("ScriptInvoker"),
-	                                MessageHandler::NormalPriortity,
-	                                MessageHandler::SenderPriority + 0x10000);
+									QLatin1String("ScriptInvoker"),
+									MessageHandler::NormalPriortity,
+									MessageHandler::SenderPriority + 0x10000);
 	return true;
 }
 

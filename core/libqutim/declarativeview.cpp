@@ -48,11 +48,11 @@ static QPointer<QQmlEngine> staticGlobalEngine;
 
 QQmlEngine *DeclarativeView::globalEngine()
 {
-    if (!staticGlobalEngine) {
+	if (!staticGlobalEngine) {
 		staticGlobalEngine = new QQmlEngine();
-        staticGlobalEngine->addImportPath(SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/imports"));
-        new QQmlFileSelector(staticGlobalEngine, staticGlobalEngine);
-    }
+		staticGlobalEngine->addImportPath(SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/imports"));
+		new QQmlFileSelector(staticGlobalEngine, staticGlobalEngine);
+	}
 
 	return staticGlobalEngine;
 }

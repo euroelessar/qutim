@@ -32,11 +32,11 @@
 
 class GeneratorWindow : public QWizard
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    GeneratorWindow(QWidget *parent = 0);
-    ~GeneratorWindow();
+	GeneratorWindow(QWidget *parent = 0);
+	~GeneratorWindow();
 	enum State { ChooseType, ChoosePath, Config, Save };
 	enum Type { Art, Core, Lib, Plugin };
 	inline void setType( Type type ) { m_type = type; }

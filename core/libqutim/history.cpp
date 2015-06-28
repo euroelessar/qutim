@@ -36,137 +36,137 @@
 
 namespace qutim_sdk_0_3
 {
-    class NullHistory : public History
-    {
-    public:
-        void store(const Message &) override
-        {
-        }
+	class NullHistory : public History
+	{
+	public:
+		void store(const Message &) override
+		{
+		}
 
-        AsyncResult<MessageList> read(const ContactInfo &, const QDateTime &, const QDateTime &, int) override
-        {
-            return AsyncResult<MessageList>::create(MessageList());
-        }
+		AsyncResult<MessageList> read(const ContactInfo &, const QDateTime &, const QDateTime &, int) override
+		{
+			return AsyncResult<MessageList>::create(MessageList());
+		}
 
-        void showHistory(const ChatUnit *) override
-        {
-        }
+		void showHistory(const ChatUnit *) override
+		{
+		}
 
-        AsyncResult<QVector<AccountInfo>> accounts() override
-        {
-            return AsyncResult<QVector<AccountInfo>>::create(QVector<AccountInfo>());
-        }
+		AsyncResult<QVector<AccountInfo>> accounts() override
+		{
+			return AsyncResult<QVector<AccountInfo>>::create(QVector<AccountInfo>());
+		}
 
-        AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &) override
-        {
-            return AsyncResult<QVector<ContactInfo>>::create(QVector<ContactInfo>());
-        }
+		AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &) override
+		{
+			return AsyncResult<QVector<ContactInfo>>::create(QVector<ContactInfo>());
+		}
 
-        AsyncResult<QList<QDate>> months(const ContactInfo &, const QRegularExpression &) override
-        {
-            return AsyncResult<QList<QDate>>::create(QList<QDate>());
-        }
+		AsyncResult<QList<QDate>> months(const ContactInfo &, const QRegularExpression &) override
+		{
+			return AsyncResult<QList<QDate>>::create(QList<QDate>());
+		}
 
-        AsyncResult<QList<QDate>> dates(const ContactInfo &, const QDate &, const QRegularExpression &) override
-        {
-            return AsyncResult<QList<QDate>>::create(QList<QDate>());
-        }
-    };
+		AsyncResult<QList<QDate>> dates(const ContactInfo &, const QDate &, const QRegularExpression &) override
+		{
+			return AsyncResult<QList<QDate>>::create(QList<QDate>());
+		}
+	};
 
-    struct Private
-    {
-        ServicePointer<History> service;
-        NullHistory null;
-    };
+	struct Private
+	{
+		ServicePointer<History> service;
+		NullHistory null;
+	};
 
-    Q_GLOBAL_STATIC(Private, self)
+	Q_GLOBAL_STATIC(Private, self)
 
-    bool History::AccountInfo::operator ==(const History::AccountInfo &other) const
-    {
-        return protocol == other.protocol &&
-                account == other.account;
-    }
+	bool History::AccountInfo::operator ==(const History::AccountInfo &other) const
+	{
+		return protocol == other.protocol &&
+				account == other.account;
+	}
 
-    bool History::AccountInfo::operator <(const History::AccountInfo &other) const
-    {
-        return std::tie(protocol, account)
-                < std::tie(other.protocol, other.account);
-    }
+	bool History::AccountInfo::operator <(const History::AccountInfo &other) const
+	{
+		return std::tie(protocol, account)
+				< std::tie(other.protocol, other.account);
+	}
 
-    bool History::ContactInfo::operator ==(const History::ContactInfo &other) const
-    {
-        return AccountInfo::operator ==(other) &&
-                contact == other.contact;
-    }
+	bool History::ContactInfo::operator ==(const History::ContactInfo &other) const
+	{
+		return AccountInfo::operator ==(other) &&
+				contact == other.contact;
+	}
 
-    bool History::ContactInfo::operator <(const History::ContactInfo &other) const
-    {
-        return std::tie(protocol, account, contact)
-                < std::tie(other.protocol, other.account, other.contact);
-    }
+	bool History::ContactInfo::operator <(const History::ContactInfo &other) const
+	{
+		return std::tie(protocol, account, contact)
+				< std::tie(other.protocol, other.account, other.contact);
+	}
 
-    History::History()
-    {
-        QMetaType::registerComparators<AccountInfo>();
-        QMetaType::registerComparators<ContactInfo>();
-    }
+	History::History()
+	{
+		QMetaType::registerComparators<AccountInfo>();
+		QMetaType::registerComparators<ContactInfo>();
+	}
 
-    History::~History()
-    {
-    }
+	History::~History()
+	{
+	}
 
-    History *History::instance()
-    {
-        auto p = self();
-        return p->service ? p->service.data() : &p->null;
-    }
+	History *History::instance()
+	{
+		auto p = self();
+		return p->service ? p->service.data() : &p->null;
+	}
 
-    AsyncResult<MessageList> History::read(const ChatUnit *unit, const QDateTime &to, int max_num)
-    {
-        return read(info(unit), QDateTime(), to, max_num);
-    }
+	AsyncResult<MessageList> History::read(const ChatUnit *unit, const QDateTime &to, int max_num)
+	{
+		return read(info(unit), QDateTime(), to, max_num);
+	}
 
-    AsyncResult<MessageList> History::read(const ChatUnit *unit, int max_num)
-    {
-        return read(info(unit), QDateTime(), QDateTime::currentDateTime(), max_num);
-    }
+	AsyncResult<MessageList> History::read(const ChatUnit *unit, int max_num)
+	{
+		return read(info(unit), QDateTime(), QDateTime::currentDateTime(), max_num);
+	}
 
-    MessageList History::readSync(const ChatUnit *unit, int max_num)
-    {
-        AsyncResult<MessageList> asyncResult = read(unit, max_num);
-        MessageList result;
+	MessageList History::readSync(const ChatUnit *unit, int max_num)
+	{
+		AsyncResult<MessageList> asyncResult = read(unit, max_num);
+		MessageList result;
 
-        QEventLoop loop;
+		QEventLoop loop;
 
-        QTimer::singleShot(0, this, [this, &loop, &asyncResult, &result] () {
-            asyncResult.connect(this, [this, &loop, &result] (const MessageList &messages) {
-                result = messages;
-                loop.quit();
-            });
-        });
+		QTimer::singleShot(0, this, [this, &loop, &asyncResult, &result] () {
+			asyncResult.connect(this, [this, &loop, &result] (const MessageList &messages) {
+				result = messages;
+				loop.quit();
+			});
+		});
 
-        loop.exec();
+		loop.exec();
 
-        return result;
-    }
+		return result;
+	}
 
-    History::ContactInfo History::info(const ChatUnit *unit)
-    {
-        unit = unit->getHistoryUnit();
-        const Account *account = unit->account();
-        const Protocol *protocol = account->protocol();
+	History::ContactInfo History::info(const ChatUnit *unit)
+	{
+		unit = unit->getHistoryUnit();
+		const Account *account = unit->account();
+		const Protocol *protocol = account->protocol();
 
-        ContactInfo info;
-        info.protocol = protocol->id();
-        info.account = account->id();
-        info.contact = unit->id();
-        return info;
-    }
+		ContactInfo info;
+		info.protocol = protocol->id();
+		info.account = account->id();
+		info.contact = unit->id();
+		return info;
+	}
 
 	void History::virtual_hook(int id, void *data)
 	{
 		Q_UNUSED(id);
 		Q_UNUSED(data);
-    }
+	}
 }
 

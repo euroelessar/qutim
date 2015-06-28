@@ -38,7 +38,7 @@ namespace Core {
 
 class UriPage : public GroupChatPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit UriPage(QWidget *parent = 0);
 	void setUri(const QUrl &);

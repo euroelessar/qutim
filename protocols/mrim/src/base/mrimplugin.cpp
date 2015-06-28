@@ -40,15 +40,15 @@ MrimPlugin::MrimPlugin()
 
 void MrimPlugin::init()
 {
-    LocalizedString info = QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Mail.Ru IM protocol");
-    LocalizedString plugName = QT_TRANSLATE_NOOP("Plugin", "MRIM");
+	LocalizedString info = QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Mail.Ru IM protocol");
+	LocalizedString plugName = QT_TRANSLATE_NOOP("Plugin", "MRIM");
 
-    setInfo(plugName, info,
-            PLUGIN_VERSION(MRIM_MAJOR_VER, MRIM_MINOR_VER, MRIM_SECMINOR_VER, MRIM_PATCH_VER));
+	setInfo(plugName, info,
+			PLUGIN_VERSION(MRIM_MAJOR_VER, MRIM_MINOR_VER, MRIM_SECMINOR_VER, MRIM_PATCH_VER));
 
-    addAuthor(QT_TRANSLATE_NOOP("Author", "Peter Rusanov"),
-              QT_TRANSLATE_NOOP("Task", "Author"),
-              QLatin1String("peter.rusanov@gmail.com"));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Peter Rusanov"),
+			  QT_TRANSLATE_NOOP("Task", "Author"),
+			  QLatin1String("peter.rusanov@gmail.com"));
 
 	addExtension(plugName, info,
 				 new GeneralGenerator<MrimProtocol>(),
@@ -63,13 +63,13 @@ void MrimPlugin::init()
 bool MrimPlugin::load()
 {
 	debug() << Q_FUNC_INFO;
-    return true;
+	return true;
 }
 
 bool MrimPlugin::unload()
 {
 	debug() << Q_FUNC_INFO;
-    return false;
+	return false;
 }
 
 QUTIM_EXPORT_PLUGIN(MrimPlugin)

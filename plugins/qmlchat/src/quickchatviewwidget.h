@@ -41,14 +41,14 @@ class QuickChatViewWidget : public QWidget, public Core::AdiumChat::ChatViewWidg
 	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
 	QuickChatViewWidget();
-    ~QuickChatViewWidget();
+	~QuickChatViewWidget();
 
-    virtual void setViewController(QObject* controller);
+	virtual void setViewController(QObject* controller);
 private:
-    qutim_sdk_0_3::DeclarativeView m_view;
-    QWidget *m_container;
+	qutim_sdk_0_3::DeclarativeView m_view;
+	QWidget *m_container;
 	QPointer<QuickChatController> m_controller;
-    QMetaObject::Connection m_connection;
+	QMetaObject::Connection m_connection;
 };
 
 } // namespace AdiumChat

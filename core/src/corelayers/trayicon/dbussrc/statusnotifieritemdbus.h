@@ -10,17 +10,17 @@
 namespace qutim_dbus {
 //Custom message type for DBus
 struct KDbusImageStruct {
-    qint32 width;
-    qint32 height;
-    QByteArray data;
+	qint32 width;
+	qint32 height;
+	QByteArray data;
 };
 typedef QVector<KDbusImageStruct> KDbusImageVector;
 
 struct KDbusToolTipStruct {
-    QString icon;
-    KDbusImageVector image;
-    QString title;
-    QString subTitle;
+	QString icon;
+	KDbusImageVector image;
+	QString title;
+	QString subTitle;
 };
 }
 

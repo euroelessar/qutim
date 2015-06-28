@@ -77,7 +77,7 @@ public:
 		Graduation
 	};
 
-    VInfoRequest(QObject *parent);
+	VInfoRequest(QObject *parent);
 	virtual qutim_sdk_0_3::DataItem createDataItem() const;
 	virtual void doRequest(const QSet<QString> &hints);
 	virtual void doUpdate(const qutim_sdk_0_3::DataItem &dataItem);
@@ -92,7 +92,7 @@ private:
 	void addItem(DataType type, qutim_sdk_0_3::DataItem &group, const QVariant &data) const;
 	inline void addItem(DataType type, qutim_sdk_0_3::DataItem &group, const char *name) const
 	{ addItem(type, group, m_data.value(QLatin1String(name))); }
-	
+
 	QString m_id;
 	Vreen::Client *m_client;
 	int m_unknownCount;

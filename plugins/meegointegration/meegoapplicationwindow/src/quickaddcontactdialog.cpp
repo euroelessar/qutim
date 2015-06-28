@@ -67,7 +67,7 @@ QuickAddContactDialog::QuickAddContactDialog() {
 }
 
 void QuickAddContactDialog::show(Account *account, const QString &id,
-			    const QString &name, const QStringList &tags)
+				const QString &name, const QStringList &tags)
 {
 //	AddContact *addContact = new AddContact(account);
 //	addContact->setContactId(id);

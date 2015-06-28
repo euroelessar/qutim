@@ -42,15 +42,15 @@ class AnswerLine : public QWidget
 public:
 	typedef QSharedPointer<QObject> Guard;
 	AnswerLine(const QString &text, QListWidget *list);
-	
+
 	QString text() const;
-	
+
 protected slots:
 	void onButtonClicked();
-	
+
 signals:
 	void modified();
-	
+
 private:
 	QPlainTextEdit *m_textEdit;
 	QListWidgetItem *m_item;
@@ -59,21 +59,21 @@ private:
 class SettingsWidget : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT
-	
+
 public:
 	explicit SettingsWidget();
 	~SettingsWidget();
-	
+
 	virtual void loadImpl();
 	virtual void saveImpl();
 	virtual void cancelImpl();
-	
+
 	void addAnswer(const QString &text = QString());
-	
+
 private slots:
 	void onModified();
 	void on_addButton_clicked();
-	
+
 private:
 	Ui::SettingsWidget *ui;
 };

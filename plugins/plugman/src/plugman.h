@@ -38,7 +38,7 @@ namespace PackageManager
 {
 class PackageManagerPlugin : public qutim_sdk_0_3::Plugin
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	virtual void init();
 	virtual bool load();

@@ -51,10 +51,10 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-	
+
 	void timerEvent(QTimerEvent *);
 	void updateIcons();
-	
+
 private slots:
 	void onReplyFinished(QNetworkReply *reply);
 	void onCheckFinished();
@@ -65,13 +65,13 @@ private:
 	{
 		typedef QList<FileInfo> List;
 		bool isInvalid() const;
-		
+
 		QByteArray sha1;
 		QByteArray md5;
 		QString filePath;
 		QString fileName;
 	};
-	
+
 	FileInfo::List checkList(const FileInfo::List &original);
 
 	QBasicTimer m_timer;

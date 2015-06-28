@@ -42,7 +42,7 @@ namespace MeegoIntegration
 {
 class ContactList : public qutim_sdk_0_3::MenuController
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("Service", "ContactList")
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "Vibration")
@@ -50,35 +50,35 @@ class ContactList : public qutim_sdk_0_3::MenuController
 	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts READ accounts NOTIFY accountsChanged)
 	Q_PROPERTY(QDeclarativeListProperty<qutim_sdk_0_3::Protocol> protocols READ protocols NOTIFY protocolsChanged)
 public:
-    explicit ContactList();
-	
+	explicit ContactList();
+
 	static void init();
 	StatusWrapper::Type status() const;
 	void setStatus(StatusWrapper::Type type);
 	QDeclarativeListProperty<qutim_sdk_0_3::Account> accounts();
 	QDeclarativeListProperty<qutim_sdk_0_3::Protocol> protocols();
-	
+
 	static QUrl statusUrl(const QVariant &type, const QString &subtype);
 	static QString statusIcon(const QVariant &type, const QString &subtype);
-	
+
 	bool eventFilter(QObject *obj, QEvent *ev);
 
 public slots:
 	static QString statusName(const QVariant &type);
 	static QString statusIcon(const QVariant &type);
 	static QUrl statusUrl(const QVariant &type);
-	
+
 private slots:
 	void onAccountAdded(qutim_sdk_0_3::Account *account);
 	void onAccountRemoved(qutim_sdk_0_3::Account *account);
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
-	
+
 signals:
 	void started();
 	void statusChanged(MeegoIntegration::StatusWrapper::Type);
 	void accountsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Account> &accounts);
 	void protocolsChanged(const QDeclarativeListProperty<qutim_sdk_0_3::Protocol> &protocols);
-	
+
 //	Q_INVOKABLE void addButton(ActionGenerator *generator);
 private:
 	qutim_sdk_0_3::Status m_globalStatus;

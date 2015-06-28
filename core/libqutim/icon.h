@@ -47,7 +47,7 @@ namespace qutim_sdk_0_3
 		Icon(const QString &name);
 
 		Icon(const QIcon &icon);
-		
+
 		QString name() const;
 	};
 }

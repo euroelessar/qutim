@@ -88,14 +88,14 @@ DBusBackend::DBusBackend() :
 		qWarning() << "Error connecting to notifications service.";
 	}
 	QDBusMessage message = QDBusMessage::createMethodCall(
-	            QLatin1String("org.freedesktop.Notifications"),
-	            QLatin1String("/org/freedesktop/Notifications"),
-	            QLatin1String("org.freedesktop.Notifications"),
-	            QLatin1String("GetCapabilities"));
+				QLatin1String("org.freedesktop.Notifications"),
+				QLatin1String("/org/freedesktop/Notifications"),
+				QLatin1String("org.freedesktop.Notifications"),
+				QLatin1String("GetCapabilities"));
 	QDBusPendingReply<QStringList> call = QDBusConnection::sessionBus().asyncCall(message);
 	QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
 	connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-	        this, SLOT(capabilitiesCallFinished(QDBusPendingCallWatcher*)));
+			this, SLOT(capabilitiesCallFinished(QDBusPendingCallWatcher*)));
 
 	QDBusConnection::sessionBus().connect(
 				QString(),

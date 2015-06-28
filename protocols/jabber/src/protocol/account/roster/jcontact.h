@@ -90,15 +90,15 @@ public:
 	void removeExtendedInfo(const QString &name);
 //	QString pgpKeyId() const;
 //	void setPGPKeyId(QString pgpKeyId);
-	
+
 signals:
 	void subscriptionChanged(Jreen::RosterItem::SubscriptionType subscription);
 //	void pgpKeyChangedId(QString pgpKeyId);
-	
+
 public slots:
 	void requestSubscription();
 	void removeSubscription();
-	
+
 protected:
 	void recalcStatus();
 	void fillMaxResource();

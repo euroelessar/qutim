@@ -38,7 +38,7 @@ namespace Core {
 
 class JoinPage : public GroupChatPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit JoinPage(QWidget *parent = 0);
 public slots:

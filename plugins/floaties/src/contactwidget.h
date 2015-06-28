@@ -36,17 +36,17 @@ class FloatiesPlugin;
 
 class ContactWidget : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	ContactWidget(const QPersistentModelIndex &index, QAbstractItemView *view,
 				  qutim_sdk_0_3::Contact *contact);
 	~ContactWidget();
-    virtual void contextMenuEvent(QContextMenuEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void mouseDoubleClickEvent(QMouseEvent *event);
-    virtual void wheelEvent(QWheelEvent *event);
+	virtual void contextMenuEvent(QContextMenuEvent *event);
+	virtual void mousePressEvent(QMouseEvent *event);
+	virtual void mouseReleaseEvent(QMouseEvent *event);
+	virtual void mouseMoveEvent(QMouseEvent *event);
+	virtual void mouseDoubleClickEvent(QMouseEvent *event);
+	virtual void wheelEvent(QWheelEvent *event);
 	virtual void paintEvent(QPaintEvent *event);
 signals:
 	void wantDie(QObject *obj);
@@ -58,9 +58,9 @@ private:
 	QPersistentModelIndex m_index;
 	QAbstractItemView *m_view;
 	qutim_sdk_0_3::Contact *m_contact;
-    FloatiesPlugin *m_plugin;
-    bool m_mouse_pressed;
-    QPoint m_position;
+	FloatiesPlugin *m_plugin;
+	bool m_mouse_pressed;
+	QPoint m_position;
 };
 
 #endif // CONTACTWIDGET_H

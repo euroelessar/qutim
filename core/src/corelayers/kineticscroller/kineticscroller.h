@@ -35,7 +35,7 @@ class KineticScroller : public QObject
 	Q_CLASSINFO("Service", "Scroller")
 	Q_OBJECT
 public:
-    KineticScroller();
+	KineticScroller();
 	virtual ~KineticScroller();
 	Q_INVOKABLE void enableScrolling(QObject *widget);
 public slots:

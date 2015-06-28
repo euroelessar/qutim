@@ -44,12 +44,12 @@ public:
 		Updating,
 		Installed
 	};
-	
+
 	PackageEntry();
 	PackageEntry(const PackageEntry &o);
 	PackageEntry &operator =(const PackageEntry &o);
 	~PackageEntry();
-	
+
 	bool isValid() const;
 	QString id() const;
 	Attica::Content content() const;

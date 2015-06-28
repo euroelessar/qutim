@@ -28,7 +28,7 @@
 namespace qutim_sdk_0_3 {
 
 namespace nowplaying {
-	
+
 	class MprisPlayerFactory : public QObject, public PlayerFactory
 	{
 		Q_OBJECT

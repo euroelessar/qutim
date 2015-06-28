@@ -41,12 +41,12 @@ namespace MetaContacts {
 class MetaContactImpl;
 class Model : public QStandardItemModel
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit Model(QObject *parent = 0);
+	explicit Model(QObject *parent = 0);
 	void setMetaContact(MetaContactImpl*);
 	MetaContactImpl *metaContact() const;
-    QList<qutim_sdk_0_3::Contact*> getContacts() const;
+	QList<qutim_sdk_0_3::Contact*> getContacts() const;
 public slots:
 	void searchContacts(const QString &name);
 	void activated(const QModelIndex &index);
@@ -56,7 +56,7 @@ signals:
 private:
 	void addContact(qutim_sdk_0_3::Contact *,QStandardItem *root);
 	QPointer<MetaContactImpl> m_metaContact;
-    QStandardItem *m_metaRoot;
+	QStandardItem *m_metaRoot;
 	QStandardItem *m_searchRoot;
 };
 

@@ -25,60 +25,60 @@
  */
 class OrgFreedesktopNotificationsInterface: public QDBusAbstractInterface
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    static inline const char *staticInterfaceName()
-    { return "org.freedesktop.Notifications"; }
+	static inline const char *staticInterfaceName()
+	{ return "org.freedesktop.Notifications"; }
 
 public:
-    OrgFreedesktopNotificationsInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0);
+	OrgFreedesktopNotificationsInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0);
 
-    ~OrgFreedesktopNotificationsInterface();
+	~OrgFreedesktopNotificationsInterface();
 
 public Q_SLOTS: // METHODS
-    inline QDBusPendingReply<> CloseNotification(uint id)
-    {
-        QList<QVariant> argumentList;
-        argumentList << QVariant::fromValue(id);
-        return asyncCallWithArgumentList(QLatin1String("CloseNotification"), argumentList);
-    }
+	inline QDBusPendingReply<> CloseNotification(uint id)
+	{
+		QList<QVariant> argumentList;
+		argumentList << QVariant::fromValue(id);
+		return asyncCallWithArgumentList(QLatin1String("CloseNotification"), argumentList);
+	}
 
-    inline QDBusPendingReply<QStringList> GetCapabilities()
-    {
-        QList<QVariant> argumentList;
-        return asyncCallWithArgumentList(QLatin1String("GetCapabilities"), argumentList);
-    }
+	inline QDBusPendingReply<QStringList> GetCapabilities()
+	{
+		QList<QVariant> argumentList;
+		return asyncCallWithArgumentList(QLatin1String("GetCapabilities"), argumentList);
+	}
 
-    inline QDBusPendingReply<QString, QString, QString, QString> GetServerInformation()
-    {
-        QList<QVariant> argumentList;
-        return asyncCallWithArgumentList(QLatin1String("GetServerInformation"), argumentList);
-    }
-    inline QDBusReply<QString> GetServerInformation(QString &return_vendor, QString &return_version, QString &return_spec_version)
-    {
-        QList<QVariant> argumentList;
-        QDBusMessage reply = callWithArgumentList(QDBus::Block, QLatin1String("GetServerInformation"), argumentList);
-        if (reply.type() == QDBusMessage::ReplyMessage && reply.arguments().count() == 4) {
-            return_vendor = qdbus_cast<QString>(reply.arguments().at(1));
-            return_version = qdbus_cast<QString>(reply.arguments().at(2));
-            return_spec_version = qdbus_cast<QString>(reply.arguments().at(3));
-        }
-        return reply;
-    }
+	inline QDBusPendingReply<QString, QString, QString, QString> GetServerInformation()
+	{
+		QList<QVariant> argumentList;
+		return asyncCallWithArgumentList(QLatin1String("GetServerInformation"), argumentList);
+	}
+	inline QDBusReply<QString> GetServerInformation(QString &return_vendor, QString &return_version, QString &return_spec_version)
+	{
+		QList<QVariant> argumentList;
+		QDBusMessage reply = callWithArgumentList(QDBus::Block, QLatin1String("GetServerInformation"), argumentList);
+		if (reply.type() == QDBusMessage::ReplyMessage && reply.arguments().count() == 4) {
+			return_vendor = qdbus_cast<QString>(reply.arguments().at(1));
+			return_version = qdbus_cast<QString>(reply.arguments().at(2));
+			return_spec_version = qdbus_cast<QString>(reply.arguments().at(3));
+		}
+		return reply;
+	}
 
-    inline QDBusPendingReply<uint> Notify(const QString &app_name, uint id, const QString &icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantMap &hints, int timeout)
-    {
-        QList<QVariant> argumentList;
-        argumentList << QVariant::fromValue(app_name) << QVariant::fromValue(id) << QVariant::fromValue(icon) << QVariant::fromValue(summary) << QVariant::fromValue(body) << QVariant::fromValue(actions) << QVariant::fromValue(hints) << QVariant::fromValue(timeout);
-        return asyncCallWithArgumentList(QLatin1String("Notify"), argumentList);
-    }
+	inline QDBusPendingReply<uint> Notify(const QString &app_name, uint id, const QString &icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantMap &hints, int timeout)
+	{
+		QList<QVariant> argumentList;
+		argumentList << QVariant::fromValue(app_name) << QVariant::fromValue(id) << QVariant::fromValue(icon) << QVariant::fromValue(summary) << QVariant::fromValue(body) << QVariant::fromValue(actions) << QVariant::fromValue(hints) << QVariant::fromValue(timeout);
+		return asyncCallWithArgumentList(QLatin1String("Notify"), argumentList);
+	}
 
 Q_SIGNALS: // SIGNALS
 };
 
 namespace org {
   namespace freedesktop {
-    typedef ::OrgFreedesktopNotificationsInterface Notifications;
+	typedef ::OrgFreedesktopNotificationsInterface Notifications;
   }
 }
 #endif

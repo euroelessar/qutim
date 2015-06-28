@@ -37,7 +37,7 @@ namespace Core {
 class BookmarksModel;
 class BookmarksPage : public GroupChatPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit BookmarksPage(QWidget *parent = 0);
 	void setModel(BookmarksModel *model);

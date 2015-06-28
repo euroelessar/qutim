@@ -65,7 +65,7 @@ public:
 	StatusPrivate(const StatusPrivate &o) :
 		DynamicPropertyData(o), text(o.text), name(o.name),
 		icon(o.icon), type(o.type), subtype(o.subtype),
-	    changeReason(o.changeReason), extStatuses(o.extStatuses) {}
+		changeReason(o.changeReason), extStatuses(o.extStatuses) {}
 	~StatusPrivate() {}
 	QString text;
 	LocalizedString name;
@@ -82,17 +82,17 @@ public:
 	QVariant getIcon() const { return icon; }
 	void setIcon(const QVariant &val) { icon = val.value<QIcon>(); }
 	QVariant getType() const { return type; }
-    void setType(const QVariant &val)
-    {
-        type = static_cast<Status::Type>(val.toInt());
-        Q_ASSERT(type >= Status::Connecting && type <= Status::Offline);
-    }
+	void setType(const QVariant &val)
+	{
+		type = static_cast<Status::Type>(val.toInt());
+		Q_ASSERT(type >= Status::Connecting && type <= Status::Offline);
+	}
 	QVariant getSubtype() const { return type; }
 	void setSubtype(const QVariant &val) { subtype = val.toInt(); }
 	QVariant getChangeReason() const { return QVariant::fromValue(changeReason); }
 	void setChangeReason(const QVariant &val) { changeReason = val.value<Status::ChangeReason>(); }
 	QVariant getExtendedStatuses() const { return QVariant::fromValue(extStatuses); }
-    void setExtendedStatuses(const QVariant &val) { extStatuses = val.value<ExtendedStatus>(); }
+	void setExtendedStatuses(const QVariant &val) { extStatuses = val.value<ExtendedStatus>(); }
 
 	void generateName();
 };
@@ -100,18 +100,18 @@ public:
 class StatusPrivateList : public QVector<QSharedDataPointer<StatusPrivate> >
 {
 public:
-    StatusPrivateList()
-    {
-        reserve(Status::Offline - Status::Connecting + 1);
-        for (int i = Status::Connecting; i <= Status::Offline; i++) {
-            Status::Type type = static_cast<Status::Type>(i);
-            QSharedDataPointer<StatusPrivate> d(new StatusPrivate);
-            d->type = type;
-            d->generateName();
-            d->icon = Status::createIcon(type);
-            append(d);
-        }
-    }
+	StatusPrivateList()
+	{
+		reserve(Status::Offline - Status::Connecting + 1);
+		for (int i = Status::Connecting; i <= Status::Offline; i++) {
+			Status::Type type = static_cast<Status::Type>(i);
+			QSharedDataPointer<StatusPrivate> d(new StatusPrivate);
+			d->type = type;
+			d->generateName();
+			d->icon = Status::createIcon(type);
+			append(d);
+		}
+	}
 
 };
 
@@ -188,7 +188,7 @@ void StatusPrivate::generateName()
 
 Status::Status(Type type) : d(get_status_private(type))
 {
-    Q_ASSERT(type >= Connecting && type <= Offline);
+	Q_ASSERT(type >= Connecting && type <= Offline);
 }
 
 Status::Status(const Status &other) : d(other.d)
@@ -203,7 +203,7 @@ Status &Status::operator =(const Status &other)
 
 Status &Status::operator =(Status::Type type)
 {
-    Q_ASSERT(type >= Connecting && type <= Offline);
+	Q_ASSERT(type >= Connecting && type <= Offline);
 	d = get_status_private(type);
 	return *this;
 }
@@ -254,7 +254,7 @@ Status::Type Status::type() const
 
 void Status::setType(Status::Type type)
 {
-    Q_ASSERT(type >= Connecting && type <= Offline);
+	Q_ASSERT(type >= Connecting && type <= Offline);
 	d->type = type;
 	d->subtype = 0;
 	QSharedDataPointer<StatusPrivate> p = get_status_private(type);
@@ -378,14 +378,14 @@ Status Status::createConnecting(const Status &status, const char *proto)
 
 Status Status::connectingGoal(const Status &status)
 {
-    if (status != Status::Connecting)
-        return Status(Status::Offline);
-    return status.property("connectingGoal", Status(Status::Online));
+	if (status != Status::Connecting)
+		return Status(Status::Offline);
+	return status.property("connectingGoal", Status(Status::Online));
 }
 
 Status Status::connectingGoal() const
 {
-    return connectingGoal(*this);
+	return connectingGoal(*this);
 }
 
 void Status::setExtendedInfo(const QString &name, const QVariantHash &status)
@@ -448,8 +448,8 @@ QEvent::Type ExtendedInfosEvent::eventType()
 QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
 {
 	switch (status) {
-    case qutim_sdk_0_3::Status::Connecting:
-        return dbg << "Status::Connecting";
+	case qutim_sdk_0_3::Status::Connecting:
+		return dbg << "Status::Connecting";
 	case qutim_sdk_0_3::Status::Online:
 		return dbg << "Status::Online";
 	case qutim_sdk_0_3::Status::FreeChat:
@@ -464,9 +464,9 @@ QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
 		return dbg << "Status::Invisible";
 	case qutim_sdk_0_3::Status::Offline:
 		return dbg << "Status::Offline";
-    default:
-        qDebug() << "Invalid status:" << int(status);
-        Q_ASSERT(false);
+	default:
+		qDebug() << "Invalid status:" << int(status);
+		Q_ASSERT(false);
 		return dbg << "Status::Unknown";
 	}
 }

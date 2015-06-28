@@ -164,7 +164,7 @@ void QuetzalProtocol::loadAccounts()
 		QuetzalAccount *account = new QuetzalAccount(purpleAccount, this);
 		registerAccount(account);
 	}
-	
+
 //	QStringList accounts = config("general").value("accounts", QStringList());
 //	debug() << id() << accounts;
 //	foreach(const QString &id, accounts)
@@ -186,7 +186,7 @@ void QuetzalProtocol::registerAccount(QuetzalAccount *account)
 
 
 QuetzalProtocolHook::QuetzalProtocolHook(const QuetzalMetaObject *meta, PurplePlugin *plugin)
-    : QuetzalProtocol(plugin), m_metaObject(meta)
+	: QuetzalProtocol(plugin), m_metaObject(meta)
 {
 }
 

@@ -68,11 +68,11 @@ TextViewController::TextViewController()
 	m_baseColor    .setNamedColor(cfg.value(QLatin1String("baseColor"),     QLatin1String("black")));
 	m_urlColor     .setNamedColor(cfg.value(QLatin1String("urlColor"),      QLatin1String("#0033aa")));
 	m_bulletErrorColor   .setNamedColor(cfg.value(QLatin1String("bulletErrorColor"),
-	                                              QLatin1String("red")));
+												  QLatin1String("red")));
 	m_bulletSentColor    .setNamedColor(cfg.value(QLatin1String("bulletSentColor"),
-	                                              QLatin1String("#ffc600")));
+												  QLatin1String("#ffc600")));
 	m_bulletReceivedColor.setNamedColor(cfg.value(QLatin1String("bulletReceivedColor"),
-	                                              QLatin1String("#00990b")));
+												  QLatin1String("#00990b")));
 	m_bulletSize = cfg.value("bulletSize", 5);
 	cfg.beginGroup(QLatin1String("font"));
 #ifdef Q_WS_MAEMO_5
@@ -165,7 +165,7 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 			cursor.insertText(QLatin1String(" "), format);
 			format.setFontWeight(QFont::Normal);
 			QString timeFormat = QLatin1String((msg.time().date() == m_lastTime.date())
-			                                   ? "(hh:mm)" : "(dd.MM.yyyy hh:mm)");
+											   ? "(hh:mm)" : "(dd.MM.yyyy hh:mm)");
 			cursor.insertText(msg.time().toString(timeFormat), format);
 		}
 		m_lastSender = currentSender;
@@ -188,7 +188,7 @@ void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 }
 
 void TextViewController::appendText(QTextCursor &cursor, const QString &text,
-                                    const QTextCharFormat &format, bool emo)
+									const QTextCharFormat &format, bool emo)
 {
 	QTextCharFormat urlFormat = format;
 	urlFormat.setForeground(m_urlColor);
@@ -248,7 +248,7 @@ bool TextViewController::isNearBottom()
 }
 
 void TextViewController::drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc,
-                                int posInDocument, const QTextFormat &format)
+								int posInDocument, const QTextFormat &format)
 {
 	Q_UNUSED(posInDocument);
 	Q_UNUSED(doc);
@@ -366,11 +366,11 @@ QPixmap TextViewController::createBullet(const QColor &color)
 void TextViewController::init()
 {
 	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-error")),
-	            createBullet(m_bulletErrorColor));
+				createBullet(m_bulletErrorColor));
 	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-received")),
-	            createBullet(m_bulletReceivedColor));
+				createBullet(m_bulletReceivedColor));
 	addResource(QTextDocument::ImageResource, QUrl(QLatin1String("bullet-send")),
-	            createBullet(m_bulletSentColor));
+				createBullet(m_bulletSentColor));
 	for (int i = 0; i < m_emoticons.size(); i++)
 		m_emoticons.at(i).movie->deleteLater();
 	m_cache.clear();
@@ -386,7 +386,7 @@ void TextViewController::loadHistory()
 	qDebug() << Q_FUNC_INFO;
 	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
 	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
-    MessageList messages = History::instance()->readSync(m_session->getUnit(), max_num);
+	MessageList messages = History::instance()->readSync(m_session->getUnit(), max_num);
 	foreach (Message mess, messages) {
 		mess.setProperty("silent", true);
 		mess.setProperty("store", false);

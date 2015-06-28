@@ -33,7 +33,7 @@ namespace qutim_sdk_0_3
 {
 class ScriptInfoRequest : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit ScriptInfoRequest(const QScriptValue &func, const QScriptValue &error,
 							   InfoRequest *parent);
@@ -45,7 +45,7 @@ public slots:
 
 private:
 	void handleError(const char *name, const QString &text);
-	
+
 private:
 	QScriptValue m_func;
 	QScriptValue m_error;

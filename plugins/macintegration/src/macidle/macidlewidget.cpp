@@ -31,9 +31,9 @@
 #include <QMessageBox>
 
 MacIdleWidget::MacIdleWidget() :
-    ui(new Ui::MacIdleWidget)
+	ui(new Ui::MacIdleWidget)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	Status status;
 	status.setType(Status::Away);
 	ui->awayCheckBox->setText(ui->awayCheckBox->text().arg(status.name().toString()));
@@ -43,7 +43,7 @@ MacIdleWidget::MacIdleWidget() :
 
 MacIdleWidget::~MacIdleWidget()
 {
-    delete ui;
+	delete ui;
 }
 
 void MacIdleWidget::loadImpl()
@@ -83,13 +83,13 @@ void MacIdleWidget::cancelImpl()
 
 void MacIdleWidget::changeEvent(QEvent *e)
 {
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWidget::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 

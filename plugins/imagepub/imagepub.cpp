@@ -41,13 +41,13 @@ bool imagepubPlugin::init(PluginSystemInterface *plugin_system)
 	serv_filefilter = tr("Image Files")+" (*.png *.jpg *.gif)";
 
 	serv = "imageshack";
-	
+
 	return true;
 }
 
 void imagepubPlugin::release()
 {
-	
+
 }
 
 void imagepubPlugin::processEvent(Event &event)
@@ -194,7 +194,7 @@ void imagepubPlugin::actionError(QString error) {
 
 void imagepubPlugin::netrpFinished( QNetworkReply* reply )
 {
-        uploadwidget->setStatus(tr("Sending file URL..."));
+		uploadwidget->setStatus(tr("Sending file URL..."));
 	if (reply->rawHeader("Location").length()>0) {
 		QUrl netrequrl(reply->rawHeader("Location"));
 		if (netrequrl.host().isEmpty()) netrequrl = QUrl("http://"+reply->url().encodedHost()+reply->rawHeader("Location"));
@@ -209,12 +209,12 @@ void imagepubPlugin::netrpFinished( QNetworkReply* reply )
 			QString msgtemplate;
 			QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+imagepub_profile_name, "plugin_imagepub");
 			if (settings.value("main/msgtemplate").isValid()) msgtemplate = settings.value("main/msgtemplate").toString();
-                        else msgtemplate = tr("File sent: %N (%S bytes)\n%U");
+						else msgtemplate = tr("File sent: %N (%S bytes)\n%U");
 			QString sendmsg = msgtemplate;
 			sendmsg.replace("%N", fileinfo.fileName());
 			sendmsg.replace("%U", imageurl);
 			sendmsg.replace("%S", QString::number(fileinfo.size()));
-                        uploadwidget->setStatus(tr("File URL sent"));
+						uploadwidget->setStatus(tr("File URL sent"));
 			m_plugin_system->sendCustomMessage(event_item, sendmsg);
 		}
 		else uploadwidget->setStatus(tr("Can't parse URL"));
@@ -224,9 +224,9 @@ void imagepubPlugin::netrpFinished( QNetworkReply* reply )
 
 void imagepubPlugin::removeUploadWidget()
 {
-    netman->disconnect();
-    netman=0; delete netman;
-    uploadwidget->close();
+	netman->disconnect();
+	netman=0; delete netman;
+	uploadwidget->close();
 }
 
 

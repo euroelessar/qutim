@@ -28,7 +28,7 @@
 namespace MeegoIntegration
 {
 StatusWrapper::StatusWrapper(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
 }
 }

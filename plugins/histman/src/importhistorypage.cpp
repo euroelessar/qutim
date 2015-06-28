@@ -46,11 +46,11 @@ void ImportHistoryPageHepler::run()
 }
 
 ImportHistoryPage::ImportHistoryPage(HistoryManagerWindow *parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::ImportHistoryPage)
+	QWizardPage(parent),
+	m_ui(new Ui::ImportHistoryPage)
 {
 	m_parent = parent;
-    m_ui->setupUi(this);
+	m_ui->setupUi(this);
 	setTitle(tr("Loading"));
 	connect(m_parent, SIGNAL(maxValueChanged(int)), m_ui->progressBar, SLOT(setMaximum(int)));
 	connect(m_parent, SIGNAL(valueChanged(int)), m_ui->progressBar, SLOT(setValue(int)));
@@ -62,7 +62,7 @@ ImportHistoryPage::ImportHistoryPage(HistoryManagerWindow *parent) :
 
 ImportHistoryPage::~ImportHistoryPage()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 void ImportHistoryPage::initializePage()
@@ -105,14 +105,14 @@ void ImportHistoryPage::completed()
 
 void ImportHistoryPage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 }

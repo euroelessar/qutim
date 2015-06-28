@@ -43,13 +43,13 @@ class EmoticonMovie : public QMovie
 {
 public:
 	EmoticonMovie(const QString &fileName, int index, QObject *parent) :
-	    QMovie(fileName, QByteArray(), parent)
+		QMovie(fileName, QByteArray(), parent)
 	{
 		m_index = index;
 	}
-	
+
 	QVector<int> indexes;
-	
+
 	int index() const { return m_index; }
 private:
 	int m_index;
@@ -65,7 +65,7 @@ class TextViewController : public QTextDocument, public ChatViewController, publ
 	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController QTextObjectInterface)
 public:
-    TextViewController();
+	TextViewController();
 	virtual ~TextViewController();
 	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
 	virtual qutim_sdk_0_3::ChatSession *getSession() const;
@@ -77,13 +77,13 @@ public:
 	int scrollBarPosition() const { return m_scrollBarPosition; }
 	void setScrollBarPosition(int pos) { m_scrollBarPosition = pos; }
 	bool isNearBottom();
-	
-	
+
+
 	// From QTextObjectInterface
-    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc,
-	                        int posInDocument, const QTextFormat &format);
-    virtual QSizeF intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format);
-	
+	virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc,
+							int posInDocument, const QTextFormat &format);
+	virtual QSizeF intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format);
+
 	bool eventFilter(QObject *, QEvent *);
 public slots:
 	void ensureScrolling();
@@ -97,7 +97,7 @@ private:
 	int addEmoticon(const QString &filename);
 	QString makeName(const qutim_sdk_0_3::Message &mes);
 	bool shouldBreak(const QDateTime &time);
-	
+
 	QPointer<QTextBrowser> m_textEdit;
 	qutim_sdk_0_3::ChatSession *m_session;
 	QCache<qint64, int> m_cache;

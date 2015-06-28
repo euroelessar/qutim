@@ -31,22 +31,22 @@
 
 struct MrimAccountPrivate
 {
-    MrimAccountPrivate(MrimAccount *parent)
-        : conn(new MrimConnection(parent)), roster(new MrimRoster(parent))
-    {
-    }
+	MrimAccountPrivate(MrimAccount *parent)
+		: conn(new MrimConnection(parent)), roster(new MrimRoster(parent))
+	{
+	}
 
-    QScopedPointer<MrimConnection> conn;
-    QScopedPointer<MrimRoster> roster;
+	QScopedPointer<MrimConnection> conn;
+	QScopedPointer<MrimRoster> roster;
 	QString name;
 };
 
 MrimAccount::MrimAccount(const QString& email)
-        : Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate(this))
-{   
-    connect(connection(),SIGNAL(loggedOut()),
-            roster(),SLOT(handleLoggedOut()),Qt::QueuedConnection);
-    p->conn->registerPacketHandler(p->roster.data());
+		: Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate(this))
+{
+	connect(connection(),SIGNAL(loggedOut()),
+			roster(),SLOT(handleLoggedOut()),Qt::QueuedConnection);
+	p->conn->registerPacketHandler(p->roster.data());
 //    p->conn->start(); //TODO: temporary autologin, for debugging
 }
 
@@ -61,7 +61,7 @@ QString MrimAccount::name() const
 
 ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
 {
-    return p->roster->getContact(unitId, create);
+	return p->roster->getContact(unitId, create);
 }
 
 MrimConnection *MrimAccount::connection() const
@@ -84,8 +84,8 @@ void MrimAccount::setUserInfo(const QMap<QString, QString> &info)
 {
 	debug() << info;
 	QMap<QString, QString>::const_iterator it, it2;
-    it = info.find(QLatin1String("MESSAGES.TOTAL"));
-    it2 = info.find(QLatin1String("MESSAGES.UNREAD"));
+	it = info.find(QLatin1String("MESSAGES.TOTAL"));
+	it2 = info.find(QLatin1String("MESSAGES.UNREAD"));
 	if (it != info.end() && it2 != info.end()) {
 		QString text = tr("Messages in mailbox: %1\nUnread messages: %2").arg(it.value(), it2.value());
 		NotificationRequest request(Notification::System);
@@ -93,7 +93,7 @@ void MrimAccount::setUserInfo(const QMap<QString, QString> &info)
 		request.setText(text);
 		request.send();
 	}
-    it = info.find(QLatin1String("MRIM.NICKNAME"));
+	it = info.find(QLatin1String("MRIM.NICKNAME"));
 	if (it != info.end()) {
 		if (p->name != it.value()) {
 			QString oldName = p->name;
@@ -101,7 +101,7 @@ void MrimAccount::setUserInfo(const QMap<QString, QString> &info)
 			emit nameChanged(p->name, oldName);
 		}
 	}
-    //userInfo.userHasMyMail = info.value(QLatin1String("HAS_MYMAIL"));
-    it = info.find(QLatin1String("client.endpoint"));
+	//userInfo.userHasMyMail = info.value(QLatin1String("HAS_MYMAIL"));
+	it = info.find(QLatin1String("client.endpoint"));
 }
 

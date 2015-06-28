@@ -31,7 +31,7 @@
 #include <QThread>
 
 namespace Ui {
-    class ImportHistoryPage;
+	class ImportHistoryPage;
 }
 
 namespace HistoryManager {
@@ -53,14 +53,14 @@ private:
 };
 
 class ImportHistoryPage : public QWizardPage {
-    Q_OBJECT
-    Q_DISABLE_COPY(ImportHistoryPage)
+	Q_OBJECT
+	Q_DISABLE_COPY(ImportHistoryPage)
 public:
 	explicit ImportHistoryPage(HistoryManagerWindow *parent = 0);
-    virtual ~ImportHistoryPage();
+	virtual ~ImportHistoryPage();
 
 protected:
-    virtual void changeEvent(QEvent *e);
+	virtual void changeEvent(QEvent *e);
 	virtual void initializePage();
 	virtual void cleanupPage();
 	virtual bool isComplete() const;
@@ -72,7 +72,7 @@ private:
 	friend class ImportHistoryPageHepler;
 	ImportHistoryPageHepler *m_helper;
 	HistoryManagerWindow *m_parent;
-    Ui::ImportHistoryPage *m_ui;
+	Ui::ImportHistoryPage *m_ui;
 	bool m_completed;
 };
 

@@ -97,7 +97,7 @@ namespace Core
 		}
 		return QVariant(s);
 	}
-		
+
 	bool variantGeneratorExt(QString &err, QByteArray &result, const QVariant &val, int indent)
 	{
 		Q_UNUSED(err);
@@ -168,20 +168,20 @@ namespace Core
 		result += '\"';
 		return true;
 	}
-	
-	void validateVariant(QVariant *var) 
+
+	void validateVariant(QVariant *var)
 	{
 		switch (var->type()) {
 		case QVariant::String: {
 			var->setValue(variantFromString(var->toString()));
 			break;
-		} 
+		}
 		case QVariant::Map: {
 			QVariantMap *map = reinterpret_cast<QVariantMap*>(var->data());
 			QVariantMap::iterator it = map->begin();
 			for (; it != map->end(); it++) {
 				QVariant &value = it.value();
-				if (value.type() == QVariant::Map || value.type() == QVariant::List 
+				if (value.type() == QVariant::Map || value.type() == QVariant::List
 					|| value.type() == QVariant::String) {
 					validateVariant(&value);
 				}
@@ -192,7 +192,7 @@ namespace Core
 			QVariantList *list = reinterpret_cast<QVariantList*>(var->data());
 			for (int i = 0; i < list->size(); i++) {
 				QVariant &value = (*list)[i];
-				if (value.type() == QVariant::Map || value.type() == QVariant::List 
+				if (value.type() == QVariant::Map || value.type() == QVariant::List
 					|| value.type() == QVariant::String) {
 					validateVariant(&value);
 				}
@@ -209,7 +209,7 @@ namespace Core
 		JsonFile file(fileName);
 		QVariant var;
 		file.load(var);
-		if (var.type() == QVariant::Map || var.type() == QVariant::List 
+		if (var.type() == QVariant::Map || var.type() == QVariant::List
 			|| var.type() == QVariant::String) {
 			validateVariant(&var);
 		}

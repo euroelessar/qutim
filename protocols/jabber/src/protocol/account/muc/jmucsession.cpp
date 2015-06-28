@@ -69,7 +69,7 @@ public:
 	JMUCUser *addUser(JMUCSession *session, const QString &nick);
 	JMUCUser *getUser(const QString &nick);
 	bool containsUser(const QString &nick);
-	
+
 	QPointer<JAccount> account;
 	QList<Jreen::MessageFilter*> filters;
 	Jreen::MUCRoom *room;
@@ -92,7 +92,7 @@ void JMUCSessionPrivate::removeUser(JMUCSession *conference, JMUCUser *user)
 {
 	if (ChatSession *session = ChatLayer::get(conference, false))
 		session->removeContact(user);
-	
+
 	if (ChatSession *session = ChatLayer::get(user, false)) {
 		QObject::connect(session, SIGNAL(destroyed()), user, SLOT(deleteLater()));
 	} else {
@@ -527,10 +527,10 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 			if (it != d->messages.end()) {
 				qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
 				d->messages.erase(it);
-                return;
+				return;
 			}
 			coreMsg.setProperty("donotsend", true);
-			
+
 			// Send "info" that message is received, yeah, that's a hack
 			qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(coreMsg.id(), true), Qt::LowEventPriority);
 		}
@@ -553,7 +553,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	Captcha::Ptr captcha = msg.payload<Captcha>();
 	if (captcha && captcha->form()) {
 		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
-		               .arg(d->jid.bare());
+					   .arg(d->jid.bare());
 		delete d->captchaForm.data();
 		d->captchaForm = new QDialog;
 
@@ -749,7 +749,7 @@ void JMUCSession::joinedChanged()
 			d->removeUser(this, user);
 		}
 	}
-	
+
 	setJoined(d->room->isJoined());
 }
 
@@ -855,8 +855,8 @@ void JMUCSession::onError(Jreen::Error::Ptr error)
 
 		QInputDialog *dialog = new QInputDialog(QApplication::activeWindow());
 		dialog->setWindowTitle(message);
-	    dialog->setLabelText(QCoreApplication::translate("Jabber", "Please select another nickname"));
-	    dialog->setTextValue(d->room->nick());
+		dialog->setLabelText(QCoreApplication::translate("Jabber", "Please select another nickname"));
+		dialog->setTextValue(d->room->nick());
 		SystemIntegration::open(dialog);
 		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onNickSelected(QString)));
 		connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));

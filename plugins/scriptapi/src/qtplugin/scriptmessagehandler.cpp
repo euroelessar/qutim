@@ -35,7 +35,7 @@ public:
 	typedef QSharedPointer<ScriptMessageHandlerObject> Ptr;
 
 	ScriptMessageHandlerObject() {}
-	
+
 	virtual Result doHandle(Message &message, QString *)
 	{
 		if (m_handler.isFunction()) {
@@ -47,7 +47,7 @@ public:
 		}
 		return Accept;
 	}
-	
+
 	void setThat(const QScriptValue &that) { m_that = that; }
 	QScriptValue handler() { return m_handler; }
 	void setHandler(const QScriptValue &handler) { m_handler = handler; }
@@ -99,22 +99,22 @@ ScriptMessageHandler::ScriptMessageHandler(QScriptEngine *engine) : QScriptClass
 	m_prototype.setProperty(QLatin1String("Reject"), MessageHandler::Reject, QScriptValue::ReadOnly);
 	m_prototype.setProperty(QLatin1String("Error"),  MessageHandler::Error,  QScriptValue::ReadOnly);
 	m_prototype.setProperty(QLatin1String("LowPriority"), MessageHandler::LowPriority,
-	                        QScriptValue::ReadOnly);
+							QScriptValue::ReadOnly);
 	m_prototype.setProperty(QLatin1String("ChatInPriority"), MessageHandler::ChatInPriority,
-	                        QScriptValue::ReadOnly);
+							QScriptValue::ReadOnly);
 	m_prototype.setProperty(QLatin1String("NormalPriortity"), MessageHandler::NormalPriortity,
-	                        QScriptValue::ReadOnly);
+							QScriptValue::ReadOnly);
 	m_prototype.setProperty(QLatin1String("ChatOutPriority"), MessageHandler::ChatOutPriority,
-	                        QScriptValue::ReadOnly);
+							QScriptValue::ReadOnly);
 	m_prototype.setProperty(QLatin1String("HighPriority"), MessageHandler::HighPriority,
-	                        QScriptValue::ReadOnly);
+							QScriptValue::ReadOnly);
 	QScriptValue ctor = engine->newFunction(createMessageHandler);
 	engine->globalObject().setProperty(name(), ctor);
 }
 
 QScriptClass::QueryFlags ScriptMessageHandler::queryProperty(const QScriptValue &object,
-                                                             const QScriptString &name,
-                                                             QueryFlags flags, uint *id)
+															 const QScriptString &name,
+															 QueryFlags flags, uint *id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(flags);
@@ -133,7 +133,7 @@ QScriptValue ScriptMessageHandler::property(const QScriptValue &object, const QS
 }
 
 void ScriptMessageHandler::setProperty(QScriptValue &object, const QScriptString &name,
-                                uint id, const QScriptValue &value)
+								uint id, const QScriptValue &value)
 {
 	Q_UNUSED(id);
 	Q_UNUSED(object);
@@ -142,7 +142,7 @@ void ScriptMessageHandler::setProperty(QScriptValue &object, const QScriptString
 }
 
 QScriptValue::PropertyFlags ScriptMessageHandler::propertyFlags(const QScriptValue &object,
-                                                         const QScriptString &name, uint id)
+														 const QScriptString &name, uint id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);

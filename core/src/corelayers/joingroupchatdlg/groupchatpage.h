@@ -38,9 +38,9 @@ namespace Core {
 
 class GroupChatPage : public QScrollArea
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit GroupChatPage(QWidget *parent = 0);
+	explicit GroupChatPage(QWidget *parent = 0);
 	virtual void setAccount(qutim_sdk_0_3::Account *account) {m_account = account;}
 	qutim_sdk_0_3::Account *account() const {return m_account;}
 protected:

@@ -44,7 +44,7 @@ using namespace qutim_sdk_0_3;
 ChatChannel::ChatChannel(qutim_sdk_0_3::ChatUnit *unit)
 	: ChatSession(Chat::instance()), m_unit(unit), m_page(0)
 {
-    m_id = QUuid::createUuid().toString();
+	m_id = QUuid::createUuid().toString();
 	m_model = new ChatMessageModel(this);
 	m_units = new ChatChannelUsersModel(this);
 	if (Conference *conf = qobject_cast<Conference *>(unit)) {
@@ -60,12 +60,12 @@ ChatChannel::~ChatChannel()
 	setActive(false);
 	Chat *chat = static_cast<Chat*>(Chat::instance());
 	if (chat && chat->activeSession() == this)
-        chat->setActiveSession(0);
+		chat->setActiveSession(0);
 }
 
 qutim_sdk_0_3::ChatUnit *ChatChannel::getUnit() const
 {
-    return m_unit;
+	return m_unit;
 }
 
 void ChatChannel::setChatUnit(qutim_sdk_0_3::ChatUnit* unit)
@@ -122,15 +122,15 @@ QObject *ChatChannel::model() const
 }
 
 void ChatChannel::send(const QString &text)
-{    
-    if (text.trimmed().isEmpty())
-        return;
+{
+	if (text.trimmed().isEmpty())
+		return;
 
 	Message message(text);
 	message.setIncoming(false);
 	message.setChatUnit(m_unit);
 	message.setTime(QDateTime::currentDateTime());
-    appendMessage(message);
+	appendMessage(message);
 }
 
 void ChatChannel::showChat()
@@ -141,12 +141,12 @@ void ChatChannel::showChat()
 void ChatChannel::close()
 {
 	static_cast<Chat*>(Chat::instance())->handleSessionDeath(this);
-    deleteLater();
+	deleteLater();
 }
 
 void ChatChannel::clear()
 {
-    emit clearRequested();
+	emit clearRequested();
 }
 
 QObject *ChatChannel::units() const
@@ -169,42 +169,42 @@ void ChatChannel::setPage(QObject *page)
 
 bool ChatChannel::supportJavaScript() const
 {
-    return m_javaScriptListeners > 0;
+	return m_javaScriptListeners > 0;
 }
 
 QString ChatChannel::id() const
 {
-    return m_id;
+	return m_id;
 }
 
 bool ChatChannel::event(QEvent *ev)
 {
-    if (ev->type() == MessageReceiptEvent::eventType()) {
-        MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
-        emit receivedMessageReceipt(msgEvent->id(), msgEvent->success());
-    }
-    return ChatSession::event(ev);
+	if (ev->type() == MessageReceiptEvent::eventType()) {
+		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
+		emit receivedMessageReceipt(msgEvent->id(), msgEvent->success());
+	}
+	return ChatSession::event(ev);
 }
 
 QVariant ChatChannel::evaluateJavaScript(const QString &script)
 {
-    emit javaScriptRequest(script);
-    return QVariant();
+	emit javaScriptRequest(script);
+	return QVariant();
 }
 
 QString ChatChannel::htmlEscape(const QString &text)
 {
-    return text.toHtmlEscaped();
+	return text.toHtmlEscaped();
 }
 
 void ChatChannel::appendText(const QString &text)
 {
-    emit appendTextRequested(text);
+	emit appendTextRequested(text);
 }
 
 void ChatChannel::appendNick(const QString &nick)
 {
-    emit appendNickRequested(nick);
+	emit appendNickRequested(nick);
 }
 
 int ChatChannel::hashOf(const QString &nick, int max)
@@ -214,45 +214,45 @@ int ChatChannel::hashOf(const QString &nick, int max)
 
 void ChatChannel::loadHistory()
 {
-    Config config(QStringLiteral("appearance"));
-    config.beginGroup(QStringLiteral("chat/history"));
-    int maxDisplayCount = config.value(QStringLiteral("maxDisplayMessages"), 5);
+	Config config(QStringLiteral("appearance"));
+	config.beginGroup(QStringLiteral("chat/history"));
+	int maxDisplayCount = config.value(QStringLiteral("maxDisplayMessages"), 5);
 
-    auto result = History::instance()->read(unit(), maxDisplayCount);
-    result.connect(this, [this] (MessageList messages) {
-        for (Message &message : messages) {
-            message.setProperty("silent", true);
-            message.setProperty("store", false);
-            message.setProperty("history", true);
-            if (!message.chatUnit()) //TODO FIXME
-                message.setChatUnit(unit());
-            append(message);
-        }
-    });
+	auto result = History::instance()->read(unit(), maxDisplayCount);
+	result.connect(this, [this] (MessageList messages) {
+		for (Message &message : messages) {
+			message.setProperty("silent", true);
+			message.setProperty("store", false);
+			message.setProperty("history", true);
+			if (!message.chatUnit()) //TODO FIXME
+				message.setChatUnit(unit());
+			append(message);
+		}
+	});
 }
 
 QUrl ChatChannel::appendTextUrl(const QString &text)
 {
-    return commandUrl(QStringLiteral("appendText"), text);
+	return commandUrl(QStringLiteral("appendText"), text);
 }
 
 QUrl ChatChannel::appendNickUrl(const QString &nick)
 {
-    return commandUrl(QStringLiteral("appendNick"), nick);
+	return commandUrl(QStringLiteral("appendNick"), nick);
 }
 
 QUrl ChatChannel::commandUrl(const QString &method, const QString &arg) const
 {
-    QUrlQuery query;
-    query.addQueryItem(QStringLiteral("id"), id());
-    query.addQueryItem(QStringLiteral("method"), method);
-    query.addQueryItem(QStringLiteral("arg"), arg);
+	QUrlQuery query;
+	query.addQueryItem(QStringLiteral("id"), id());
+	query.addQueryItem(QStringLiteral("method"), method);
+	query.addQueryItem(QStringLiteral("arg"), arg);
 
-    QUrl url;
-    url.setScheme(QStringLiteral("session"));
-    url.setQuery(query);
+	QUrl url;
+	url.setScheme(QStringLiteral("session"));
+	url.setQuery(query);
 
-    return url;
+	return url;
 }
 
 qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
@@ -261,21 +261,21 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 		emit messageReceived(&message);
 	else
 		emit messageSent(&message);
-	
+
 	if (message.property("spam", false) || message.property("hide", false))
 		return message.id();
-	
+
 	bool service = message.property("service", false);
-	
+
 	if ((!isActive() && !service) && message.isIncoming()) {
 		m_unread.append(message);
 		emit unreadChanged(m_unread);
 		emit unreadCountChanged(m_unread.count());
 	}
-	
+
 	if (!message.property("silent", false) && !isActive())
 		Notification::send(message);
-	
+
 	emit messageAppended(message);
 	return message.id();
 }
@@ -288,16 +288,16 @@ void ChatChannel::doSetActive(bool active)
 
 void ChatChannel::connectNotify(const QMetaMethod &signal)
 {
-    ChatSession::connectNotify(signal);
-    if (signal == QMetaMethod::fromSignal(&ChatChannel::javaScriptRequest))
-        ++m_javaScriptListeners;
+	ChatSession::connectNotify(signal);
+	if (signal == QMetaMethod::fromSignal(&ChatChannel::javaScriptRequest))
+		++m_javaScriptListeners;
 }
 
 void ChatChannel::disconnectNotify(const QMetaMethod &signal)
 {
-    ChatSession::disconnectNotify(signal);
-    if (signal == QMetaMethod::fromSignal(&ChatChannel::javaScriptRequest))
-        --m_javaScriptListeners;
+	ChatSession::disconnectNotify(signal);
+	if (signal == QMetaMethod::fromSignal(&ChatChannel::javaScriptRequest))
+		--m_javaScriptListeners;
 }
 
 }

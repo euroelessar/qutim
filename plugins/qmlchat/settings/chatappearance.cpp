@@ -102,8 +102,8 @@ ChatAppearance::ChatAppearance(): ui(new Ui::quickChatAppearance),m_controller(0
 	if (!Protocol::all().isEmpty()) {
 		FakeAccount *account = new FakeAccount("Noname", Protocol::all().begin().value());
 		FakeChatUnit *unit = account->getFakeUnit();
-        ChatSession *session = ChatLayer::get(unit);
-        m_controller = new QuickChatController(this);
+		ChatSession *session = ChatLayer::get(unit);
+		m_controller = new QuickChatController(this);
 		m_controller->setChatSession(session);
 		connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onThemeChanged(int)));
 		m_widget->setViewController(m_controller);

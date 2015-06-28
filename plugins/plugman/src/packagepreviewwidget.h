@@ -32,13 +32,13 @@
 class PackagePreviewWidget : public QWidget
 {
 public:
-    PackagePreviewWidget(QWidget *parent = 0);
-	
+	PackagePreviewWidget(QWidget *parent = 0);
+
 	QSize minimumSizeHint() const;
 	QSize sizeHint() const;
 	void setPreview(const QPixmap &preview);
 	void paintEvent(QPaintEvent *ev);
-	
+
 private:
 	QPixmap m_preview;
 };

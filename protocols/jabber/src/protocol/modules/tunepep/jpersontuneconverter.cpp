@@ -36,21 +36,21 @@ namespace Jabber
 		static JPersonTuneRegistrator tuneRegistrator;
 		Q_UNUSED(tuneRegistrator);
 	}
-	
+
 	JPersonTuneConverter::~JPersonTuneConverter()
 	{
 	}
-	
+
 	QString JPersonTuneConverter::name() const
 	{
 		return QLatin1String("tune");
 	}
-	
+
 	int JPersonTuneConverter::entityType() const
 	{
 		return Jreen::Tune::staticPayloadType();
 	}
-	
+
 	QSharedPointer<Jreen::Payload> JPersonTuneConverter::convertTo(const QVariantHash &map) const
 	{
 		Jreen::Tune *tune = new Jreen::Tune();
@@ -64,7 +64,7 @@ namespace Jabber
 		tune->setUri(map.value(QLatin1String("uri")).toUrl());
 		return Jreen::Payload::Ptr(tune);
 	}
-	
+
 #define ADD_TAG(Tag, IsValid, ValueMethod)\
 		if(tune->Tag() IsValid) { \
 			QString value = ValueMethod(tune->Tag()); \
@@ -75,7 +75,7 @@ namespace Jabber
 	   }
 #define ADD_TEXT_TAG(Tag) \
 		ADD_TAG(Tag, .length() > 0, )
-		
+
 	QString uriToStringHelper(const QUrl &uri)
 	{
 		return uri.toString();
@@ -87,7 +87,7 @@ namespace Jabber
 		Q_ASSERT(tune);
 		QVariantHash data;
 		QString description;
-		
+
 		ADD_TEXT_TAG(artist);
 		ADD_TAG(length, > -1, QString::number);
 		ADD_TAG(rating, > -1, QString::number);

@@ -38,8 +38,8 @@ class MobileAboutCreator : public QObject
 	Q_CLASSINFO("Service", "AboutDialog")
 	Q_CLASSINFO("Uses", "ContactList")
 public:
-    MobileAboutCreator();
-    ~MobileAboutCreator();
+	MobileAboutCreator();
+	~MobileAboutCreator();
 public slots:
 	void showWidget();
 private:

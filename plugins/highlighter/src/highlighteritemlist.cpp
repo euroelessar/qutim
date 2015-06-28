@@ -34,7 +34,7 @@ HighlighterItemList::HighlighterItemList(const QRegExp &regex, QListWidget *rege
 	: m_regexp(regex)
 {
 	QString title = QString::fromLatin1("%1<br>%2")
-            .arg(regex.pattern().toHtmlEscaped(), getTranslatedRegexpType(regex.patternSyntax()));
+			.arg(regex.pattern().toHtmlEscaped(), getTranslatedRegexpType(regex.patternSyntax()));
 	m_label = new QLabel(title, this);
 	QSizePolicy policy = m_label->sizePolicy();
 	policy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
@@ -42,7 +42,7 @@ HighlighterItemList::HighlighterItemList(const QRegExp &regex, QListWidget *rege
 	m_button = new QPushButton(tr("Remove"), this);
 	m_button->setIcon(qutim_sdk_0_3::Icon(QLatin1String("list-remove")));
 	connect(m_button, SIGNAL(clicked(bool)), this, SIGNAL(buttonClicked()));
-	
+
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addWidget(m_label);
 	layout->addWidget(m_button);
@@ -54,7 +54,7 @@ HighlighterItemList::HighlighterItemList(const QRegExp &regex, QListWidget *rege
 
 HighlighterItemList::~HighlighterItemList()
 {
-    qDebug() << this;
+	qDebug() << this;
 }
 
 QRegExp HighlighterItemList::regexp() const

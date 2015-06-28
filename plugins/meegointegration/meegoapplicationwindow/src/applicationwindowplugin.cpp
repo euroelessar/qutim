@@ -53,50 +53,50 @@ namespace MeegoIntegration
 		setInfo(name, description, PLUGIN_VERSION(0, 1, 0, 0));
 		addExtension<ApplicationWindow>(name, description);
 		addExtension<QuickNoficationManager>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo Notification Manager"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple notification manager"));
 		addExtension<Chat>(
-			    QT_TRANSLATE_NOOP("Plugin", "Meego chat page"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple chat based on QML elements"));
+				QT_TRANSLATE_NOOP("Plugin", "Meego chat page"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple chat based on QML elements"));
 		addExtension<ContactList>(
-			    QT_TRANSLATE_NOOP("Plugin", "Meego contact list page"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple contact list on QML elements"));
+				QT_TRANSLATE_NOOP("Plugin", "Meego contact list page"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple contact list on QML elements"));
 		addExtension<QuickPasswordDialog>(
-			    QT_TRANSLATE_NOOP("Plugin", "Meego password dialog"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple password dialog on QML elements"));
+				QT_TRANSLATE_NOOP("Plugin", "Meego password dialog"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple password dialog on QML elements"));
 		addExtension<QuickAuthDialog>(
-			    QT_TRANSLATE_NOOP("Plugin", "Meego authorization dialog"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog on QML elements"));
+				QT_TRANSLATE_NOOP("Plugin", "Meego authorization dialog"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog on QML elements"));
 		addExtension<Maemo6Idle>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Harmattan Idle detector"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple harmattan idle detector"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo Harmattan Idle detector"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple harmattan idle detector"));
 		addExtension<QuickAddContactDialog>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo Add contact dialog"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple add contact dialog"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo Add contact dialog"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple add contact dialog"));
 		addExtension<QuickAboutDialog>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo about dialog"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple about dialog"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo about dialog"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple about dialog"));
 		addExtension<QuickJoinGroupChat>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo join group chat dialog"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple join group chat dialog"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo join group chat dialog"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple join group chat dialog"));
 		addExtension<MeeGoIntegration>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo integration"),
-			    QT_TRANSLATE_NOOP("Plugin", "Provider for better integration with the system"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo integration"),
+				QT_TRANSLATE_NOOP("Plugin", "Provider for better integration with the system"));
 		addExtension<AccountsModel>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGoAccounts Model"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple accounts model"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGoAccounts Model"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple accounts model"));
 		addExtension<QuickSettingsLayer>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo settings"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo settings dialog"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo settings"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo settings dialog"));
 		addExtension<QuickAddAccountDialog>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo account creator"),
-			    QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo account creator"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo account creator"),
+				QT_TRANSLATE_NOOP("Plugin", "Simple MeeGo account creator"));
 		addExtension<QuickIconLoader>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo icon loader noop"),
-			    QT_TRANSLATE_NOOP("Plugin", "Noop for icon loader service"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo icon loader noop"),
+				QT_TRANSLATE_NOOP("Plugin", "Noop for icon loader service"));
 		addExtension<QuickContactInfo>(
-			    QT_TRANSLATE_NOOP("Plugin", "MeeGo contact info"),
-			    QT_TRANSLATE_NOOP("Plugin", "Shows information about contact"));
+				QT_TRANSLATE_NOOP("Plugin", "MeeGo contact info"),
+				QT_TRANSLATE_NOOP("Plugin", "Shows information about contact"));
 	}
 }
 

@@ -31,30 +31,30 @@
 namespace Core
 {
 MultimediaSoundBackend::MultimediaSoundBackend()
-    : m_cache(24)
+	: m_cache(24)
 {
-    QMimeDatabase db;
-    const QStringList mimeTypes = QSoundEffect::supportedMimeTypes();
-    for (const QString &name : mimeTypes)
-        m_formats << db.mimeTypeForName(name).suffixes();
-    m_formats.removeDuplicates();
+	QMimeDatabase db;
+	const QStringList mimeTypes = QSoundEffect::supportedMimeTypes();
+	for (const QString &name : mimeTypes)
+		m_formats << db.mimeTypeForName(name).suffixes();
+	m_formats.removeDuplicates();
 }
 
 void MultimediaSoundBackend::playSound(const QString &filename)
 {
-    QSoundEffect *effect = m_cache.object(filename);
-    if (!effect) {
-        effect = new QSoundEffect;
-        effect->setSource(QUrl::fromLocalFile(filename));
-        m_cache.insert(filename, effect);
-    }
+	QSoundEffect *effect = m_cache.object(filename);
+	if (!effect) {
+		effect = new QSoundEffect;
+		effect->setSource(QUrl::fromLocalFile(filename));
+		m_cache.insert(filename, effect);
+	}
 
-    effect->play();
+	effect->play();
 }
 
 QStringList MultimediaSoundBackend::supportedFormats()
 {
-    return m_formats;
+	return m_formats;
 }
 }
 

@@ -160,7 +160,7 @@ inline Qt::Alignment DataLayout::labelAlignment()
 			m_style = parent->style();
 		else
 			m_style = QApplication::style();
-        m_labelAlignment = Qt::Alignment(m_style.data()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+		m_labelAlignment = Qt::Alignment(m_style.data()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
 	}
 	return m_labelAlignment;
 }

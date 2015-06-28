@@ -44,9 +44,9 @@ class WebKitMessageViewStylePrivate;
 
 class ADIUMWEBVIEW_EXPORT WebKitMessageViewStyle : public QObject
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(WebKitMessageViewStyle)
-    Q_ENUMS(NameFormat WebkitBackgroundType)
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(WebKitMessageViewStyle)
+	Q_ENUMS(NameFormat WebkitBackgroundType)
 public:
 	enum NameFormat {
 		AIDefaultName = 0,
@@ -55,7 +55,7 @@ public:
 		AIScreenName_DisplayName = 3,
 		AIScreenName = 4
 	};
-	
+
 	enum WebkitBackgroundType {
 		BackgroundNormal = 0,
 		BackgroundCenter,
@@ -63,16 +63,16 @@ public:
 		BackgroundTileCenter,
 		BackgroundScale
 	};
-	
-    WebKitMessageViewStyle();
-    ~WebKitMessageViewStyle();
+
+	WebKitMessageViewStyle();
+	~WebKitMessageViewStyle();
 
 public slots:
 	void setStylePath(const QString &path);
 	void setCustomStyle(const QString &style);
-    QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session);
-    QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session, const QString &id, const QString &wsUri);
-    QUrl baseUrl();
+	QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session);
+	QString baseTemplateForChat(qutim_sdk_0_3::ChatSession *session, const QString &id, const QString &wsUri);
+	QUrl baseUrl();
 	QString templateForContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar);
 	QString scriptForChangingVariant();
 	QString scriptForSettingCustomStyle();
@@ -81,7 +81,7 @@ public slots:
 	QString defaultVariant() const;
 	QString activeVariant() const;
 	void setActiveVariant(const QString &variant);
-	
+
 	bool allowsCustomBackground() const;
 	bool transparentDefaultBackground() const;
 	bool allowsUserIcons() const;
@@ -90,7 +90,7 @@ public slots:
 	bool hasAction() const;
 	QString defaultFontFamily() const;
 	int defaultFontSize() const;
-	
+
 	bool showUserIcons() const;
 	void setShowUserIcons(bool showUserIcons);
 	bool showHeader() const;
@@ -105,10 +105,10 @@ public slots:
 	void setCustomBackgroundPath(const QString &path);
 	QColor  customBackgroundColor() const;
 	void setCustomBackgroundColor(const QColor &color);
-	
+
 	QString pathForResource(const QString &name, const QString &directory = QString());
 	QString loadResourceFile(const QString &name, const QString &directory = QString());
-	
+
 private:
 	struct UnitData
 	{
@@ -124,10 +124,10 @@ private:
 	void releaseResources();
 	UnitData getSourceData(const qutim_sdk_0_3::Message &message);
 	QString &fillKeywords(QString &inString, const qutim_sdk_0_3::Message &message, bool contentIsSimilar);
-    QString &injectScript(QString &inString, const QString &id, const QString &wsUri);
+	QString &injectScript(QString &inString, const QString &id, const QString &wsUri);
 	QString &fillKeywordsForBaseTemplate(QString &inString, qutim_sdk_0_3::ChatSession *session);
 	QString stringWithFormat(const QString &str, const QStringList &args);
-	
+
 	QScopedPointer<WebKitMessageViewStylePrivate> d_ptr;
 };
 

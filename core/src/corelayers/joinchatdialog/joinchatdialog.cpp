@@ -38,7 +38,7 @@
 using namespace qutim_sdk_0_3;
 
 JoinChatDialog::JoinChatDialog(QWidget *parent) :
-    QDialog(parent), m_ui(new Ui::JoinChat)
+	QDialog(parent), m_ui(new Ui::JoinChat)
 {
 	m_ui->setupUi(this);
 	QPushButton *button = m_ui->buttonBox->button(QDialogButtonBox::Apply);
@@ -52,26 +52,26 @@ JoinChatDialog::JoinChatDialog(QWidget *parent) :
 //	button = m_ui->buttonBox->addButton(tr("Search"));
 //	button->setIcon(Icon("edit-find"));
 //	connect(button, SIGNAL(clicked()), SLOT(on_searchButton_clicked()));
-	
+
 	setAttribute(Qt::WA_QuitOnClose, false);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(m_ui->conferenceListWidget,
-	        SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-	        SLOT(showConference(QListWidgetItem*,QListWidgetItem*)));
+			SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+			SLOT(showConference(QListWidgetItem*,QListWidgetItem*)));
 	connect(m_ui->conferenceListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-	        SLOT(joinBookmark(QListWidgetItem*)));
-	
+			SLOT(joinBookmark(QListWidgetItem*)));
+
 	m_ui->addConferenceButton->setIcon(Icon("list-add"));
 	m_ui->removeConferenceButton->setIcon(Icon("list-remove"));
 	m_ui->conferenceListWidget->installEventFilter(this);
-	
+
 	AccountManager *manager = AccountManager::instance();
 	connect(manager, &AccountManager::accountAdded, this, &JoinChatDialog::onAccountCreated);
 	connect(manager, &AccountManager::accountRemoved, this, &JoinChatDialog::onAccountDeath);
 
 	foreach (Account *account, manager->accounts())
 		onAccountCreated(account);
-	
+
 	Config config;
 	config.beginGroup("joinChatDialog");
 	restoreGeometry(config.value("geometry", QByteArray()));
@@ -121,7 +121,7 @@ void JoinChatDialog::addAccount(Account *account)
 	if (!account->groupChatManager())
 		return;
 	m_ui->accountBox->addItem(account->status().icon(), account->id(),
-	                          qVariantFromValue(account));
+							  qVariantFromValue(account));
 	if (m_ui->accountBox->count() == 1)
 		m_ui->accountBox->setCurrentIndex(0);
 }

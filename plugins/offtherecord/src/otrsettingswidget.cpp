@@ -1,7 +1,7 @@
 /*
-  
+
 	Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
-	
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -21,7 +21,7 @@
 using namespace qutim_sdk_0_3;
 
 OtrSettingsWidget::OtrSettingsWidget()
-    : ui(new Ui::OtrSettingsWidget)
+	: ui(new Ui::OtrSettingsWidget)
 {
 	ui->setupUi(this);
 	m_otr = OTRCrypt::instance()->connectionForPolicy(-1);
@@ -33,9 +33,9 @@ OtrSettingsWidget::OtrSettingsWidget()
 	ui->forgetButton->setEnabled(false);
 	ui->pushButton->setEnabled(false);
 	connect(ui->fingerprintsTable, SIGNAL(currentCellChanged(int,int,int,int)),
-	        this, SLOT(fingerprintChanged(int)));
+			this, SLOT(fingerprintChanged(int)));
 	connect(ui->keysTable, SIGNAL(currentCellChanged(int,int,int,int)),
-	        this, SLOT(keyChanged(int)));
+			this, SLOT(keyChanged(int)));
 	listenChildrenStates();
 }
 
@@ -153,14 +153,14 @@ void OtrSettingsWidget::on_forgetButton_released()
 	if(ui->fingerprintsTable->currentRow()<0)
 		return;
 	QString msg(tr("Are you sure you want to delete the fingerprint:\naccount: %1\nbuddy: %2\nfingerprint: %3")
-	            .arg(m_fingerprints[ui->fingerprintsTable->currentRow()].account)
-	            .arg(m_fingerprints[ui->fingerprintsTable->currentRow()].username)
-	            .arg(m_fingerprints[ui->fingerprintsTable->currentRow()].fingerprintHuman));
-	
+				.arg(m_fingerprints[ui->fingerprintsTable->currentRow()].account)
+				.arg(m_fingerprints[ui->fingerprintsTable->currentRow()].username)
+				.arg(m_fingerprints[ui->fingerprintsTable->currentRow()].fingerprintHuman));
+
 	QMessageBox mb(QMessageBox::Question, tr("qutim-otr"), msg,
-	               QMessageBox::Yes | QMessageBox::No, this,
-	               Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-	
+				   QMessageBox::Yes | QMessageBox::No, this,
+				   Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+
 	if (mb.exec() == QMessageBox::Yes)
 	{
 		m_otr->deleteFingerprint(m_fingerprints[ui->fingerprintsTable->currentRow()]);
@@ -173,14 +173,14 @@ void OtrSettingsWidget::on_pushButton_released()
 	if(ui->keysTable->currentRow()<0)
 		return;
 	QString msg(tr("Are you sure you want to delete the private key:\naccount: %1\nprotocol: %2\n fingerptint: %3")
-	            .arg(ui->keysTable->item(ui->keysTable->currentRow(),0)->text())
-	            .arg(ui->keysTable->item(ui->keysTable->currentRow(),1)->text())
-	            .arg(ui->keysTable->item(ui->keysTable->currentRow(),2)->text()));
-	
+				.arg(ui->keysTable->item(ui->keysTable->currentRow(),0)->text())
+				.arg(ui->keysTable->item(ui->keysTable->currentRow(),1)->text())
+				.arg(ui->keysTable->item(ui->keysTable->currentRow(),2)->text()));
+
 	QMessageBox mb(QMessageBox::Question, tr("qutim-otr"), msg,
-	               QMessageBox::Yes | QMessageBox::No, this,
-	               Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-	
+				   QMessageBox::Yes | QMessageBox::No, this,
+				   Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+
 	if (mb.exec() == QMessageBox::Yes)
 	{
 		m_otr->deleteKey(ui->keysTable->item(ui->keysTable->currentRow(),0)->text(),ui->keysTable->item(ui->keysTable->currentRow(),1)->text());

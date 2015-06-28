@@ -34,7 +34,7 @@
 class QToolButton;
 
 namespace Ui {
-    class FileTransferDialog;
+	class FileTransferDialog;
 }
 
 namespace Core
@@ -56,14 +56,14 @@ private:
 
 class FileTransferDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	FileTransferDialog(FileTransferJobModel *model);
-    ~FileTransferDialog();
+	~FileTransferDialog();
 	void setModel(FileTransferJobModel *model);
 	int currentJob();
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 private:
 	void createActionWidget(int row);
 	FileTransferJob *getSelectedJob();
@@ -79,7 +79,7 @@ private slots:
 	void onOpenFileAction();
 	void onOpenDirAction();
 private:
-    Ui::FileTransferDialog *ui;
+	Ui::FileTransferDialog *ui;
 	QList<ActionWidget*> m_actionWidgets;
 	FileTransferJobModel *m_model;
 	QAction *m_removeAction;

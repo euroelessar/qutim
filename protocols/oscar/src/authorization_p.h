@@ -47,7 +47,7 @@ class Authorization : public QObject, public SNACHandler, public FeedbagItemHand
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler qutim_sdk_0_3::oscar::FeedbagItemHandler)
 	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
-    Authorization();
+	Authorization();
 	static Authorization *instance() { Q_ASSERT(self); return self; }
 protected:
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);

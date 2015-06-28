@@ -29,22 +29,22 @@
 
 QString Utils::stripEmail(const QString& email)
 {
-    QString stripped;
+	QString stripped;
 
-    //Verify email by RFC 2822 spec with additionaly verified domain
-    QRegExp emailRx("(\\b[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*\\@(?:mail.ru|bk.ru|inbox.ru|list.ru|corp.mail.ru)\\b)",
+	//Verify email by RFC 2822 spec with additionaly verified domain
+	QRegExp emailRx("(\\b[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*\\@(?:mail.ru|bk.ru|inbox.ru|list.ru|corp.mail.ru)\\b)",
 					Qt::CaseInsensitive);
-    int matchIndex = emailRx.indexIn(email);
+	int matchIndex = emailRx.indexIn(email);
 
-    if (matchIndex >= 0)
-    {//email is compliant
-        stripped = emailRx.cap(1);
-    }
-    return stripped;
+	if (matchIndex >= 0)
+	{//email is compliant
+		stripped = emailRx.cap(1);
+	}
+	return stripped;
 }
 
 QString Utils::toHostPortPair(const QHostAddress& host, quint32 port)
 {
-    return QString("%1:%2").arg(host.toString()).arg(port);
+	return QString("%1:%2").arg(host.toString()).arg(port);
 }
 

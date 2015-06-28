@@ -7,29 +7,29 @@ namespace qutim_sdk_0_3 {
 
 class QuickActionContainer : public QuickActionContainerBase
 {
-    Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
+	Q_OBJECT
+	Q_PROPERTY(int count READ count NOTIFY countChanged)
 public:
-    explicit QuickActionContainer(QObject *parent = 0);
-    ~QuickActionContainer();
+	explicit QuickActionContainer(QObject *parent = 0);
+	~QuickActionContainer();
 
-    void handleActionAdded(int index, QAction *action) override;
-    void handleActionRemoved(int index) override;
-    void handleActionsCleared() override;
+	void handleActionAdded(int index, QAction *action) override;
+	void handleActionRemoved(int index) override;
+	void handleActionsCleared() override;
 
-    int count() const;
+	int count() const;
 
 public slots:
-    QuickAction *item(int index);
+	QuickAction *item(int index);
 
 signals:
-    void countChanged(int count);
-    void actionAdded(int index, QuickAction *action);
-    void actionRemoved(int index);
+	void countChanged(int count);
+	void actionAdded(int index, QuickAction *action);
+	void actionRemoved(int index);
 
 
 private:
-    QList<QuickAction *> m_actions;
+	QList<QuickAction *> m_actions;
 };
 
 } // namespace qutim_sdk_0_3

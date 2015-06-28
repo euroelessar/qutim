@@ -84,8 +84,8 @@ class ContactAction : public Action
 public:
 	ContactAction(Type type) : Action(type) {}
 	ContactAction(Type type, qutim_sdk_0_3::Contact *contact)
-	    : Action(type), id(contact->id()), name(contact->name()),
-	      groups(contact->tags())
+		: Action(type), id(contact->id()), name(contact->name()),
+		  groups(contact->tags())
 	{
 		account = AccountId(contact->account());
 	}
@@ -136,7 +136,7 @@ class NetworkManager : public QNetworkAccessManager
 	Q_PROPERTY(QStringList answers READ answers NOTIFY answersChanged)
 public:
 	explicit NetworkManager(QObject *parent = 0);
-    ~NetworkManager();
+	~NetworkManager();
 
 	void timerEvent(QTimerEvent *ev);
 	void loadSettings(bool init, bool *changed);
@@ -178,7 +178,7 @@ signals:
 public slots:
 
 private:
-    Crypter *m_crypter;
+	Crypter *m_crypter;
 	QSslCertificate m_localCertificate;
 	QSslCertificate m_remoteCertificate;
 	QSslKey m_privateKey;

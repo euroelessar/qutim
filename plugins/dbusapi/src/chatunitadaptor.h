@@ -45,8 +45,8 @@ class ChatUnitAdaptor : public QDBusAbstractAdaptor
 public:
 	static const ChatUnitPathHash &hash();
 	static QDBusObjectPath ensurePath(QDBusConnection dbus, ChatUnit *unit);
-	
-    ChatUnitAdaptor(const QDBusConnection &dbus, const QDBusObjectPath &acc, ChatUnit *unit);
+
+	ChatUnitAdaptor(const QDBusConnection &dbus, const QDBusObjectPath &acc, ChatUnit *unit);
 	virtual ~ChatUnitAdaptor();
 	inline QString id() const { return m_chatUnit->id(); }
 	inline QString title() const { return m_chatUnit->title(); }

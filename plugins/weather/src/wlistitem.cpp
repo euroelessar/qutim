@@ -29,7 +29,7 @@
 
 
 WListItem::WListItem(const QString &city, const QString &state, const QString &id, QListWidget *citiesList)
-    : m_id(id), m_name(city), m_state(state)
+	: m_id(id), m_name(city), m_state(state)
 {
 	QString title = QString::fromLatin1("%1<br>%2")
 			.arg(city.toHtmlEscaped(), state.toHtmlEscaped());
@@ -40,7 +40,7 @@ WListItem::WListItem(const QString &city, const QString &state, const QString &i
 	m_button = new QPushButton(tr("Remove"), this);
 	m_button->setIcon(qutim_sdk_0_3::Icon(QLatin1String("list-remove")));
 	connect(m_button, SIGNAL(clicked(bool)), this, SIGNAL(buttonClicked()));
-	
+
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addWidget(m_label);
 	layout->addWidget(m_button);

@@ -40,7 +40,7 @@ class ProtocolAdaptor : public QDBusAbstractAdaptor
 	Q_CLASSINFO("D-Bus Interface", "org.qutim.Protocol")
 	Q_PROPERTY(QString id READ id)
 public:
-    explicit ProtocolAdaptor(const QDBusConnection &dbus, Protocol *parent);
+	explicit ProtocolAdaptor(const QDBusConnection &dbus, Protocol *parent);
 	inline QString id() const { return m_protocol->id(); }
 public slots:
 	inline QStringList accounts() const { return m_accounts.keys(); }

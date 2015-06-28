@@ -32,7 +32,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/status.h>
 
-namespace qutim_sdk_0_3 
+namespace qutim_sdk_0_3
 {
 class Conference;
 }

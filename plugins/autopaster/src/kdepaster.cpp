@@ -18,7 +18,7 @@ QNetworkReply *KdePaster::send(QNetworkAccessManager *manager, const QString &co
 	QNetworkRequest request(QUrl(QStringLiteral("http://paste.kde.org/api/json/create")));
 	request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
-    QUrlQuery data;
+	QUrlQuery data;
 	data.addQueryItem(QStringLiteral("data"), content);
 	data.addQueryItem(QStringLiteral("language"), syntax);
 	data.addQueryItem(QStringLiteral("private"), QStringLiteral("true"));

@@ -29,7 +29,7 @@
 #include <qutim/settingswidget.h>
 
 namespace Ui {
-    class IcqAccountMainSettings;
+	class IcqAccountMainSettings;
 }
 
 class QVBoxLayout;
@@ -41,17 +41,17 @@ namespace oscar {
 class IcqAccount;
 
 class IcqAccountMainSettings : public QWidget {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	IcqAccountMainSettings(IcqAccount *account = 0, QWidget *parent = 0);
-    ~IcqAccountMainSettings();
+	~IcqAccountMainSettings();
 	void reloadSettings();
 	void saveSettings();
 	bool isComplete();
 signals:
 	void completeChanged();
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 	const QStringList &defaultServers() const;
 	const QHash<QString, QString> &defaultSslServers() const;
 private slots:
@@ -59,7 +59,7 @@ private slots:
 	void onCurrentServerChanged(const QString &currentServer);
 	void updatePort(bool ssl);
 private:
-    Ui::IcqAccountMainSettings *ui;
+	Ui::IcqAccountMainSettings *ui;
 	IcqAccount *m_account;
 };
 

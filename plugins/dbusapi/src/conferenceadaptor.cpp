@@ -30,7 +30,7 @@ ConferenceAdaptor::ConferenceAdaptor(const QDBusConnection &dbus, Conference *co
 		QDBusAbstractAdaptor(conf), m_dbus(dbus)
 {
 	connect(conf, SIGNAL(topicChanged(QString,QString)),
-	        this, SIGNAL(topicChanged(QString)));
+			this, SIGNAL(topicChanged(QString)));
 	connect(conf, SIGNAL(meChanged(qutim_sdk_0_3::Buddy*)),
 			this, SLOT(onMeChanged(qutim_sdk_0_3::Buddy*)));
 }

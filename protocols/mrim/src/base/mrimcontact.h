@@ -41,71 +41,71 @@ using namespace qutim_sdk_0_3;
 
 class MrimContact : public Contact
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    enum ContactFlag
-    {
-        ContactFlagRemoved	  =	0x00000001,
-        ContactFlagGroup	  =	0x00000002,
-        ContactFlagInvisible	  =	0x00000004,
-        ContactFlagVisible	  =	0x00000008,
-        ContactFlagIgnore	  =	0x00000010,
-        ContactFlagShadow	  =	0x00000020,
-        ContactFlagAuthorize	  =	0x00000040, // ( >= 1.15)
-        ContactFlagPhone	  =	0x00100000,
-        ContactFlagUnicodeName    =	0x00000200
-    };
+	enum ContactFlag
+	{
+		ContactFlagRemoved	  =	0x00000001,
+		ContactFlagGroup	  =	0x00000002,
+		ContactFlagInvisible	  =	0x00000004,
+		ContactFlagVisible	  =	0x00000008,
+		ContactFlagIgnore	  =	0x00000010,
+		ContactFlagShadow	  =	0x00000020,
+		ContactFlagAuthorize	  =	0x00000040, // ( >= 1.15)
+		ContactFlagPhone	  =	0x00100000,
+		ContactFlagUnicodeName    =	0x00000200
+	};
 
-    Q_DECLARE_FLAGS(ContactFlags,ContactFlag)
+	Q_DECLARE_FLAGS(ContactFlags,ContactFlag)
 
 public:
-    MrimContact(const QString &email, class MrimAccount *account);
-    virtual ~MrimContact();
+	MrimContact(const QString &email, class MrimAccount *account);
+	virtual ~MrimContact();
 
-    //from Contact
-    QString id() const;
+	//from Contact
+	QString id() const;
 	bool sendMessage(const Message &message);
-    QString name() const;
-    void setName(const QString &name);
-    void setContactName(const QString &name);
+	QString name() const;
+	void setName(const QString &name);
+	void setContactName(const QString &name);
 	QStringList tags() const;
 	void setTags(const QStringList &tags);
-    bool isInList() const;
-    void setInList(bool inList);
+	bool isInList() const;
+	void setInList(bool inList);
 	void setContactInList(bool inList);
-    //new
-    quint32 contactId() const;
-    void setContactId(quint32 id);
-    quint32 groupId() const;
-    void setGroupId(quint32 id);
-    ContactFlags flags() const;
-    void setFlags(ContactFlags flags);
-    quint32 serverFlags() const;
-    void setServerFlags(quint32 flags);
-    QString email() const;
-    void setEmail(const QString& email);
-    MrimConnection::FeatureFlags featureFlags() const;
-    void setFeatureFlags(MrimConnection::FeatureFlags flags);
-    const MrimUserAgent& userAgent() const;
-    void setUserAgent(const MrimUserAgent& agent);
-    const MrimAccount *account() const;
-    MrimAccount *account();
-    bool isPhone() const;
-    Status status() const;
+	//new
+	quint32 contactId() const;
+	void setContactId(quint32 id);
+	quint32 groupId() const;
+	void setGroupId(quint32 id);
+	ContactFlags flags() const;
+	void setFlags(ContactFlags flags);
+	quint32 serverFlags() const;
+	void setServerFlags(quint32 flags);
+	QString email() const;
+	void setEmail(const QString& email);
+	MrimConnection::FeatureFlags featureFlags() const;
+	void setFeatureFlags(MrimConnection::FeatureFlags flags);
+	const MrimUserAgent& userAgent() const;
+	void setUserAgent(const MrimUserAgent& agent);
+	const MrimAccount *account() const;
+	MrimAccount *account();
+	bool isPhone() const;
+	Status status() const;
 	MrimStatus mrimStatus() const;
-    void setStatus(const MrimStatus &status);
-	
+	void setStatus(const MrimStatus &status);
+
 	void clearComposingState();
 	void updateComposingState();
 	bool event(QEvent *);
-	
+
 protected:
 	virtual void timerEvent(QTimerEvent *);
 signals:
 	void userAgentChanged(const MrimUserAgent &);
 private:
-    Q_DISABLE_COPY(MrimContact);
-    QScopedPointer<struct MrimContactPrivate> p;
+	Q_DISABLE_COPY(MrimContact);
+	QScopedPointer<struct MrimContactPrivate> p;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MrimContact::ContactFlags)

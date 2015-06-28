@@ -50,7 +50,7 @@ class SymbianWidget  : public QWidget, public AbstractContactListWidget
 	Q_CLASSINFO("Uses", "ContactModel")
 	Q_CLASSINFO("Service", "ContactListWidget")
 public:
-    SymbianWidget();
+	SymbianWidget();
 	virtual void addButton(ActionGenerator *generator);
 	virtual void removeButton(ActionGenerator *generator);
 protected:

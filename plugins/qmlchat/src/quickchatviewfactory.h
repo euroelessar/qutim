@@ -49,7 +49,7 @@ public:
 	QuickChatViewFactory();
 	virtual QWidget *createViewWidget();
 	virtual QObject *createViewController();
-    virtual ~QuickChatViewFactory();
+	virtual ~QuickChatViewFactory();
 private:
 	qutim_sdk_0_3::SettingsItem *m_appearanceSettings;
 };

@@ -93,14 +93,14 @@ public:
 	void setPasswd(const QString &passwd);
 
 	QString pgpKeyId() const;
-	
+
 protected:
 	virtual void virtual_hook(int id, void *data);
 signals:
 	void avatarChanged(const QString &avatar);
 //	void pgpKeyIdChanged(QString pgpKeyId);
 	void messageEcnrypted(quint64 messageId);
-	
+
 public slots:
 	void loadSettings();
 
@@ -110,7 +110,7 @@ private:
 	friend class JRosterPrivate;
 	friend class JServerDiscoInfo;
 	QScopedPointer<JAccountPrivate> d_ptr;
-	
+
 	Q_PRIVATE_SLOT(d_func(),void _q_set_nick(const QString &nick))
 	Q_PRIVATE_SLOT(d_func(),void _q_connected())
 	Q_PRIVATE_SLOT(d_func(),void _q_disconnected(Jreen::Client::DisconnectReason))

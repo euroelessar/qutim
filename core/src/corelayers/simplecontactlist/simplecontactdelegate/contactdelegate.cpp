@@ -225,7 +225,7 @@ void ContactDelegate::paint(QPainter *painter,
 			QList<QVariantHash> list = status.extendedInfos().values();
 			ContactInfoComparator comparator;
 			qSort(list.begin(), list.end(), comparator);
-			
+
 			const QString iconId = QStringLiteral("icon");
 			const QString fallbackIconId = QStringLiteral("fallbackIcon");
 			const QString showIcon = QStringLiteral("showIcon");
@@ -234,7 +234,7 @@ void ContactDelegate::paint(QPainter *painter,
 			foreach (const QVariantHash &hash, list) {
 				if (!p->extInfo.value(hash.value(id).toString(), true) || !hash.value(showIcon, true).toBool())
 					continue;
-				
+
 				bool ok = false;
 				QIcon icon = extract_icon(hash.value(iconId), p->extIconSize, &ok);
 				if (!ok) {

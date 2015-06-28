@@ -88,8 +88,8 @@ PackageEngine::~PackageEngine()
 	QVariantList entries;
 	foreach (const PackageEntry &entry, m_entries) {
 		if (entry.status() != PackageEntry::Installed
-		        && entry.status() != PackageEntry::Updating
-		        && entry.status() != PackageEntry::Updateable) {
+				&& entry.status() != PackageEntry::Updating
+				&& entry.status() != PackageEntry::Updateable) {
 			continue;
 		}
 		QVariantMap data;
@@ -145,11 +145,11 @@ void PackageEngine::onCategoriesJobFinished(Attica::BaseJob *baseJob)
 	for (int j = 0; j < m_categories.size(); j++) {
 		debug() << j << m_categories[j].name();
 	}
-//	[23:25:57] "23" "Emoticon Theme" 
-//	[23:25:57] "24" "Kopete Style 0.11" 
-//	[23:25:57] "26" "Kopete Style 0.12+" 
+//	[23:25:57] "23" "Emoticon Theme"
+//	[23:25:57] "24" "Kopete Style 0.11"
+//	[23:25:57] "26" "Kopete Style 0.12+"
 	emit engineInitialized();
-	
+
 }
 
 qint64 PackageEngine::requestContents(const Attica::Category::List &categories, const QString &search,
@@ -279,7 +279,7 @@ void PackageEngine::onNetworkRequestFinished()
 		file.open(QIODevice::WriteOnly);
 		file.write(reply->readAll());
 	}
-	
+
 	QDir tmp = QDir::temp();
 	QString subpath = QLatin1String("qutim-plugman-") + QString::number(qrand());
 	if (!tmp.mkdir(subpath)) {

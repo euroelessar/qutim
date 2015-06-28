@@ -42,7 +42,7 @@ public:
 	inline int size() { init(); return wrappers.size() + !self.isNull(); }
 	inline IconWrapper *operator [](int i)
 	{ init(); if (i == wrappers.size()) return self; else return wrappers.at(i); }
-	
+
 	bool inited;
 	ServicePointer<IconLoader> self;
 	QList<IconWrapper*> wrappers;

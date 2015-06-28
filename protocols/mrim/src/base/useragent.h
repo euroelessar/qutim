@@ -41,32 +41,32 @@ public:
 	UserAgentData(const UserAgentData &o)
 		: QSharedData(o), clientID(o.clientID), versionStr(o.versionStr), buildVer(o.buildVer),
 		protoMajorVer(o.protoMajorVer), protoMinorVer(o.protoMinorVer) {}
-    //Client ID
-    QString clientID;
-    //Client version
-    QString versionStr;
-    QString buildVer;
-    //Protocol version
-    quint8 protoMajorVer;
-    quint8 protoMinorVer;
+	//Client ID
+	QString clientID;
+	//Client version
+	QString versionStr;
+	QString buildVer;
+	//Protocol version
+	quint8 protoMajorVer;
+	quint8 protoMinorVer;
 };
 
 class MrimUserAgent
 {
 public:
-    MrimUserAgent();
-    MrimUserAgent( const QString &clientID, const QString &versionStr, const QString &buildVer,
-               quint8 protoMajorVer, quint8 protoMinorVer );
-    MrimUserAgent(const MrimUserAgent &o);
+	MrimUserAgent();
+	MrimUserAgent( const QString &clientID, const QString &versionStr, const QString &buildVer,
+			   quint8 protoMajorVer, quint8 protoMinorVer );
+	MrimUserAgent(const MrimUserAgent &o);
 	MrimUserAgent &operator =(const MrimUserAgent &o);
-    virtual ~MrimUserAgent();
+	virtual ~MrimUserAgent();
 
-    void clear();
-    bool parse(const QString &userAgentStr);
-    QString toString() const;
-    QString toReadable() const;
-    bool isEmpty() const;
-    qutim_sdk_0_3::ExtensionIcon icon() const;
+	void clear();
+	bool parse(const QString &userAgentStr);
+	QString toString() const;
+	QString toReadable() const;
+	bool isEmpty() const;
+	qutim_sdk_0_3::ExtensionIcon icon() const;
 private:
 	QSharedDataPointer<UserAgentData> d;
 };

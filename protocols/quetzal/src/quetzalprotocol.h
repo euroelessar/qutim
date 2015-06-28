@@ -40,12 +40,12 @@ class QuetzalProtocolGenerator;
 
 class QuetzalProtocol : public Protocol
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	virtual ~QuetzalProtocol();
-    virtual QList<Account *> accounts() const;
+	virtual QList<Account *> accounts() const;
 	void addAccount(PurpleAccount *account);
-    virtual Account *account(const QString &id) const;
+	virtual Account *account(const QString &id) const;
 	PurplePlugin *plugin() { return m_plugin; }
 	virtual QVariant data(DataType type);
 	virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
@@ -54,16 +54,16 @@ public:
 		static QHash<PurplePlugin *, QuetzalProtocol *> protos;
 		return protos;
 	}
-	
+
 protected slots:
 	void onAccountRemoved(QObject *object);
-	
+
 protected:
 	QuetzalProtocol(PurplePlugin *plugin);
-	
+
 private:
 	void registerAccount(QuetzalAccount *account);
-    virtual void loadAccounts();
+	virtual void loadAccounts();
 	PurplePlugin *m_plugin;
 	QHash<QString, QuetzalAccount *> m_accounts;
 };
@@ -73,7 +73,7 @@ class QuetzalProtocolHook : public QuetzalProtocol
 public:
 	QuetzalProtocolHook(const QuetzalMetaObject *meta, PurplePlugin *plugin);
 	virtual ~QuetzalProtocolHook();
-	
+
 	const QMetaObject *metaObject() const;
 	void *qt_metacast(const char *_clname);
 private:
@@ -89,7 +89,7 @@ public:
 
 class QuetzalProtocolGenerator : public ObjectGenerator
 {
-    Q_DISABLE_COPY(QuetzalProtocolGenerator)
+	Q_DISABLE_COPY(QuetzalProtocolGenerator)
 public:
 	inline QuetzalProtocolGenerator(PurplePlugin *protocol) :
 			m_protocol(protocol), m_meta(new QuetzalMetaObject(protocol)) {}
@@ -114,8 +114,8 @@ protected:
 	}
 private:
 	mutable QPointer<QObject> m_object;
-    PurplePlugin *m_protocol;
-    const QuetzalMetaObject *m_meta;
+	PurplePlugin *m_protocol;
+	const QuetzalMetaObject *m_meta;
 };
 
 #endif // PURPLEPROTOCOL_H

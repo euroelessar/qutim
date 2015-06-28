@@ -30,7 +30,7 @@
 #include <QDir>
 
 namespace Ui {
-    class MigrationStartPage;
+	class MigrationStartPage;
 }
 
 namespace Core

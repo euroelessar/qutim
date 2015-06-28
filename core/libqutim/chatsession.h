@@ -49,15 +49,15 @@ class LIBQUTIM_EXPORT ChatSession : public QObject
 	Q_PROPERTY(QDateTime dateOpened READ dateOpened WRITE setDateOpened NOTIFY dateOpenedChanged)
 	Q_PROPERTY(qutim_sdk_0_3::ChatUnit *unit READ unit WRITE setChatUnit NOTIFY unitChanged)
 public:
-    typedef std::function<void (quint64, const Message &, const QString &)> AppendHandler;
-    
+	typedef std::function<void (quint64, const Message &, const QString &)> AppendHandler;
+
 	virtual ~ChatSession();
-	
+
 	virtual ChatUnit *getUnit() const = 0;
 	inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
 	virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
 	Q_INVOKABLE void append(const qutim_sdk_0_3::Message &message);
-    void append(const Message &message, const AppendHandler &handler);
+	void append(const Message &message, const AppendHandler &handler);
 	virtual QTextDocument *getInputField() = 0;
 	virtual void markRead(quint64 id) = 0;
 	virtual MessageList unread() const = 0;
@@ -112,7 +112,7 @@ public:
 	void alert(bool on);
 	void alert(int msecs);
 	bool event(QEvent *);
-	
+
 signals:
 	void sessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void alertStatusChanged(bool);

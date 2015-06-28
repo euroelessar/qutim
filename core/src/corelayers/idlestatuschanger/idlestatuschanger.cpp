@@ -42,11 +42,11 @@ IdleStatusChanger::IdleStatusChanger() :
 	m_state = Active;
 	connect(idle, SIGNAL(secondsIdle(int)), this, SLOT(onIdle(int)));
 	SettingsItem *settings = new QmlSettingsItem(
-                QStringLiteral("idlestatuschanger"),
+				QStringLiteral("idlestatuschanger"),
 				Settings::General,
 				Icon("user-away-extended"),
 				QT_TRANSLATE_NOOP("AutoAway", "Auto-away"));
-    settings->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
+	settings->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	Settings::registerItem(settings);
 
 	m_awayStatus.setChangeReason(Status::ByIdle);

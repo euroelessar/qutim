@@ -77,14 +77,14 @@ void TreeView::setContactModel(QAbstractItemModel *model)
 	m_closedIndexes = group.value("closedTags", QStringList()).toSet();
 	QTreeView::setModel(model);
 	connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-			SLOT(onRowsInserted(QModelIndex,int,int)));	
+			SLOT(onRowsInserted(QModelIndex,int,int)));
 	checkTag(QModelIndex(), model);
 }
 
 void TreeView::initScrolling()
 {
 	if(QObject *scroller = ServiceManager::getByName("Scroller"))
-		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, viewport()));	
+		QMetaObject::invokeMethod(scroller, "enableScrolling", Q_ARG(QObject*, viewport()));
 }
 
 void TreeView::onClick(const QModelIndex &index)
@@ -205,7 +205,7 @@ void TreeView::onRowsInserted(const QModelIndex &parent, int first, int last)
 
 void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
-    QTreeView::dataChanged(topLeft,bottomRight, roles);
+	QTreeView::dataChanged(topLeft,bottomRight, roles);
 }
 
 TreeView::~TreeView()

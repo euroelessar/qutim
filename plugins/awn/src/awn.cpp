@@ -34,29 +34,29 @@ AWNPlugin::AWNPlugin ()
 
 void AWNPlugin::init ()
 {
-    qutim_sdk_0_3::ExtensionIcon icon("info");
-    addAuthor(QT_TRANSLATE_NOOP("Author", "Stanislav (proDOOMman) Kosolapov"),
-              QT_TRANSLATE_NOOP("Task", "Developer"),
-              QLatin1String("prodoomman@shell.tor.hu")
-              );
-    setInfo(QT_TRANSLATE_NOOP("Plugin", "AWN"),
-            QT_TRANSLATE_NOOP("Plugin", "Avant window navigator dock integration"),
-            PLUGIN_VERSION(0, 0, 1, 0),
-            icon
-            );
-    addExtension<AWNService>(QT_TRANSLATE_NOOP("Plugin", "AWN"),
-                             QT_TRANSLATE_NOOP("Plugin", "Avant window navigator dock integration")
-                             );
+	qutim_sdk_0_3::ExtensionIcon icon("info");
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Stanislav (proDOOMman) Kosolapov"),
+			  QT_TRANSLATE_NOOP("Task", "Developer"),
+			  QLatin1String("prodoomman@shell.tor.hu")
+			  );
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "AWN"),
+			QT_TRANSLATE_NOOP("Plugin", "Avant window navigator dock integration"),
+			PLUGIN_VERSION(0, 0, 1, 0),
+			icon
+			);
+	addExtension<AWNService>(QT_TRANSLATE_NOOP("Plugin", "AWN"),
+							 QT_TRANSLATE_NOOP("Plugin", "Avant window navigator dock integration")
+							 );
 }
 
 bool AWNPlugin::load ()
 {
-    return true;
+	return true;
 }
 
 bool AWNPlugin::unload ()
 {
-    return false;
+	return false;
 }
 
 QUTIM_EXPORT_PLUGIN(AWNPlugin)

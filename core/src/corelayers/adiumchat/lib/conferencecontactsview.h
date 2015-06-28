@@ -37,10 +37,10 @@ class ChatSessionImpl;
 class ConferenceContactsViewPrivate;
 class ADIUMCHAT_EXPORT ConferenceContactsView : public QListView
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_DECLARE_PRIVATE(ConferenceContactsView)
 public:
-    explicit ConferenceContactsView(QWidget *parent = 0);
+	explicit ConferenceContactsView(QWidget *parent = 0);
 	void setSession(ChatSessionImpl *session);
 	virtual ~ConferenceContactsView();
 protected:

@@ -39,7 +39,7 @@ namespace Core
 		m_model = new QStandardItemModel(ui->treeView);
 		ui->treeView->setModel(m_model);
 		ui->treeView->setItemDelegate(new ShortcutItemDelegate(ui->treeView));
-	
+
 		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 	}
 
@@ -115,7 +115,7 @@ namespace Core
 	{
 
 	}
-	
+
 	void ShortcutSettingsWidget::onItemChanged ( QStandardItem* item )
 	{
 		setModified(true);

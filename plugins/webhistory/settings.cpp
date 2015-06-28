@@ -41,7 +41,7 @@ historySettings::historySettings(QString profile_name)
 
 historySettings::~historySettings()
 {
-	
+
 }
 
 void historySettings::saveSettings()

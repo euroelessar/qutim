@@ -36,7 +36,7 @@ namespace AdiumChat
 {
 namespace Symbian
 {
-	
+
 using namespace qutim_sdk_0_3;
 
 StackedChatForm::StackedChatForm() :

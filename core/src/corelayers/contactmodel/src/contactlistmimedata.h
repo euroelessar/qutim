@@ -31,21 +31,21 @@
 
 class ContactListMimeData : public qutim_sdk_0_3::MimeObjectData
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit ContactListMimeData();
-    virtual ~ContactListMimeData();
+	explicit ContactListMimeData();
+	virtual ~ContactListMimeData();
 
-    void setIndexes(const QModelIndexList &indexes);
-    void setIndexes(const QList<QPersistentModelIndex> &indexes);
-    QList<QPersistentModelIndex> indexes() const;
-    static QString modelIndexListMimeType();
+	void setIndexes(const QModelIndexList &indexes);
+	void setIndexes(const QList<QPersistentModelIndex> &indexes);
+	QList<QPersistentModelIndex> indexes() const;
+	static QString modelIndexListMimeType();
 
-    virtual bool hasFormat(const QString &mimetype) const;
-    virtual QStringList formats() const;
+	virtual bool hasFormat(const QString &mimetype) const;
+	virtual QStringList formats() const;
 
 private:
-    QList<QPersistentModelIndex> m_indexes;
+	QList<QPersistentModelIndex> m_indexes;
 };
 
 #endif // CONTACTLISTMIMEDATA_H

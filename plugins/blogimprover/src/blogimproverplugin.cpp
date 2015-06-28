@@ -39,7 +39,7 @@ namespace BlogImprover
 		setCapabilities(Loadable);
 		addAuthor(QLatin1String("nicoizo"));
 	}
-	
+
 	bool BlogImproverPlugin::load()
 	{
 
@@ -51,20 +51,20 @@ namespace BlogImprover
 
 		m_handler.reset(new BlogImproverHandler);
 		qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
-		                                               QLatin1String("BlogImprover"),
+													   QLatin1String("BlogImprover"),
 													   qutim_sdk_0_3::MessageHandler::HighPriority,
 													   qutim_sdk_0_3::MessageHandler::HighPriority);
 		m_settingsItem.data()->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
 		return true;
 	}
-	
+
 	bool BlogImproverPlugin::unload()
 	{
 		m_handler.reset(0);
 		m_settingsItem.reset(0);
 		return true;
 	}
-	
+
 }
 
 QUTIM_EXPORT_PLUGIN(BlogImprover::BlogImproverPlugin)

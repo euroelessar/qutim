@@ -30,16 +30,16 @@
 
 class ContactListGroupModel : public ContactListBaseModel
 {
-    Q_OBJECT
-    Q_CLASSINFO("SettingsDescription", "Show tags and contacts")
+	Q_OBJECT
+	Q_CLASSINFO("SettingsDescription", "Show tags and contacts")
 public:
-    explicit ContactListGroupModel(QObject *parent = 0);
+	explicit ContactListGroupModel(QObject *parent = 0);
 
-    virtual void updateContactTags(qutim_sdk_0_3::Contact *contact,
-                                   const QStringList &current,
-                                   const QStringList &previous);
-    virtual void addContact(qutim_sdk_0_3::Contact *contact);
-    virtual void removeContact(qutim_sdk_0_3::Contact *contact);
+	virtual void updateContactTags(qutim_sdk_0_3::Contact *contact,
+								   const QStringList &current,
+								   const QStringList &previous);
+	virtual void addContact(qutim_sdk_0_3::Contact *contact);
+	virtual void removeContact(qutim_sdk_0_3::Contact *contact);
 };
 
 #endif // CONTACTLISTGROUPMODEL_H

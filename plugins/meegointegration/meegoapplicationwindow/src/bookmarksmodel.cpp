@@ -105,7 +105,7 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const
 }
 
 void BookmarksModel::addItem(BookmarkType type, const QString &text,
-			     const QVariant &fields, const QVariant &userData)
+				 const QVariant &fields, const QVariant &userData)
 {
 		int pos = m_bookmarks.size();
 		beginInsertRows(QModelIndex(), pos, pos);

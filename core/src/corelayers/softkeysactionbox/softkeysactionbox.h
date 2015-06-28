@@ -38,7 +38,7 @@ using namespace qutim_sdk_0_3;
 
 class SoftkeysActionBoxModule : public ActionBoxModule
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_CLASSINFO("DebugName","SoftkeysActionBox")
 public:
 	explicit SoftkeysActionBoxModule();

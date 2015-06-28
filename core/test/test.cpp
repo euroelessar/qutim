@@ -35,38 +35,38 @@ static void testCounter () {
 
   QFile fl("tc_hist.json");
   if (!fl.open(QIODevice::ReadOnly)) {
-    fprintf(stderr, "ERROR: can't open input file!\n");
-    return;
+	fprintf(stderr, "ERROR: can't open input file!\n");
+	return;
   }
 
   const uchar *fmap = (const uchar *)(fl.map(0, fl.size()));
   int len = fl.size();
   const uchar *sj = K8JSON::skipBlanks(fmap, &len);
   if (!sj) {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
   if (*sj == '[') sj++;
   if (len < 1) {
-    fprintf(stderr, "ERROR: empty JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: empty JSON file!\n");
+	break;
   }
   int cnt = 0;
   QTime st;
   st.start();
   while (len > 0) {
-    //int ofs = sj-fmap;
-    //fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
-    sj = K8JSON::skipRec(sj, &len);
-    if (!sj) {
-      fprintf(stderr, "ERROR: invalid JSON file!\n");
-      break;
-    }
-    cnt++;
-    switch (*sj) {
-      case ',': sj++; len--; break;
-      case ']': case '}': len = 0; break;
-    }
+	//int ofs = sj-fmap;
+	//fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
+	sj = K8JSON::skipRec(sj, &len);
+	if (!sj) {
+	  fprintf(stderr, "ERROR: invalid JSON file!\n");
+	  break;
+	}
+	cnt++;
+	switch (*sj) {
+	  case ',': sj++; len--; break;
+	  case ']': case '}': len = 0; break;
+	}
   }
   qDebug() << "time taken (ms):" << st.elapsed();
   fprintf(stdout, "%i messages found.\n", cnt);
@@ -80,21 +80,21 @@ static void testReader () {
 
   QFile fl("one.json");
   if (!fl.open(QIODevice::ReadOnly)) {
-    fprintf(stderr, "ERROR: can't open input file!\n");
-    return;
+	fprintf(stderr, "ERROR: can't open input file!\n");
+	return;
   }
 
   const uchar *fmap = (const uchar *)(fl.map(0, fl.size()));
   int len = fl.size();
   const uchar *sj = K8JSON::skipBlanks(fmap, &len);
   if (!sj) {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
   uchar qch = *sj;
   if (qch != '[' && qch != '{') {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
 
   int cnt = 0;
@@ -103,23 +103,23 @@ static void testReader () {
 
   QVariant val;
   while (sj) {
-    //int ofs = sj-fmap;
-    //fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
-    if (!(sj = K8JSON::skipBlanks(sj, &len))) break;
-    val.clear();
-    sj = K8JSON::parseRecord(val, sj, &len);
-    if (!sj) {
-      //fprintf(stderr, "ERROR: invalid JSON file!\n");
-      break;
-    }
-    qDebug() << val;
-    QByteArray bo;
-    if (!K8JSON::generate(bo, val)) {
-      fprintf(stderr, "ERROR: can't generate JSON!\n");
-      break;
-    }
-    qDebug() << bo;
-    cnt++;
+	//int ofs = sj-fmap;
+	//fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
+	if (!(sj = K8JSON::skipBlanks(sj, &len))) break;
+	val.clear();
+	sj = K8JSON::parseRecord(val, sj, &len);
+	if (!sj) {
+	  //fprintf(stderr, "ERROR: invalid JSON file!\n");
+	  break;
+	}
+	qDebug() << val;
+	QByteArray bo;
+	if (!K8JSON::generate(bo, val)) {
+	  fprintf(stderr, "ERROR: can't generate JSON!\n");
+	  break;
+	}
+	qDebug() << bo;
+	cnt++;
   }
   qDebug() << "time taken (ms):" << st.elapsed();
   fprintf(stdout, "%i messages found.\n", cnt);
@@ -134,21 +134,21 @@ static void testReaderAll () {
 
   QFile fl("tc_hist.json");
   if (!fl.open(QIODevice::ReadOnly)) {
-    fprintf(stderr, "ERROR: can't open input file!\n");
-    return;
+	fprintf(stderr, "ERROR: can't open input file!\n");
+	return;
   }
 
   const uchar *fmap = (const uchar *)(fl.map(0, fl.size()));
   int len = fl.size();
   const uchar *sj = K8JSON::skipBlanks(fmap, &len);
   if (!sj) {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
   uchar qch = *sj;
   if (qch != '[' && qch != '{') {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
   sj++; len--;
   qch = (qch=='{' ? '}' : ']');
@@ -159,23 +159,23 @@ static void testReaderAll () {
 
   QVariant val;
   while (sj) {
-    //int ofs = sj-fmap;
-    //fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
-    sj = K8JSON::skipBlanks(sj, &len);
-    if (len < 2 || (sj && *sj == qch)) break;
-    if ((cnt && *sj != ',') || (!cnt && *sj == ',')) {
-      fprintf(stderr, "ERROR: invalid JSON file (delimiter)!\n");
-      break;
-    }
-    if (*sj == ',') { sj++; len--; }
-    val.clear();
-    sj = K8JSON::parseRecord(val, sj, &len);
-    if (!sj) {
-      fprintf(stderr, "ERROR: invalid JSON file!\n");
-      break;
-    }
-    //qDebug() << val;
-    cnt++;
+	//int ofs = sj-fmap;
+	//fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
+	sj = K8JSON::skipBlanks(sj, &len);
+	if (len < 2 || (sj && *sj == qch)) break;
+	if ((cnt && *sj != ',') || (!cnt && *sj == ',')) {
+	  fprintf(stderr, "ERROR: invalid JSON file (delimiter)!\n");
+	  break;
+	}
+	if (*sj == ',') { sj++; len--; }
+	val.clear();
+	sj = K8JSON::parseRecord(val, sj, &len);
+	if (!sj) {
+	  fprintf(stderr, "ERROR: invalid JSON file!\n");
+	  break;
+	}
+	//qDebug() << val;
+	cnt++;
   }
   qDebug() << "time taken (ms):" << st.elapsed();
   fprintf(stdout, "%i messages found.\n", cnt);
@@ -189,21 +189,21 @@ static void testReaderAll2 () {
 
   QFile fl("tc_hist.json");
   if (!fl.open(QIODevice::ReadOnly)) {
-    fprintf(stderr, "ERROR: can't open input file!\n");
-    return;
+	fprintf(stderr, "ERROR: can't open input file!\n");
+	return;
   }
 
   const uchar *fmap = (const uchar *)(fl.map(0, fl.size()));
   int len = fl.size();
   const uchar *sj = K8JSON::skipBlanks(fmap, &len);
   if (!sj) {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
   uchar qch = *sj;
   if (qch != '[' && qch != '{') {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
 
   int cnt = 0;
@@ -213,22 +213,22 @@ static void testReaderAll2 () {
   QVariant val;
   sj = K8JSON::parseRecord(val, sj, &len);
   if (!sj) {
-    fprintf(stderr, "ERROR: invalid JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: invalid JSON file!\n");
+	break;
   }
   qDebug() << "time taken (ms):" << st.elapsed();
   //qDebug() << val;
 
   QByteArray bo;
   if (!K8JSON::generate(bo, val)) {
-    fprintf(stderr, "ERROR: can't generate JSON file!\n");
-    break;
+	fprintf(stderr, "ERROR: can't generate JSON file!\n");
+	break;
   }
   QFile fo("000.json");
   if (fo.open(QIODevice::WriteOnly)) {
-    fo.write(bo);
-    fo.write("\n");
-    fo.close();
+	fo.write(bo);
+	fo.write("\n");
+	fo.close();
   }
 
   } while (0);

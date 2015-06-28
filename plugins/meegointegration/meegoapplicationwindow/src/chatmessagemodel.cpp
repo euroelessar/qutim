@@ -51,7 +51,7 @@ enum {
 };
 
 ChatMessageModel::ChatMessageModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(IdRole, "messageId");
@@ -136,8 +136,8 @@ QVariant ChatMessageModel::data(const QModelIndex &index, int role) const
 		if (index.row() > 0) {
 			const Message &prev = m_messages[index.row() - 1];
 			return prev.isIncoming() == msg.isIncoming()
-			        && prev.time().date() == msg.time().date()
-			        && createSenderName(prev) == createSenderName(msg);
+					&& prev.time().date() == msg.time().date()
+					&& createSenderName(prev) == createSenderName(msg);
 		}
 		return false;
 	default:

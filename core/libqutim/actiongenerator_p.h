@@ -37,7 +37,7 @@ struct LegacyActionData
 	LegacyActionData() : controller(NULL), menu(NULL), checkable(false), checked(false) {}
 	MenuController *controller;
 	QMenu *menu;
-    mutable QList<QPointer<QObject> > handlers;
+	mutable QList<QPointer<QObject> > handlers;
 	bool checkable;
 	bool checked;
 };
@@ -68,7 +68,7 @@ public:
 	QIcon icon;
 	LocalizedString text;
 	LocalizedString toolTip;
-    QPointer<QObject> receiver;
+	QPointer<QObject> receiver;
 	QMap<int, QList<QObject* > > subcribers;
 	QList<QPair<QObject*, QByteArray> > receivers;
 	QByteArray member;
@@ -113,7 +113,7 @@ public:
 	static ActionCleanupHandler *get(QObject *object);
 
 protected:
-    ActionCleanupHandler(QObject *parent);
+	ActionCleanupHandler(QObject *parent);
 };
 
 class ActionPointerData : public QSharedData

@@ -53,7 +53,7 @@ struct ActionInfo
 struct ActionInfoV2 : public ActionInfo
 {
 	ActionInfoV2(const ActionGenerator *g, const QList<QByteArray> &m, MenuController *c)
-	    : ActionInfo(g, m), controller(c) {}
+		: ActionInfo(g, m), controller(c) {}
 	ActionInfoV2(const ActionInfo &o, MenuController *c) : ActionInfo(o), controller(c) {}
 	MenuController *controller;
 };
@@ -64,8 +64,8 @@ class ActionValue : public QSharedData
 	Q_DISABLE_COPY(ActionValue)
 public:
 	typedef QSharedPointer<ActionValue> Ptr;
-    typedef QWeakPointer<ActionValue> WeakPtr;
-	
+	typedef QWeakPointer<ActionValue> WeakPtr;
+
 	ActionValue(const ActionKey &key);
 	~ActionValue();
 
@@ -75,7 +75,7 @@ public:
 	static ActionValue::WeakPtr find(const ActionGenerator *gen, QObject *controller);
 	static QList<ActionValue::WeakPtr> find(const ActionGenerator *gen);
 	static void handleDeath(const ActionGenerator *gen);
-	
+
 	ActionKey key;
 	QPointer<QAction> action;
 };
@@ -106,9 +106,9 @@ public:
 	// Copy constructor and method
 	ActionCollection(const ActionCollection &);
 	ActionCollection &operator =(const ActionCollection &);
-	
+
 	void setController(MenuController *controller);
-    MenuController *controller() const;
+	MenuController *controller() const;
 
 	const ActionInfoV2 &addAction(const ActionGenerator *generator, const QList<QByteArray> &menu);
 	void addAction(const ActionInfoV2 &info);
@@ -120,7 +120,7 @@ public:
 	void showRef();
 	void deref();
 	void showDeref();
-	
+
 	void addHandler(ActionHandler *handler);
 	void removeHandler(ActionHandler *handler);
 
@@ -163,7 +163,7 @@ public:
 	virtual void handleActionRemoved(int index);
 	virtual void handleActionsCleared();
 	virtual bool eventFilter(QObject *, QEvent *);
-	
+
 	QMenu *menu() { return m_entry.menu; }
 	ActionEntry *findEntry(const ActionInfo &info);
 //	void addAction(const ActionInfoV2 &info);
@@ -199,7 +199,7 @@ public:
 	QList<ActionHandler*> handlers;
 	qint16 actionsRef;
 	qint16 showRef;
-	
+
 	static ActionCollectionPrivate *get(const ActionCollection &collection)
 	{ return const_cast<ActionCollectionPrivate*>(collection.d_func()); }
 	void setController(MenuController *controller);

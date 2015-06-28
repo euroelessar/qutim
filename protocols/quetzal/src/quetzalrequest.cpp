@@ -180,7 +180,7 @@ void *quetzal_request_password_hook(const char *primary, PurpleRequestFields *fi
 		return 0;
 	}
 	g_free(primary_test);
-	
+
 	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
 	QObject *obj = acc->requestPassword(fields, reinterpret_cast<PurpleRequestFieldsCb>(ok_cb),
 										reinterpret_cast<PurpleRequestFieldsCb>(cancel_cb), user_data);

@@ -41,7 +41,7 @@ namespace Jabber {
 class JAttentionInfo
 {
 public:
-    typedef QWeakPointer<JAttentionInfo> WeakPtr;
+	typedef QWeakPointer<JAttentionInfo> WeakPtr;
 	typedef QSharedPointer<JAttentionInfo> Ptr;
 	QScopedPointer<qutim_sdk_0_3::ActionGenerator> generator;
 };
@@ -54,12 +54,12 @@ public:
 	JAttention();
 	~JAttention();
 	virtual void init(qutim_sdk_0_3::Account *account);
-	
+
 private slots:
 	void onAttentionClicked(QObject *obj);
 	void onAttentionDone(bool success);
 	void onMessageReceived(const Jreen::Message &message);
-	
+
 private:
 	qutim_sdk_0_3::Account *m_account;
 	JAttentionInfo::Ptr m_info;

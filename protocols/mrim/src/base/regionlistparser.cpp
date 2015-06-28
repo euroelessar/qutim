@@ -29,7 +29,7 @@
 #include <QTextStream>
 
 RegionListParser::RegionListParser(QString relPath)
-{//usually will be - Resources/region.txt	
+{//usually will be - Resources/region.txt
 	QFile regionsFile(relPath);
 	QTextCodec* codec = QTextCodec::codecForName("utf-8");
 	m_regionsList = new QList<LiveRegion>();
@@ -39,11 +39,11 @@ RegionListParser::RegionListParser(QString relPath)
 
 	if (!regionsFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
-	
+
 	QTextStream fileStream(&regionsFile);
 	fileStream.setCodec(codec);
-	
-	while (!fileStream.atEnd()) 
+
+	while (!fileStream.atEnd())
 	{
 		addRegion(fileStream.readLine());
 	}
@@ -59,25 +59,25 @@ void RegionListParser::addRegion(QString aStr)
 {
 	QStringList strList = aStr.split(';');
 	LiveRegion reg;
-	
+
 	if (strList.count() > 0)
 	{
-		reg.id = strList[0].toUInt();		
+		reg.id = strList[0].toUInt();
 	}
 
 	if (strList.count() > 1)
 	{
-		reg.cityId = strList[1].toUInt();		
+		reg.cityId = strList[1].toUInt();
 	}
 
 	if (strList.count() > 2)
 	{
-		reg.countryId = strList[2].toUInt();		
+		reg.countryId = strList[2].toUInt();
 	}
 
 	if (strList.count() > 3)
 	{
-		reg.name = strList[3];		
+		reg.name = strList[3];
 	}
 	m_regionsList->append(reg);
 }

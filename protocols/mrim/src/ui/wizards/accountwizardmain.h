@@ -28,22 +28,22 @@
 #include <QWizardPage>
 
 namespace Ui {
-    class AccountWizardMain;
+	class AccountWizardMain;
 }
 
 class AccountWizardMain : public QWizardPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AccountWizardMain(QWidget *parent = 0);
-    ~AccountWizardMain();
+	AccountWizardMain(QWidget *parent = 0);
+	~AccountWizardMain();
 
 protected:
-    void changeEvent(QEvent *e);
-    bool validatePage();
+	void changeEvent(QEvent *e);
+	bool validatePage();
 
 private:
-    Ui::AccountWizardMain *ui;
+	Ui::AccountWizardMain *ui;
 };
 
 #endif // ACCOUNTWIZARDMAIN_H

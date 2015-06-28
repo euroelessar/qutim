@@ -231,12 +231,12 @@ TreeView *SimpleWidget::contactView()
 
 void SimpleWidget::loadGeometry()
 {
-    QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
-    if (!geom.isNull())
-        restoreGeometry(geom);
-    else {
-        resize(200, 600);
-    }
+	QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
+	if (!geom.isNull())
+		restoreGeometry(geom);
+	else {
+		resize(200, 600);
+	}
 }
 
 QAction *SimpleWidget::createGlobalStatusAction(Status::Type type)

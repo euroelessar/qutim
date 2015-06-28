@@ -48,7 +48,7 @@ void UrlPreviewPlugin::init()
 
 bool UrlPreviewPlugin::load()
 {
-    m_settingsItem = new QmlSettingsItem(QStringLiteral("urlpreview"),
+	m_settingsItem = new QmlSettingsItem(QStringLiteral("urlpreview"),
 				Settings::Plugin,	QIcon(),
 				QT_TRANSLATE_NOOP("Plugin", "UrlPreview"));
 	Settings::registerItem(m_settingsItem);
@@ -56,7 +56,7 @@ bool UrlPreviewPlugin::load()
 	if (!m_handler)
 		m_handler = new UrlHandler;
 	qutim_sdk_0_3::MessageHandler::registerHandler(m_handler.data(),
-	                                               QLatin1String("UrlPreview"),
+												   QLatin1String("UrlPreview"),
 												   qutim_sdk_0_3::MessageHandler::HighPriority,
 												   qutim_sdk_0_3::MessageHandler::HighPriority);
 	m_settingsItem->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));

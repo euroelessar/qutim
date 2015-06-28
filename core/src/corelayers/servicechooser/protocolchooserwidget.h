@@ -30,7 +30,7 @@
 #include <QHash>
 #include <QModelIndex>
 
-namespace qutim_sdk_0_3 
+namespace qutim_sdk_0_3
 {
 class ExtensionInfo;
 }

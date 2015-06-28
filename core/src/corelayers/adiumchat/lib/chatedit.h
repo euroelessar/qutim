@@ -50,9 +50,9 @@ using namespace qutim_sdk_0_3;
 class ChatSessionImpl;
 class ADIUMCHAT_EXPORT ChatEdit : public QTextEdit
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit ChatEdit(QWidget *parent = 0);
+	explicit ChatEdit(QWidget *parent = 0);
 	void setSession(ChatSessionImpl *session);
 	void setSendKey(SendMessageKey key);
 	void setAutoResize(bool resize);

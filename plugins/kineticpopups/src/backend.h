@@ -49,18 +49,18 @@ public:
 	virtual ~Backend();
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 
-    static Backend *instance();
+	static Backend *instance();
 
-    void removeNotification(qutim_sdk_0_3::Notification *notification);
-    QList<qutim_sdk_0_3::Notification *> notifications() const;
+	void removeNotification(qutim_sdk_0_3::Notification *notification);
+	QList<qutim_sdk_0_3::Notification *> notifications() const;
 	int timer() const;
 
 signals:
-    void notificationAdded(qutim_sdk_0_3::Notification *notification);
-    void notificationRemoved(qutim_sdk_0_3::Notification *notification);
+	void notificationAdded(qutim_sdk_0_3::Notification *notification);
+	void notificationRemoved(qutim_sdk_0_3::Notification *notification);
 
 protected:
-    void onNotificationFinished();
+	void onNotificationFinished();
 
 protected slots:
 	void onSettingsSaved();
@@ -69,7 +69,7 @@ private:
 	qutim_sdk_0_3::SettingsItem *m_item;
 	QQmlComponent m_component;
 	QScopedPointer<QObject> m_logic;
-    QList<qutim_sdk_0_3::Notification *> m_notifications;
+	QList<qutim_sdk_0_3::Notification *> m_notifications;
 };
 
 } // namespace KineticPopups

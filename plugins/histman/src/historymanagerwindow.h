@@ -36,8 +36,8 @@
 namespace HistoryManager {
 
 class HistoryManagerWindow : public QWizard, public DataBaseInterface {
-    Q_OBJECT
-    Q_DISABLE_COPY(HistoryManagerWindow)
+	Q_OBJECT
+	Q_DISABLE_COPY(HistoryManagerWindow)
 public:
 	enum State
 	{
@@ -48,8 +48,8 @@ public:
 		PreviewHistory,
 		ExportHistory
 	};
-    explicit HistoryManagerWindow(QWidget *parent = 0);
-    virtual ~HistoryManagerWindow();
+	explicit HistoryManagerWindow(QWidget *parent = 0);
+	virtual ~HistoryManagerWindow();
 	virtual void appendMessage(const qutim_sdk_0_3::Message &message);
 	virtual void setProtocol(const QString &protocol);
 	virtual void setAccount(const QString &account);

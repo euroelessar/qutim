@@ -37,10 +37,10 @@
 #include <QElapsedTimer>
 
 Widget::Widget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::Widget)
+	QWidget(parent),
+	ui(new Ui::Widget)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	QStringList arguments = qApp->arguments();
 	Q_ASSERT_X(arguments.size() > 1, "AdiumWebView", "Application must be provide by single argument - path to theme");
 	m_style.setStylePath(arguments.at(1));
@@ -48,9 +48,9 @@ Widget::Widget(QWidget *parent) :
 	ui->comboBox->addItems(m_style.variants());
 	ui->comboBox->setCurrentIndex(ui->comboBox->findText(m_style.activeVariant()));
 	ui->comboBox->blockSignals(false);
-	
+
 	m_preview = WebKitPreviewLoader().loadPreview(SHARE_PATH + QLatin1String("Preview.plist"));
-	
+
 	{
 		// QWebView
 		fillPage(ui->webView->page());
@@ -77,7 +77,7 @@ Widget::Widget(QWidget *parent) :
 
 Widget::~Widget()
 {
-    delete ui;
+	delete ui;
 }
 
 void Widget::onLoad()
@@ -112,7 +112,7 @@ void Widget::onTimer()
 
 void Widget::on_comboBox_currentIndexChanged(const QString &variant)
 {
-    m_style.setActiveVariant(variant);
+	m_style.setActiveVariant(variant);
 	ui->webView->page()->mainFrame()->evaluateJavaScript(m_style.scriptForChangingVariant());
 }
 
@@ -120,12 +120,12 @@ void Widget::fillPage(QWebPage *page)
 {
 	QString baseHtml = m_style.baseTemplateForChat(m_preview->chat);
 	page->setNetworkAccessManager(new WebKitNetworkAccessManager(page));
-	
+
 	page->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 	QWebInspector *inspector = new QWebInspector;
 	inspector->setPage(page);
 //	inspector->show();
-	
+
 //	QTimer::singleShot(10000, this, SLOT(onLoad()));
 //	connect(page, SIGNAL(loadFinished(bool)), SLOT(onLoad()));
 	connect(page, SIGNAL(loadFinished(bool)), SLOT(onLoad()));
@@ -135,9 +135,9 @@ void Widget::fillPage(QWebPage *page)
 static bool isContentSimiliar(const IContent &a, const IContent &b)
 {
 	if (a.source == b.source
-	        && a.type == b.type
-	        && a.isHistory == b.isHistory
-	        && a.displayClasses.contains("mention") == b.displayClasses.contains("mention")) {
+			&& a.type == b.type
+			&& a.isHistory == b.isHistory
+			&& a.displayClasses.contains("mention") == b.displayClasses.contains("mention")) {
 		return qAbs(a.date.secsTo(b.date)) < 300;
 	}
 	return false;

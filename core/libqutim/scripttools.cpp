@@ -55,8 +55,8 @@ void ScriptTools::prepareEngine(QScriptEngine *engine)
 		QString name = QChar(QLatin1Char(origName.at(0))).toLower();
 		name += QLatin1String(origName.constData() + 1);
 		client.setProperty(name, engine->newQObject(ServiceManager::getByName(origName),
-		                                            QScriptEngine::QtOwnership,
-		                                            QScriptEngine::AutoCreateDynamicProperties));
+													QScriptEngine::QtOwnership,
+													QScriptEngine::AutoCreateDynamicProperties));
 	}
 	QScriptValue protocols = engine->newObject();
 	ProtocolHash map = Protocol::all();

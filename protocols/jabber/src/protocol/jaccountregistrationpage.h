@@ -40,24 +40,24 @@ namespace Jabber
 class JAccountRegistrationPage : public QWizardPage
 {
 	Q_OBJECT
-	
+
 public:
 	explicit JAccountRegistrationPage(QWidget *parent = 0);
 	~JAccountRegistrationPage();
-	
+
 	virtual void cleanupPage();
 	virtual void initializePage();
 	virtual bool validatePage();
 	virtual bool isComplete() const;
 	virtual int nextId() const;
 	qutim_sdk_0_3::LocalizedString fieldText(Jreen::RegistrationData::FieldType type);
-	
+
 private slots:
 	void onFieldsReceived(const Jreen::RegistrationData &data);
 	void onError(const Jreen::Error::Ptr &error);
 	void onSuccess();
 	void onUnsupported();
-	
+
 private:
 	Ui::JAccountRegistrationPage *ui;
 	Jreen::Client *m_client;

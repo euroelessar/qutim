@@ -42,7 +42,7 @@ class HighlighterItemList : public QWidget
 public:
 	HighlighterItemList(const QRegExp &regex, QListWidget *regexList);
 	~HighlighterItemList();
-	
+
 	QRegExp regexp() const;
 
 	QListWidgetItem *item();

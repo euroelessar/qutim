@@ -40,7 +40,7 @@ class ContactAdaptor : public QDBusAbstractAdaptor
 	Q_PROPERTY(QStringList tags READ tags WRITE setTags NOTIFY tagsChanged)
 	Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
 public:
-    explicit ContactAdaptor(Contact *contact);
+	explicit ContactAdaptor(Contact *contact);
 	inline QStringList tags() const { return self()->tags(); }
 	inline void setTags(const QStringList &ts) { self()->setTags(ts); }
 	inline bool isInList() const { return self()->isInList(); }

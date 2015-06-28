@@ -55,7 +55,7 @@
 //		PublicKeys,
 //		SecretKeys
 //	};
-	
+
 //	explicit JPGPKeyDialog(Type type, const QString &pgpKeyId, QWidget *parent = 0);
 //	~JPGPKeyDialog();
 
@@ -67,7 +67,7 @@
 //public slots:
 //	void onAddKeyButtonClicked();
 //	void onTimerShot();
-	
+
 //private:
 //	Ui::JPGPKeyDialog *ui;
 //	Type m_type;

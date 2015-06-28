@@ -38,14 +38,14 @@ public:
 };
 
 JAccountResource::JAccountResource(JAccount *account, const QString &id, const QString &resource)
-    : JContact(id, account), m_resource(QLatin1Char('/') + resource)
+	: JContact(id, account), m_resource(QLatin1Char('/') + resource)
 {
 	setContactTags(QStringList() << QLatin1String("My resources"));
 	setContactInList(true);
 	setContactSubscription(Jreen::RosterItem::Both);
 	setContactName(account->name() + m_resource);
 	connect(account, SIGNAL(nameChanged(QString,QString)),
-	        SLOT(onNameChanged(QString)));
+			SLOT(onNameChanged(QString)));
 }
 
 JAccountResource::~JAccountResource()

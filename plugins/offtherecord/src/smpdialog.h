@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
+	Copyright (c) 2010 by Stanislav (proDOOMman) Kosolapov <prodoomman@shell.tor.hu>
 
  ***************************************************************************
  *                                                                         *
@@ -22,14 +22,14 @@
 using namespace OtrSupport;
 
 class SMPdialog : public QDialog, private Ui::SMPdialog {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    SMPdialog(TreeModelItem &item, OtrMessaging *otr, QWidget *parent = 0);
+	SMPdialog(TreeModelItem &item, OtrMessaging *otr, QWidget *parent = 0);
 public slots:
-    void accept();
+	void accept();
 private:
-    TreeModelItem &m_item;
-    OtrMessaging* m_otr;
+	TreeModelItem &m_item;
+	OtrMessaging* m_otr;
 };
 
 #endif // SMPDIALOG_H

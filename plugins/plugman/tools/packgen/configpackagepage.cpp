@@ -32,8 +32,8 @@
 #include <QTimer>
 
 ConfigPackagePage::ConfigPackagePage(GeneratorWindow *parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::ConfigPackagePage)
+	QWizardPage(parent),
+	m_ui(new Ui::ConfigPackagePage)
 {
 	m_ui->setupUi(this);
 	registerField("name*", m_ui->nameLineEdit);
@@ -52,7 +52,7 @@ ConfigPackagePage::ConfigPackagePage(GeneratorWindow *parent) :
 
 ConfigPackagePage::~ConfigPackagePage()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 int ConfigPackagePage::nextId() const
@@ -159,13 +159,13 @@ void ConfigPackagePage::on_nameLineEdit_textChanged(const QString &text)
 
 void ConfigPackagePage::changeEvent(QEvent *e)
 {
-    QWizardPage::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWizardPage::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		m_ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 

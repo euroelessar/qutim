@@ -52,7 +52,7 @@ public:
 	QString stylePath;
 	QString activeVariant;
 	QString customStyle;
-	
+
 	//Templates
 	QString headerHTML;
 	QString footerHTML;
@@ -72,19 +72,19 @@ public:
 	QString actionHTML;
 	QString actionInHTML;
 	QString actionOutHTML;
-	
+
 	//Style settings
 	bool allowsCustomBackground;
 	bool transparentDefaultBackground;
 	bool allowsUserIcons;
 	bool usingCustomTemplateHTML;
-	
+
 	bool checkedSenderColors;
 	QStringList validSenderColors;
-	
+
 	bool checkedVariants;
 	QStringList allowedVariants;
-	
+
 	//Behavior
 	QString timeStampFormatter;
 	QString nameFormat;
@@ -211,10 +211,10 @@ void WebKitMessageViewStyle::reloadStyle()
 {
 	Q_D(WebKitMessageViewStyle);
 	releaseResources();
-	
+
 	//Default behavior
 	d->allowTextBackgrounds = true;
-	
+
 	/* Our styles are versioned so we can change how they work without breaking compatibility.
 	 *
 	 * Version 0: Initial Webkit Version
@@ -232,28 +232,28 @@ void WebKitMessageViewStyle::reloadStyle()
 	 *			  HTML filters in are now supported in Adium's content filter system; filters can assume Version 4 or later.
 	 */
 	d->styleVersion = d->config.value(QLatin1String(KEY_WEBKIT_VERSION)).toInt();
-	
+
 	d->activeVariant = defaultVariant();
 	if (d->activeVariant.isEmpty())
 		d->activeVariant = variants().value(0);
-	
+
 	loadTemplates();
-	
+
 	//Style flags
 	d->allowsCustomBackground = !d->config.value(QLatin1String("DisableCustomBackground")).toBool();
 	d->transparentDefaultBackground = d->config.value(QLatin1String("DefaultBackgroundIsTransparent")).toBool();
-	
+
 	d->combineConsecutive = !d->config.value(QLatin1String("DisableCombineConsecutive")).toBool();
-	
+
 	d->allowsUserIcons = d->config.value(QLatin1String("ShowsUserIcons"), true).toBool();
-	
+
 	//User icon masking
 	QString tmpName = d->config.value(QLatin1String(KEY_WEBKIT_USER_ICON_MASK)).toString();
 	Q_UNUSED(tmpName);
-//	d->userIconMask = 
+//	d->userIconMask =
 //	NSString *tmpName = [styleBundle objectForInfoDictionaryKey:KEY_WEBKIT_USER_ICON_MASK];
 //	if (tmpName) userIconMask = [[NSImage alloc] initWithContentsOfFile:[stylePath stringByAppendingPathComponent:tmpName]];
-	
+
 	d->allowsColors = d->config.value(QLatin1String("AllowTextColors"), true).toBool();
 }
 
@@ -414,7 +414,7 @@ void WebKitMessageViewStyle::setStylePath(const QString &path)
 void WebKitMessageViewStyle::setCustomStyle(const QString &style)
 {
 	Q_D(WebKitMessageViewStyle);
-    d->customStyle = style;
+	d->customStyle = style;
 }
 
 QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *session)
@@ -432,37 +432,37 @@ QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *
 			headerContent = d->headerHTML;
 		}
 	}
-	
+
 	//Old styles may be using an old custom 4 parameter baseHTML.  Styles version 3 and higher should
 	//be using the bundled (or a custom) 5 parameter baseHTML.
 	if ((d->styleVersion < 3) && d->usingCustomTemplateHTML) {
 		templateHTML = stringWithFormat(d->baseHTML, QStringList()
-		                                << QUrl::fromLocalFile(d->stylePath).toString()
-		                                << activeVariantPath()
-		                                << headerContent
-		                                << d->footerHTML);
+										<< QUrl::fromLocalFile(d->stylePath).toString()
+										<< activeVariantPath()
+										<< headerContent
+										<< d->footerHTML);
 	} else {
 		templateHTML = stringWithFormat(d->baseHTML, QStringList()
-		                                << QUrl::fromLocalFile(d->stylePath).toString()
-		                                << QLatin1String(d->styleVersion < 3 ? "" : "@import url( \"main.css\" );")
-		                                << activeVariantPath()
-		                                << headerContent
-		                                << d->footerHTML);
-    }
+										<< QUrl::fromLocalFile(d->stylePath).toString()
+										<< QLatin1String(d->styleVersion < 3 ? "" : "@import url( \"main.css\" );")
+										<< activeVariantPath()
+										<< headerContent
+										<< d->footerHTML);
+	}
 
-    return fillKeywordsForBaseTemplate(templateHTML, session);
+	return fillKeywordsForBaseTemplate(templateHTML, session);
 }
 
 QString WebKitMessageViewStyle::baseTemplateForChat(qutim_sdk_0_3::ChatSession *session, const QString &id, const QString &wsUri)
 {
-    QString html = baseTemplateForChat(session);
-    return injectScript(html, id, wsUri);
+	QString html = baseTemplateForChat(session);
+	return injectScript(html, id, wsUri);
 }
 
 QUrl WebKitMessageViewStyle::baseUrl()
 {
-    Q_D(WebKitMessageViewStyle);
-    return QUrl::fromLocalFile(d->stylePath);
+	Q_D(WebKitMessageViewStyle);
+	return QUrl::fromLocalFile(d->stylePath);
 }
 
 QString WebKitMessageViewStyle::scriptForChangingVariant()
@@ -479,16 +479,16 @@ QString WebKitMessageViewStyle::scriptForSettingCustomStyle()
 QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar, bool willAddMoreContentObjects, bool replaceLastContent)
 {
 	Q_D(WebKitMessageViewStyle);
-	
+
 	//If combining of consecutive messages has been disabled, we treat all content as non-similar
-	
+
 	if (!d->combineConsecutive)
 		contentIsSimilar = false;
-	
+
 	//Fetch the correct template and substitute keywords for the passed content
 	QString newHTML = templateForContent(message, contentIsSimilar);
 	QString script;
-	
+
 	//BOM scripts vary by style version
 	if (!d->usingCustomTemplateHTML && d->styleVersion >= 4) {
 		/* If we're using the built-in template HTML, we know that it supports our most modern scripts */
@@ -499,7 +499,7 @@ QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::M
 		} else {
 			script = QLatin1String(contentIsSimilar ? APPEND_NEXT_MESSAGE : APPEND_MESSAGE);
 		}
-		
+
 	} else  if (d->styleVersion >= 3) {
 		if (willAddMoreContentObjects) {
 			script = QLatin1String(contentIsSimilar ? APPEND_NEXT_MESSAGE_NO_SCROLL : APPEND_MESSAGE_NO_SCROLL);
@@ -508,10 +508,10 @@ QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::M
 		}
 	} else if (d->styleVersion >= 1) {
 		script = QLatin1String(contentIsSimilar ? APPEND_NEXT_MESSAGE : APPEND_MESSAGE);
-		
+
 	} else {
 		if (d->usingCustomTemplateHTML && message.property("service", false)) {
-			/* Old styles with a custom template.html had Status.html files without 'insert' divs coupled 
+			/* Old styles with a custom template.html had Status.html files without 'insert' divs coupled
 			 * with a APPEND_NEXT_MESSAGE_WITH_SCROLL script which assumes one exists.
 			 */
 			script = QLatin1String(APPEND_MESSAGE_WITH_SCROLL);
@@ -519,39 +519,39 @@ QString WebKitMessageViewStyle::scriptForAppendingContent(const qutim_sdk_0_3::M
 			script = QLatin1String(contentIsSimilar ? APPEND_NEXT_MESSAGE_WITH_SCROLL : APPEND_MESSAGE_WITH_SCROLL);
 		}
 	}
-	
+
 	return script.arg(validateCpp(newHTML));
 }
 
 QString &WebKitMessageViewStyle::injectScript(QString &inString, const QString &id, const QString &wsUri)
 {
-    QDir shareDir = ThemeManager::path(QStringLiteral("data"), QStringLiteral("webview"));
-    Q_ASSERT(shareDir.exists(QStringLiteral("qwebchannel.js")));
-    Q_ASSERT(shareDir.exists(QStringLiteral("client.js")));
+	QDir shareDir = ThemeManager::path(QStringLiteral("data"), QStringLiteral("webview"));
+	Q_ASSERT(shareDir.exists(QStringLiteral("qwebchannel.js")));
+	Q_ASSERT(shareDir.exists(QStringLiteral("client.js")));
 
-    QString idCopy = id;
-    QString wsUriCopy = wsUri;
+	QString idCopy = id;
+	QString wsUriCopy = wsUri;
 
-    QString script = QStringLiteral(
-            "\n" \
-            "<script src=\"%1\"></script>\n" \
-            "<script src=\"%2\"></script>\n" \
-            "<script>client.initQuickChat(\"%3\", \"%4\");</script>\n"
-        ).arg(
-            QUrl::fromLocalFile(shareDir.filePath(QStringLiteral("qwebchannel.js"))).toString(),
-            QUrl::fromLocalFile(shareDir.filePath(QStringLiteral("client.js"))).toString(),
-            validateCpp(idCopy),
-            validateCpp(wsUriCopy)
-        );
+	QString script = QStringLiteral(
+			"\n" \
+			"<script src=\"%1\"></script>\n" \
+			"<script src=\"%2\"></script>\n" \
+			"<script>client.initQuickChat(\"%3\", \"%4\");</script>\n"
+		).arg(
+			QUrl::fromLocalFile(shareDir.filePath(QStringLiteral("qwebchannel.js"))).toString(),
+			QUrl::fromLocalFile(shareDir.filePath(QStringLiteral("client.js"))).toString(),
+			validateCpp(idCopy),
+			validateCpp(wsUriCopy)
+		);
 
-    static QRegularExpression regexp("<\\s*head\\s*>");
-    Q_ASSERT(regexp.isValid());
+	static QRegularExpression regexp("<\\s*head\\s*>");
+	Q_ASSERT(regexp.isValid());
 
-    QRegularExpressionMatchIterator it = regexp.globalMatch(inString);
-    Q_ASSERT(it.hasNext());
+	QRegularExpressionMatchIterator it = regexp.globalMatch(inString);
+	Q_ASSERT(it.hasNext());
 
-    auto match = it.next();
-    return inString.insert(match.capturedEnd(), script);
+	auto match = it.next();
+	return inString.insert(match.capturedEnd(), script);
 }
 
 QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, qutim_sdk_0_3::ChatSession *session)
@@ -560,7 +560,7 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 	ChatUnit *unit = session->unit();
 	Account *account = unit->account();
 	Protocol *protocol = account->protocol();
-	
+
 	// FIXME: Should be session->title
 	inString.replace(QLatin1String("%chatName%"), escapeString(unit->title()));
 	inString.replace(QLatin1String("%sourceName%"), escapeString(account->name()));
@@ -568,13 +568,13 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 	inString.replace(QLatin1String("%destinationDisplayName%"), escapeString(unit->title()));
 
 	QString iconPath;
-	
+
 	inString.replace(QLatin1String("%incomingColor%"),
-	                 WebKitColorsAdditions::representedColorForObject(unit->id(), validSenderColors()));
+					 WebKitColorsAdditions::representedColorForObject(unit->id(), validSenderColors()));
 	inString.replace(QLatin1String("%outgoingColor%"),
-	                 WebKitColorsAdditions::representedColorForObject(account->name(), validSenderColors()));
-	
-		
+					 WebKitColorsAdditions::representedColorForObject(account->name(), validSenderColors()));
+
+
 	iconPath = urlFromFilePath(unit->property("avatar").toString());
 	if (iconPath.isEmpty()) {
 		ChatUnit *contact = unit->upperUnit();
@@ -583,23 +583,23 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 			contact = contact->upperUnit();
 		}
 	}
-	
+
 	inString.replace(QLatin1String("%incomingIconPath%"),
-	                 iconPath.isEmpty() ? QString::fromLatin1("incoming_icon.png") : iconPath);
+					 iconPath.isEmpty() ? QString::fromLatin1("incoming_icon.png") : iconPath);
 
 	iconPath = urlFromFilePath(account->property("avatar").toString());
 	inString.replace(QLatin1String("%outgoingIconPath%"),
-	                 iconPath.isEmpty() ? QString::fromLatin1("outgoing_icon.png") : iconPath);
+					 iconPath.isEmpty() ? QString::fromLatin1("outgoing_icon.png") : iconPath);
 
 	// FIXME: Implement protocol.iconPath and protocol.shortDescription
 	QString serviceIconPath = QString(); //account.protocol.iconPath;
 	QString serviceIconTag = QString::fromLatin1("<img class=\"serviceIcon\" src=\"%1\" alt=\"%2\" title=\"%2\">")
-	        .arg(serviceIconPath.isEmpty() ? QString::fromLatin1("outgoing_icon.png") : serviceIconPath, protocol->id() /*shortDescription*/ );
-	
+			.arg(serviceIconPath.isEmpty() ? QString::fromLatin1("outgoing_icon.png") : serviceIconPath, protocol->id() /*shortDescription*/ );
+
 	inString.replace(QLatin1String("%serviceIconImg%"), serviceIconTag);
 	inString.replace(QLatin1String("%serviceIconPath%"), serviceIconPath);
 	inString.replace(QLatin1String("%timeOpened%"), convertTimeDate(d->timeStampFormatter, session->dateOpened()));
-	
+
 	//Replaces %time{x}% with a timestamp formatted like x (using NSDateFormatter)
 	const QStringMatcher matcher(QLatin1String("%timeOpened{"));
 	const int matcherSize = matcher.pattern().size();
@@ -618,18 +618,18 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 			}
 		}
 	} while (range != -1);
-	
+
 	inString.replace(QLatin1String("%dateOpened%"), session->dateOpened().toString(Qt::SystemLocaleLongDate));
-	
+
 	//Background
 	{
 		QLatin1String bodyBackground("==bodyBackground==");
 		range = inString.indexOf(bodyBackground);
-		
+
 		if (range != -1) { //a backgroundImage tag is not required
 			QString bodyTag;
 
-			if (d->allowsCustomBackground && (!d->customBackgroundPath.isEmpty() || d->customBackgroundColor.isValid())) {				
+			if (d->allowsCustomBackground && (!d->customBackgroundPath.isEmpty() || d->customBackgroundColor.isValid())) {
 				if (!d->customBackgroundPath.isNull()) {
 					if (d->customBackgroundPath.length() > 0) {
 						switch (d->customBackgroundType) {
@@ -657,18 +657,18 @@ QString &WebKitMessageViewStyle::fillKeywordsForBaseTemplate(QString &inString, 
 					qreal red, green, blue, alpha;
 					d->customBackgroundColor.getRgbF(&red, &green, &blue, &alpha);
 					bodyTag.append(QString::fromLatin1("background-color: rgba(%1, %2, %3, %4); ")
-					               .arg(QString::number(int(red * 255.0)),
-					                    QString::number(int(green * 255.0)),
-					                    QString::number(int(blue * 255.0)),
-					                    QString::number(alpha, 'f')));
+								   .arg(QString::number(int(red * 255.0)),
+										QString::number(int(green * 255.0)),
+										QString::number(int(blue * 255.0)),
+										QString::number(alpha, 'f')));
 				}
  			}
-			
+
 			//Replace the body background tag
 			inString.replace(range, qstrlen(bodyBackground.latin1()), bodyTag);
  		}
  	}
-	
+
 	inString.replace(QLatin1String("%variant%"), activeVariantPath());
 
 	return inString;
@@ -683,8 +683,8 @@ void WebKitMessageViewStyle::loadTemplates()
 	d->topicHTML = loadResourceFile(QLatin1String("Topic.html"));
 	d->actionHTML = loadResourceFile(QLatin1String("Action.html"));
 	d->baseHTML = loadResourceFile(QLatin1String("Template.html"));
-	
-	//Starting with version 1, styles can choose to not include template.html.  If the template is not included 
+
+	//Starting with version 1, styles can choose to not include template.html.  If the template is not included
 	//Adium's default will be used.  This is preferred since any future template updates will apply to the style
 	if (d->baseHTML.isEmpty() && d->styleVersion >= 1) {
 		QDir shareDir = ThemeManager::path(QLatin1String("data"), QLatin1String("webview"));
@@ -695,10 +695,10 @@ void WebKitMessageViewStyle::loadTemplates()
 		d->usingCustomTemplateHTML = false;
 	} else {
 		d->usingCustomTemplateHTML = true;
-		
+
 		if (d->baseHTML.contains(QLatin1String("function imageCheck()"))) {
 			/* This doesn't quite fix image swapping on styles with broken image swapping due to custom HTML templates,
-			* but it improves it. For some reason, the result of using our normal template.html functions is that 
+			* but it improves it. For some reason, the result of using our normal template.html functions is that
 			* clicking works once, then the text doesn't allow a return click. This is an improvement compared
 			* to fully broken behavior in which the return click shows a missing-image placeholder.
 			*/
@@ -771,9 +771,9 @@ void WebKitMessageViewStyle::loadTemplates()
 				));
 			d->baseHTML = imageSwapFixedBaseHTML;
 		}
-		
+
 	}
-	
+
 	//Content Templates
 	d->contentHTML = loadResourceFile(QLatin1String("Content.html"));
 	d->contentInHTML = loadResourceFile(QLatin1String("Content.html"), QLatin1String("Incoming"));
@@ -782,43 +782,43 @@ void WebKitMessageViewStyle::loadTemplates()
 	d->contentOutHTML = loadResourceFile(QLatin1String("Content.html"), QLatin1String("Outgoing"));
 	d->nextContentOutHTML = loadResourceFile(QLatin1String("NextContent.html"), QLatin1String("Outgoing"));
 	d->actionOutHTML = loadResourceFile(QLatin1String("Action.html"), QLatin1String("Outgoing"));
-	
+
 	//Message history
 	d->contextInHTML = loadResourceFile(QLatin1String("Context.html"), QLatin1String("Incoming"));
 	d->nextContextInHTML = loadResourceFile(QLatin1String("NextContext.html"), QLatin1String("Incoming"));
 	d->contextOutHTML = loadResourceFile(QLatin1String("Context.html"), QLatin1String("Outgoing"));
 	d->nextContextOutHTML = loadResourceFile(QLatin1String("NextContext.html"), QLatin1String("Outgoing"));
-	
+
 	//Fall back to Resources/Content.html if Incoming isn't present
 	if (d->contentInHTML.isEmpty())
 		d->contentInHTML = d->contentHTML;
-	
+
 	//Fall back to Resources/Action.html if Incoming isn't present
 	if (d->actionInHTML.isEmpty())
 		d->actionInHTML = d->actionHTML;
-	
+
 	//Fall back to Content if NextContent doesn't need to use different HTML
 	if (d->nextContentInHTML.isEmpty())
 		d->nextContentInHTML = d->contentInHTML;
-	
+
 	//Fall back to Content if Context isn't present
 	if (d->nextContextInHTML.isEmpty())
 		d->nextContextInHTML = d->nextContentInHTML;
 	if (d->contextInHTML.isEmpty())
 		d->contextInHTML = d->contentInHTML;
-	
+
 	//Fall back to Content if Context isn't present
 	if (d->nextContextOutHTML.isEmpty() && !d->nextContentOutHTML.isEmpty())
 		d->nextContextOutHTML = d->nextContentOutHTML;
 	if (d->contextOutHTML.isEmpty() && !d->contentOutHTML.isEmpty())
 		d->contextOutHTML = d->contentOutHTML;
-	
+
 	//Fall back to Content if Context isn't present
 	if (d->nextContextOutHTML.isEmpty())
 		d->nextContextOutHTML = d->nextContextInHTML;
 	if (d->contextOutHTML.isEmpty())
 		d->contextOutHTML = d->contextInHTML;
-	
+
 	//Fall back to Incoming if Outgoing doesn't need to be different
 	if (d->contentOutHTML.isEmpty())
 		d->contentOutHTML = d->contentInHTML;
@@ -826,32 +826,32 @@ void WebKitMessageViewStyle::loadTemplates()
 		d->nextContentOutHTML = d->nextContentInHTML;
 	if (d->actionOutHTML.isEmpty())
 		d->actionOutHTML = d->actionInHTML;
-	
+
 	//Status
 	d->statusHTML = loadResourceFile(QLatin1String("Status.html"));
-	
+
 	//Fall back to Resources/Incoming/Content.html if Status isn't present
 	if (d->statusHTML.isEmpty())
 		d->statusHTML = d->contentInHTML;
-	
+
 	//TODO: make a generic Request message, rather than having this ft specific one
 	d->fileTransferHTML = loadResourceFile(QLatin1String("FileTransferRequest.html"));
 	if(d->fileTransferHTML.isEmpty()) {
 		d->fileTransferHTML = d->contentInHTML;
 		d->fileTransferHTML.replace(QLatin1String("%message%"),
-		                            QLatin1String("<p><img src=\"%fileIconPath%\" style=\"width:32px; height:32px; vertical-align:middle;\"></img><input type=\"button\" onclick=\"%saveFileAsHandler%\" value=\"Download %fileName%\"></p>"));
+									QLatin1String("<p><img src=\"%fileIconPath%\" style=\"width:32px; height:32px; vertical-align:middle;\"></img><input type=\"button\" onclick=\"%saveFileAsHandler%\" value=\"Download %fileName%\"></p>"));
 	}
 	d->fileTransferHTML.replace(QLatin1String("Download %fileName%"),
-	                            QObject::tr("Download %fileName%"));
+								QObject::tr("Download %fileName%"));
 }
 
 QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message &message, bool contentIsSimilar)
 {
 	Q_D(WebKitMessageViewStyle);
 	QString result;
-	
+
 	// Get the correct result for what we're inserting
-	
+
 	if (message.property("topic", false)) {
 		result = d->topicHTML;
 	// FIXME: Implement file transfer support
@@ -874,27 +874,27 @@ QString WebKitMessageViewStyle::templateForContent(const qutim_sdk_0_3::Message 
 				result = contentIsSimilar ? d->nextContentOutHTML : d->contentOutHTML;
 			else
 				result = contentIsSimilar ? d->nextContentInHTML : d->contentInHTML;
-		} 
+		}
 	} else {
 		result = d->statusHTML;
-	} 
-	
+	}
+
 	if (!result.isEmpty())
 		fillKeywords(result, message, contentIsSimilar);
-	
+
 	return result;
 }
 
 WebKitMessageViewStyle::UnitData WebKitMessageViewStyle::getSourceData(const qutim_sdk_0_3::Message &message)
 {
-    const MessageUnitData data = message.unitData();
+	const MessageUnitData data = message.unitData();
 
-    UnitData result;
-    result.id = data.id();
-    result.title = data.title();
-    result.avatar = data.avatar();
+	UnitData result;
+	result.id = data.id();
+	result.title = data.title();
+	result.avatar = data.avatar();
 
-    return result;
+	return result;
 }
 
 QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk_0_3::Message &message, bool contentIsSimilar)
@@ -906,10 +906,10 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 //		theSource = getSourceData(message.chatUnit()->upperUnit());
 //	else
 		theSource = contentSource;
-		
+
 	QStringList displayClasses = message.property("displayClasses", QStringList());
 	QString htmlEncodedMessage = message.html();
-	
+
 	// Actions support
 	if (htmlEncodedMessage.startsWith(QLatin1String("/me "), Qt::CaseInsensitive)) {
 		displayClasses << QLatin1String("action");
@@ -923,7 +923,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 	bool isService = message.property("service", false);
 	bool isTopic = message.property("topic", false);
 	bool isAutoreply = message.property("autoreply", false);
-	
+
 	//Replacements applicable to any AIContentObject
 	inString.replace(QLatin1String("%time%"), convertTimeDate(d->timeStampFormatter, date));
 	QString messageId = message.property("messageId").toString();
@@ -931,7 +931,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 		messageId = QString::number(message.id());
 	inString.replace(QLatin1String("%messageId%"), QLatin1String("message") + messageId);
 	inString.replace(QLatin1String("%shortTime%"), date.toString(Qt::SystemLocaleShortDate));
-	
+
 	// FIXME: Implement
 //	inString.replace(QLatin1String("%senderStatusIcon%"), QUrl)
 //	if ([inString rangeOfString:@"%senderStatusIcon%"].location != NSNotFound) {
@@ -940,9 +940,9 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 //					  withString:[self statusIconPathForListObject:theSource]];
 //	}
 
-	
+
 	inString.replace(QLatin1String("%userIcons%"), QLatin1String(d->showUserIcons ? "showIcons" : "hideIcons"));
-	
+
 	// Known classes:
 	// "mention" == highlight
 	// "history"
@@ -970,11 +970,11 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 		displayClasses << QLatin1String(message.isIncoming() ? "incoming" : "outgoing");
 	}
 	inString.replace(QLatin1String("%messageClasses%"), QLatin1String(contentIsSimilar ? "consecutive " : "") + displayClasses.join(QLatin1String(" ")));
-	
+
 	inString.replace(QLatin1String("%senderColor%"), WebKitColorsAdditions::representedColorForObject(contentSource.id, validSenderColors()));
-	
+
 	inString.replace(QLatin1String("%messageDirection%"), QLatin1String(message.text().isRightToLeft() ? "rtl" : "ltr"));
-	
+
 	//Replaces %time{x}% with a timestamp formatted like x (using NSDateFormatter)
 	const QStringMatcher matcher(QLatin1String("%time{"));
 	const int matcherSize = matcher.pattern().size();
@@ -993,14 +993,14 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 			}
 		}
 	} while (range != -1);
-	
+
 	QString userIconPath;
 	if (d->showUserIcons)
 		userIconPath = urlFromFilePath(theSource.avatar);
 	if (userIconPath.isEmpty())
 		userIconPath = QLatin1String(message.isIncoming() ? "Incoming/buddy_icon.png" : "Outgoing/buddy_icon.png");
 	inString.replace(QLatin1String("%userIconPath%"), userIconPath);
-	
+
 	// Implement the way to get shortDescription and icon path for service icons
 	QString service = message.chatUnit() ? message.chatUnit()->account()->protocol()->id() : QString();
 	inString.replace(QLatin1String("%service%"), escapeString(service));
@@ -1013,7 +1013,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 		//Use content.source directly rather than the potentially-metaContact theSource
 		QString formattedUID = contentSource.id;
 		QString displayName = contentSource.title;
-		
+
 		inString.replace(QLatin1String("%status%"), QString());
 		inString.replace(QLatin1String("%senderScreenName%"), escapeString(formattedUID));
 		// Should be used as %, @, + or something like irc's channel statuses
@@ -1032,7 +1032,7 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 
 		// FIXME: Add support
 //		if ([content isKindOfClass:[ESFileTransfer class]]) { //file transfers are an AIContentMessage subclass
-		
+
 //			ESFileTransfer *transfer = (ESFileTransfer *)content;
 //			NSString *fileName = [[transfer remoteFilename] stringByEscapingForXMLWithEntities:nil];
 //			NSString *fileTransferID = [[transfer uniqueID] stringByEscapingForXMLWithEntities:nil];
@@ -1050,25 +1050,25 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 
 //			[inString replaceKeyword:@"%fileName%"
 //						  withString:fileName];
-			
+
 //			[inString replaceKeyword:@"%saveFileHandler%"
 //						  withString:[NSString stringWithFormat:@"client.handleFileTransfer('Save', '%@')", fileTransferID]];
-			
+
 //			[inString replaceKeyword:@"%saveFileAsHandler%"
 //						  withString:[NSString stringWithFormat:@"client.handleFileTransfer('SaveAs', '%@')", fileTransferID]];
-			
+
 //			[inString replaceKeyword:@"%cancelRequestHandler%"
 //						  withString:[NSString stringWithFormat:@"client.handleFileTransfer('Cancel', '%@')", fileTransferID]];
 //		}
 
 		//Message (must do last)
 		inString.replace(QLatin1String("%message%"), htmlEncodedMessage);
-		
+
 		// Topic replacement (if applicable)
 		if (isTopic && inString.contains(QLatin1String("%topic%"))) {
 			inString.replace(QLatin1String("%topic%"),
-			                 QString::fromLatin1(TOPIC_INDIVIDUAL_WRAPPER).arg(htmlEncodedMessage));
-		}		
+							 QString::fromLatin1(TOPIC_INDIVIDUAL_WRAPPER).arg(htmlEncodedMessage));
+		}
 	} else {
 		inString.replace(QLatin1String("%status%"), escapeString(message.property("status", QString())));
 		inString.replace(QLatin1String("%statusSender%"), QString());
@@ -1080,12 +1080,12 @@ QString &WebKitMessageViewStyle::fillKeywords(QString &inString, const qutim_sdk
 			inString.replace(QLatin1String("%statusPhrase%"), escapeString(statusPhrase));
 			replacedStatusPhrase = true;
 		}
-		
+
 		//Message (must do last)
 		inString.replace(QLatin1String("%message%"), replacedStatusPhrase ? QString() : htmlEncodedMessage);
 	}
 
-    return inString;
+	return inString;
 }
 
 QString WebKitMessageViewStyle::pathForResource(const QString &name, const QString &directory)
@@ -1145,7 +1145,7 @@ QString WebKitMessageViewStyle::stringWithFormat(const QString &text, const QStr
 void WebKitMessageViewStyle::releaseResources()
 {
 	Q_D(WebKitMessageViewStyle);
-	
+
 	d->customStyle.clear();
 	d->headerHTML.clear();
 	d->footerHTML.clear();
@@ -1159,17 +1159,17 @@ void WebKitMessageViewStyle::releaseResources()
 	d->nextContentOutHTML.clear();
 	d->contextOutHTML.clear();
 	d->nextContextOutHTML.clear();
-	d->statusHTML.clear();	
+	d->statusHTML.clear();
 	d->fileTransferHTML.clear();
 	d->topicHTML.clear();
 	d->actionHTML.clear();
 	d->actionInHTML.clear();
 	d->actionOutHTML.clear();
-		
+
 	d->customBackgroundPath.clear();
 	d->customBackgroundColor = QColor();
 	d->checkedSenderColors = false;
 	d->checkedVariants = false;
-	
+
 	d->userIconMask = QImage();
 }

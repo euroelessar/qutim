@@ -27,14 +27,14 @@
 #include "simpleactions.h"
 
 namespace Core {
-	
+
 SimpleActionsPlugin::SimpleActionsPlugin() :
 	m_actions(0)
 {
 
 }
 
-	
+
 void SimpleActionsPlugin::init()
 {
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Simple Actions"),
@@ -59,7 +59,7 @@ bool SimpleActionsPlugin::unload()
 }
 
 
-	
+
 } // namespace Core
 
 QUTIM_EXPORT_PLUGIN(Core::SimpleActionsPlugin)

@@ -34,19 +34,19 @@ namespace MeegoIntegration {
 
 class MeeGoIntegration : public qutim_sdk_0_3::SystemIntegration
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit MeeGoIntegration();
-	
+	explicit MeeGoIntegration();
+
 	virtual void init();
 	virtual bool isAvailable() const;
 	virtual int priority();
-	
+
 	virtual QVariant doGetValue(Attribute attr, const QVariant &data) const;
 	virtual QVariant doProcess(Operation act, const QVariant &data) const;
 	virtual bool canHandle(Attribute attribute) const;
 	virtual bool canHandle(Operation operation) const;
-	
+
 signals:
 
 public slots:

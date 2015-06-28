@@ -38,7 +38,7 @@ class ChatLayerAdapter : public QDBusAbstractAdaptor
 	Q_OBJECT
 	Q_CLASSINFO("D-Bus Interface", "org.qutim.ChatLayer")
 public:
-    explicit ChatLayerAdapter(const QDBusConnection &dbus);
+	explicit ChatLayerAdapter(const QDBusConnection &dbus);
 public slots:
 	QDBusObjectPath session(const QDBusObjectPath &chatUnit, bool create = true);
 	QDBusObjectPath session(const QDBusObjectPath &account, const QString &id, bool create = true);

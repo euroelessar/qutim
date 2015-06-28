@@ -35,18 +35,18 @@ class Message;
 class ScriptMessagePropertyIterator : public QScriptClassPropertyIterator
 {
 public:
-    ScriptMessagePropertyIterator(const QScriptValue &object, Message *msg);
-	
-    virtual bool hasNext() const;
-    virtual void next();
+	ScriptMessagePropertyIterator(const QScriptValue &object, Message *msg);
 
-    virtual bool hasPrevious() const;
-    virtual void previous();
+	virtual bool hasNext() const;
+	virtual void next();
 
-    virtual void toFront();
-    virtual void toBack();
+	virtual bool hasPrevious() const;
+	virtual void previous();
 
-    virtual QScriptString name() const;
+	virtual void toFront();
+	virtual void toBack();
+
+	virtual QScriptString name() const;
 private:
 	Message *m_msg;
 	int m_id;

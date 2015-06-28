@@ -7,14 +7,14 @@ namespace QuickContactList {
 
 class Plugin : public qutim_sdk_0_3::Plugin
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
-    explicit Plugin();
+	explicit Plugin();
 
-    void init();
-    bool load();
-    bool unload();
+	void init();
+	bool load();
+	bool unload();
 };
 
 } // namespace QuickContactList

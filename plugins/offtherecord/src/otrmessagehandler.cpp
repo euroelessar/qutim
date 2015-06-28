@@ -32,9 +32,9 @@ using namespace qutim_sdk_0_3;
 
 MessageHandlerAsyncResult OtrMessagePreHandler::doHandle(Message &message)
 {
-    if (message.property("service", false) || message.property("history", false)) {
+	if (message.property("service", false) || message.property("history", false)) {
 		return makeAsyncResult(Accept, QString());
-    }
+	}
 
 	if (message.isIncoming())
 		decrypt(message);
@@ -51,11 +51,11 @@ void OtrMessagePreHandler::encrypt(Message &message)
 		return;
 	TreeModelItem item = unit;
 	OtrClosure *closure = OTRCrypt::instance()->ensureClosure(unit);
-    QString encrypted = closure->getMessaging()->encryptMessage(
-            unit->account()->id(),
-            unit->id(),
-            message.html(),
-            item);
+	QString encrypted = closure->getMessaging()->encryptMessage(
+			unit->account()->id(),
+			unit->id(),
+			message.html(),
+			item);
 	if (encrypted != message.text()) {
 		message.setProperty("__otr__text", message.text());
 		message.setProperty("__otr__html", message.html());
@@ -70,19 +70,19 @@ void OtrMessagePreHandler::decrypt(Message &message)
 	if (!qobject_cast<Contact*>(unit))
 		return;
 	TreeModelItem item = unit;
-    if (OTRCrypt::instance()->isEnabledAccount(unit->account())) {
+	if (OTRCrypt::instance()->isEnabledAccount(unit->account())) {
 		OtrClosure *closure = OTRCrypt::instance()->ensureClosure(unit);
 		QString decrypted = closure->getMessaging()->decryptMessage(
-					            unit->id(),
-		                        unit->account()->id(),
-		                        message.text(),
-		                        item);
+								unit->id(),
+								unit->account()->id(),
+								message.text(),
+								item);
 		if (message.text() != decrypted) {
 			message.setText(unescape(decrypted));
 			message.setHtml(decrypted);
 			message.setProperty("otrEncrypted", true);
 		}
-    }
+	}
 }
 
 MessageHandlerAsyncResult OtrMessagePostHandler::doHandle(Message &message)
@@ -96,9 +96,9 @@ MessageHandlerAsyncResult OtrMessagePostHandler::doHandle(Message &message)
 			return makeAsyncResult(Accept, QString());
 		}
 	} else {
-        if (message.property("service", false) || message.property("history", false)) {
+		if (message.property("service", false) || message.property("history", false)) {
 			return makeAsyncResult(Accept, QString());
-        }
+		}
 		QString text = message.property("__otr__text", QString());
 		QString html = message.property("__otr__html", QString());
 		if (!text.isEmpty()) {

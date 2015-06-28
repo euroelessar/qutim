@@ -30,14 +30,14 @@
 
 class ContactModelPlugin : public qutim_sdk_0_3::Plugin
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
-    explicit ContactModelPlugin();
+	explicit ContactModelPlugin();
 
-    void init();
-    bool load();
-    bool unload();
+	void init();
+	bool load();
+	bool unload();
 };
 
 #endif // CONTACTMODELPLUGIN_H

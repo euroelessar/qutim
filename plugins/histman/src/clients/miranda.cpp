@@ -150,11 +150,11 @@ static QVariant GetVariant(const BYTE * &data, QTextDecoder *decoder)
 		return QString::fromUtf8(ReadByteArray(data));
 	case DBVT_WCHAR: {
 		WORD length = ReadWord(data);
-        WCHAR *array = (WCHAR *)malloc(length * sizeof(WORD));
+		WCHAR *array = (WCHAR *)malloc(length * sizeof(WORD));
 		for(int i = 0; i < length; i++)
 			array[i] = ReadWord(data);
 		QString result = QString::fromUtf16(array, length);
-        free(array);
+		free(array);
 		return result;
 	}
 	case DBVT_BLOB:

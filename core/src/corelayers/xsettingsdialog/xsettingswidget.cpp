@@ -31,7 +31,7 @@ namespace Core {
 using namespace qutim_sdk_0_3;
 
 XSettingsWidget::XSettingsWidget(QWidget *parent) :
-    SettingsWidget(parent)
+	SettingsWidget(parent)
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 	QScrollArea *area = new QScrollArea(this);
@@ -64,7 +64,7 @@ void XSettingsWidget::addItem(SettingsItem *item)
 	SettingsWidget *widget = item->widget();
 	connect(widget, SIGNAL(modifiedChanged(bool)), SLOT(onModifiedChanged(bool)));
 	SettingsItemList::Iterator it = qLowerBound(m_items.begin(), m_items.end(),
-	                                            item, itemLessThen);
+												item, itemLessThen);
 	int index = it - m_items.begin();
 	m_items.insert(index, item);
 	m_widgets.insert(index, widget);

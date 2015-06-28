@@ -53,10 +53,10 @@ public:
 
 	FloatiesItemModel(QObject *parent);
 	~FloatiesItemModel();
-	
+
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	
+
 	QPersistentModelIndex addContact(qutim_sdk_0_3::Contact *contact);
 	void removeContact(qutim_sdk_0_3::Contact *contact);
 private:

@@ -46,7 +46,7 @@ class IcqAccount;
 
 class OscarAuth : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	enum State
 	{
@@ -56,13 +56,13 @@ public:
 		AtSessionStart,
 		AtError
 	};
-	
-    explicit OscarAuth(IcqAccount *account);
-    ~OscarAuth();
-	
+
+	explicit OscarAuth(IcqAccount *account);
+	~OscarAuth();
+
 	State state() const { return m_state; }
 	QString errorString() const { return m_errorString; }
-	
+
 public slots:
 	void setProxy(const QNetworkProxy &proxy);
 	void login();
@@ -70,16 +70,16 @@ public slots:
 protected:
 	void clientLogin(bool longTerm, const QString &password);
 	void startSession(const QByteArray &token, const QByteArray &sessionKey);
-	
+
 signals:
 	void stateChanged(qutim_sdk_0_3::oscar::OscarAuth::State);
 	void error(qutim_sdk_0_3::oscar::AbstractConnection::ConnectionError error);
-	
+
 private slots:
 	void onPasswordDialogFinished(int result);
 	void onClientLoginFinished(QNetworkReply *reply, const QString &password);
 	void onStartSessionFinished();
-    void onSslErrors(const QList<QSslError> &errors);
+	void onSslErrors(const QList<QSslError> &errors);
 
 private:
 	QPair<QLatin1String, QLatin1String> getDistInfo() const;
@@ -87,7 +87,7 @@ private:
 	QString getClientName() const;
 	QString generateLanguage();
 	QByteArray generateSignature(const QByteArray &method, const QByteArray &sessionSecret, const QUrl &url, const QUrlQuery &query);
-	
+
 	IcqAccount *m_account;
 	State m_state;
 	QNetworkAccessManager m_manager;

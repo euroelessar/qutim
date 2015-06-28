@@ -46,7 +46,7 @@ enum {
 };
 
 LanguagesModel::LanguagesModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
 	QHash<int, QByteArray> roleNames;
 	roleNames.insert(LanguageRole, "lang");

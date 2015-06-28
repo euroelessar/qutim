@@ -30,22 +30,22 @@
 #include "historymanagerwindow.h"
 
 namespace Ui {
-    class ClientConfigPage;
+	class ClientConfigPage;
 }
 
 namespace HistoryManager {
 
 class ClientConfigPage : public QWizardPage {
-    Q_OBJECT
-    Q_DISABLE_COPY(ClientConfigPage)
+	Q_OBJECT
+	Q_DISABLE_COPY(ClientConfigPage)
 public:
 	explicit ClientConfigPage(HistoryManagerWindow *parent = 0);
-    virtual ~ClientConfigPage();
+	virtual ~ClientConfigPage();
 	static QString getAppropriatePath(const QString &path);
 	static QString getAppropriateFilePath(const QString &filename);
 
 protected:
-    virtual void changeEvent(QEvent *e);
+	virtual void changeEvent(QEvent *e);
 	virtual void initializePage();
 	virtual void cleanupPage();
 	virtual bool validatePage();
@@ -57,7 +57,7 @@ protected slots:
 	void onTextChanged(const QString &filename);
 
 private:
-    Ui::ClientConfigPage *m_ui;
+	Ui::ClientConfigPage *m_ui;
 	bool m_valid;
 	HistoryManagerWindow *m_parent;
 	QPixmap m_valid_pixmap;

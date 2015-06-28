@@ -11,32 +11,32 @@ class ChatController;
 
 class ScriptClient : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    static QSharedPointer<ScriptClient> instance();
+	static QSharedPointer<ScriptClient> instance();
 
-    void addController(const QString &id, ChatController *controller);
-    void removeController(const QString &id);
-    QUrl serverUrl() const;
+	void addController(const QString &id, ChatController *controller);
+	void removeController(const QString &id);
+	QUrl serverUrl() const;
 
 public slots:
-    void debugLog(const QString &id, const QString &message);
-    void appendNick(const QString &id, const QString &nick);
-    void contextMenu(const QString &id, const QString &nick);
-    void appendText(const QString &id, const QString &text);
-    void setTopic(const QString &id, const QString &topic);
+	void debugLog(const QString &id, const QString &message);
+	void appendNick(const QString &id, const QString &nick);
+	void contextMenu(const QString &id, const QString &nick);
+	void appendText(const QString &id, const QString &text);
+	void setTopic(const QString &id, const QString &topic);
 
 protected:
-    explicit ScriptClient();
-    ChatController *find(const QString &id) const;
+	explicit ScriptClient();
+	ChatController *find(const QString &id) const;
 
-    friend class QSharedPointer<ScriptClient>;
+	friend class QSharedPointer<ScriptClient>;
 
 private:
-    QWebSocketServer m_server;
-    WebSocketClientWrapper m_clientWrapper;
-    QWebChannel m_channel;
-    QHash<QString, ChatController*> m_controllers;
+	QWebSocketServer m_server;
+	WebSocketClientWrapper m_clientWrapper;
+	QWebChannel m_channel;
+	QHash<QString, ChatController*> m_controllers;
 };
 
 } // namespace QuickChat

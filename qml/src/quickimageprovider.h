@@ -8,7 +8,7 @@ namespace qutim_sdk_0_3 {
 class QuickImageProvider : public QQuickImageProvider
 {
 public:
-    QuickImageProvider();
+	QuickImageProvider();
 
 	QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
 };

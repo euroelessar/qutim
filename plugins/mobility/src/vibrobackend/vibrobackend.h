@@ -45,10 +45,10 @@ public:
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 	void setWindowActive(bool active);
 	bool windowActive() const;
-	
+
 signals:
 	void windowActiveChanged(bool windowActive);
-	
+
 private:
 	QFeedbackFileEffect *m_strongEffect;
 	QFeedbackFileEffect *m_effect;

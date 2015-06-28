@@ -43,7 +43,7 @@ struct ShortcutSelf
 	void updateSequence(const QString &id, const QKeySequence &secuence);
 	static void addUpdateHandler(ShortcutHandler handler);
 	static void removeUpdateHandler(ShortcutHandler handler);
-	
+
 	bool inited;
 	ShortcutInfoHash hash;
 	QList<ShortcutHandler> handlers;

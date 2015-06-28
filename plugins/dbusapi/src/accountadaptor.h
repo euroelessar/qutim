@@ -45,8 +45,8 @@ class AccountAdaptor : public QDBusAbstractAdaptor
 	Q_PROPERTY(QDBusObjectPath protocol READ protocol)
 public:
 	static const AccountPathHash &hash();
-	
-    explicit AccountAdaptor(const QDBusConnection &dbus, const QDBusObjectPath &proto, Account *parent);
+
+	explicit AccountAdaptor(const QDBusConnection &dbus, const QDBusObjectPath &proto, Account *parent);
 	virtual ~AccountAdaptor();
 	inline QString id() const { return m_account->id(); }
 	inline QString name() const { return m_account->name(); }

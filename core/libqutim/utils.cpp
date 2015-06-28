@@ -84,7 +84,7 @@ namespace qutim_sdk_0_3
 	// TODO: On MacOS X use native methods
 	// http://unicode.org/reports/tr35/tr35-6.html#Date_Format_Patterns
 	inline void finishStr(QString &str, const WeekDate &week_date, const QDate &date, const QTime &time,
-	                      const QDateTime &datetime, QChar c, int length)
+						  const QDateTime &datetime, QChar c, int length)
 	{
 		if (length <= 0)
 			return;
@@ -404,7 +404,7 @@ namespace qutim_sdk_0_3
 		}
 		return str;
 	}
-	
+
 	LIBQUTIM_EXPORT QString &validateCpp(QString &text)
 	{
 		QString txt;
@@ -446,13 +446,13 @@ namespace qutim_sdk_0_3
 	{
 		UrlTokenList result;
 		static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
-		                          "([a-z]+(\\+[a-z]+)?://|www\\.)"
-		                          "[\\w-]+(\\.[\\w-]+)*\\.\\w+"
-		                          "(:\\d+)?"
-		                          "(/[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@'&=~-]*"
-		                          "(\\?[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@\\'&=~-]*)?"
-		                          "(#[\\w\\+\\.\\[\\]!%\\$/\\\\\\(\\)\\|,:;@&=~-]*)?)?",
-		                          Qt::CaseInsensitive);
+								  "([a-z]+(\\+[a-z]+)?://|www\\.)"
+								  "[\\w-]+(\\.[\\w-]+)*\\.\\w+"
+								  "(:\\d+)?"
+								  "(/[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@'&=~-]*"
+								  "(\\?[\\w\\+\\.\\[\\]!%\\$/\\(\\),:;@\\'&=~-]*)?"
+								  "(#[\\w\\+\\.\\[\\]!%\\$/\\\\\\(\\)\\|,:;@&=~-]*)?)?",
+								  Qt::CaseInsensitive);
 		Q_ASSERT(linkRegExp.isValid());
 		QList<QPair<int, int> > tags;
 		int currentTag = 0;
@@ -521,8 +521,8 @@ namespace qutim_sdk_0_3
 			}
 			tok.text = text.midRef(pos, link.size());
 			pos += link.size();
-            if (flags & Html)
-                link = unescape(link);
+			if (flags & Html)
+				link = unescape(link);
 			if (link.startsWith(QLatin1String("www."), Qt::CaseInsensitive))
 				link.prepend(QLatin1String("http://"));
 			else if(!link.contains(QLatin1String("//")))
@@ -539,10 +539,10 @@ namespace qutim_sdk_0_3
 		}
 		return result;
 	}
-	
+
 	QString UrlParser::parseUrls(const QString &text, Flags flags)
 	{
-        const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
+		const QString hrefTemplate(QLatin1String("<a href='%1' title='%2' target='_blank'>%3</a>"));
 		QString html;
 		foreach (const UrlToken &token, tokenize(text, flags)) {
 			if (token.url.isEmpty()) {
@@ -551,8 +551,8 @@ namespace qutim_sdk_0_3
 				QUrl url = QUrl::fromUserInput(token.url);
 				QByteArray urlEncoded = url.toEncoded();
 				html += hrefTemplate.arg(QString::fromLatin1(urlEncoded, urlEncoded.size()),
-				                         url.toString(),
-				                         token.text.toString());
+										 url.toString(),
+										 token.text.toString());
 			}
 		}
 		return html;

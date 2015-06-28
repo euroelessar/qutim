@@ -47,12 +47,12 @@ HighlighterSettings::HighlighterSettings()
 
 HighlighterSettings::~HighlighterSettings()
 {
-    clearItems();
+	clearItems();
 }
 
 void HighlighterSettings::loadImpl()
 {
-    clearItems();
+	clearItems();
 
 	Config cfg;
 
@@ -92,17 +92,17 @@ void HighlighterSettings::saveImpl()
 
 void HighlighterSettings::cancelImpl()
 {
-    loadImpl();
+	loadImpl();
 }
 
 void HighlighterSettings::clearItems()
 {
-    ui.regexpsList->clear();
-    for (QPointer<HighlighterItemList> item : m_items) {
-        if (item)
-            delete item.data();
-    }
-    m_items.clear();
+	ui.regexpsList->clear();
+	for (QPointer<HighlighterItemList> item : m_items) {
+		if (item)
+			delete item.data();
+	}
+	m_items.clear();
 }
 
 void HighlighterSettings::onRemoveButtonClicked()

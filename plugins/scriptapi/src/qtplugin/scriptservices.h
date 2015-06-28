@@ -37,19 +37,19 @@ typedef QHash<QScriptString, ServicePointer<QObject> > ScriptServiceHash;
 class ScriptServicesPropertyIterator : public QScriptClassPropertyIterator
 {
 public:
-    ScriptServicesPropertyIterator(const QScriptValue &object, const ScriptServiceHash &hash);
-	
-    virtual bool hasNext() const;
-    virtual void next();
+	ScriptServicesPropertyIterator(const QScriptValue &object, const ScriptServiceHash &hash);
 
-    virtual bool hasPrevious() const;
-    virtual void previous();
+	virtual bool hasNext() const;
+	virtual void next();
 
-    virtual void toFront();
-    virtual void toBack();
+	virtual bool hasPrevious() const;
+	virtual void previous();
 
-    virtual QScriptString name() const;
-    virtual QScriptValue::PropertyFlags flags() const;
+	virtual void toFront();
+	virtual void toBack();
+
+	virtual QScriptString name() const;
+	virtual QScriptValue::PropertyFlags flags() const;
 private:
 	QHashIterator<ScriptServiceHash::key_type, ScriptServiceHash::mapped_type> m_it;
 };
@@ -57,22 +57,22 @@ private:
 class ScriptServices : public QScriptClass
 {
 public:
-    ScriptServices(QScriptEngine *engine);
-	
+	ScriptServices(QScriptEngine *engine);
+
 	virtual QueryFlags queryProperty(const QScriptValue &object,
 									 const QScriptString &name,
 									 QueryFlags flags, uint *id);
-	
+
 	virtual QScriptValue property(const QScriptValue &object, const QScriptString &name, uint id);
-	
+
 	virtual void setProperty(QScriptValue &object, const QScriptString &name,
 							 uint id, const QScriptValue &value);
-	
+
 	virtual QScriptValue::PropertyFlags propertyFlags(const QScriptValue &object,
-	                                                  const QScriptString &name, uint id);
-	
+													  const QScriptString &name, uint id);
+
 	virtual QScriptClassPropertyIterator *newIterator(const QScriptValue &object);
-	
+
 	virtual QString name() const;
 private:
 	ScriptServiceHash m_services;

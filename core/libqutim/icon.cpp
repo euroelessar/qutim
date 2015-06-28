@@ -53,7 +53,7 @@ namespace qutim_sdk_0_3
 		int detach_no;
 		int engine_version;
 	};
-	
+
 	QString Icon::name() const
 	{
 		QString name;

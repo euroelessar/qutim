@@ -48,51 +48,51 @@ namespace QuickChat
 using namespace qutim_sdk_0_3;
 
 Chat::Chat() :
-    m_view(QStringLiteral("quickchat")),
-    m_activeSession(0)
+	m_view(QStringLiteral("quickchat")),
+	m_activeSession(0)
 {
-    init();
+	init();
 
-    QTimer::singleShot(0, this, [this] () {
-        m_view.show();
-    });
+	QTimer::singleShot(0, this, [this] () {
+		m_view.show();
+	});
 
-    QDesktopServices::setUrlHandler(QStringLiteral("session"), this, "onCommandUrl");
+	QDesktopServices::setUrlHandler(QStringLiteral("session"), this, "onCommandUrl");
 }
 
 Chat::~Chat()
 {
-    QDesktopServices::unsetUrlHandler(QStringLiteral("session"));
+	QDesktopServices::unsetUrlHandler(QStringLiteral("session"));
 }
 
 void Chat::init()
 {
 //    qmlRegisterType<MessageUnitData>();
 //    qmlRegisterType<Message>();
-    qmlRegisterType<QAbstractItemModel>();
-    qmlRegisterType<ChatLayer>();
-    qmlRegisterType<ChatSession>();
-    qmlRegisterType<ChatChannel>();
-    qmlRegisterType<ChatController>("org.qutim.quickchat", 0, 4, "ChatController");
-    qmlRegisterType<ChatChannelModel>("org.qutim.quickchat", 0, 4, "ChatChannelModel");
-    qmlRegisterType<ChatPreview>("org.qutim.quickchat", 0, 4, "ChatPreview");
-    qmlRegisterType<CompletionModel>("org.qutim.quickchat", 0, 4, "CompletionModel");
-    qmlRegisterType<FlatProxyModel>("org.qutim.quickchat", 0, 4, "FlatProxyModel");
-    qmlRegisterType<GradientCreator>("org.qutim.quickchat", 0, 4, "GradientCreator");
-    qmlRegisterType<SelectableMouseArea>("org.qutim.quickchat", 0, 4, "SelectableMouseArea");
-    qmlRegisterType<AnchorsHighlighter>("org.qutim.quickchat", 0, 4, "AnchorsHighlighter");
+	qmlRegisterType<QAbstractItemModel>();
+	qmlRegisterType<ChatLayer>();
+	qmlRegisterType<ChatSession>();
+	qmlRegisterType<ChatChannel>();
+	qmlRegisterType<ChatController>("org.qutim.quickchat", 0, 4, "ChatController");
+	qmlRegisterType<ChatChannelModel>("org.qutim.quickchat", 0, 4, "ChatChannelModel");
+	qmlRegisterType<ChatPreview>("org.qutim.quickchat", 0, 4, "ChatPreview");
+	qmlRegisterType<CompletionModel>("org.qutim.quickchat", 0, 4, "CompletionModel");
+	qmlRegisterType<FlatProxyModel>("org.qutim.quickchat", 0, 4, "FlatProxyModel");
+	qmlRegisterType<GradientCreator>("org.qutim.quickchat", 0, 4, "GradientCreator");
+	qmlRegisterType<SelectableMouseArea>("org.qutim.quickchat", 0, 4, "SelectableMouseArea");
+	qmlRegisterType<AnchorsHighlighter>("org.qutim.quickchat", 0, 4, "AnchorsHighlighter");
 }
 
 qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool create)
 {
-    // TODO: Think, is it good idea or we need smth more intellegent?
-    if (ChatUnit *meta = unit->metaContact())
-        unit = meta;
+	// TODO: Think, is it good idea or we need smth more intellegent?
+	if (ChatUnit *meta = unit->metaContact())
+		unit = meta;
 
-    unit = getUnitForSession(unit);
+	unit = getUnitForSession(unit);
 
-    if (!unit)
-        return nullptr;
+	if (!unit)
+		return nullptr;
 
 	// We don't wont to have separate channels for contact and his resource
 	unit = const_cast<ChatUnit*>(unit->getHistoryUnit());
@@ -101,12 +101,12 @@ qutim_sdk_0_3::ChatSession *Chat::getSession(qutim_sdk_0_3::ChatUnit *unit, bool
 			return channel;
 	}
 	ChatChannel *channel = 0;
-    if (create) {
-        m_view.show();
+	if (create) {
+		m_view.show();
 
-        channel = new ChatChannel(unit);
-        QQmlEngine::setObjectOwnership(channel, QQmlEngine::CppOwnership);
-        QQmlEngine::setObjectOwnership(unit, QQmlEngine::CppOwnership);
+		channel = new ChatChannel(unit);
+		QQmlEngine::setObjectOwnership(channel, QQmlEngine::CppOwnership);
+		QQmlEngine::setObjectOwnership(unit, QQmlEngine::CppOwnership);
 		connect(channel, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 		connect(channel, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 		m_channels << channel;
@@ -126,7 +126,7 @@ QList<qutim_sdk_0_3::ChatSession*> Chat::sessions()
 
 QQmlListProperty<ChatChannel> Chat::channels()
 {
-    QQmlListProperty<ChatChannel> list(this, m_channels);
+	QQmlListProperty<ChatChannel> list(this, m_channels);
 	list.append = NULL;
 	list.clear = NULL;
 	return list;
@@ -139,8 +139,8 @@ qutim_sdk_0_3::ChatSession *Chat::activeSession() const
 
 void Chat::setActiveSession(qutim_sdk_0_3::ChatSession *session)
 {
-    if (session)
-        session->setActive(true);
+	if (session)
+		session->setActive(true);
 
 //	if (session != m_activeSession) {
 //		m_activeSession = session;
@@ -162,23 +162,23 @@ void Chat::show()
 
 void Chat::onSessionActivated(bool active)
 {
-    ChatSession *session = static_cast<ChatSession*>(sender());
-    qDebug() << session->unit()->title() << active;
+	ChatSession *session = static_cast<ChatSession*>(sender());
+	qDebug() << session->unit()->title() << active;
 
-    if (active && m_activeSession != session) {
-        ChatSession *oldSession = m_activeSession;
+	if (active && m_activeSession != session) {
+		ChatSession *oldSession = m_activeSession;
 
-        m_activeSession = session;
-        emit activeSessionChanged(m_activeSession);
+		m_activeSession = session;
+		emit activeSessionChanged(m_activeSession);
 
-        if (oldSession)
-            oldSession->setActive(false);
-    } else if (m_activeSession == session && !active) {
-        m_activeSession = NULL;
-        emit activeSessionChanged(m_activeSession);
-    }
+		if (oldSession)
+			oldSession->setActive(false);
+	} else if (m_activeSession == session && !active) {
+		m_activeSession = NULL;
+		emit activeSessionChanged(m_activeSession);
+	}
 
-    show();
+	show();
 }
 
 void Chat::onSessionDestroyed(QObject *object)
@@ -189,29 +189,29 @@ void Chat::onSessionDestroyed(QObject *object)
 
 void Chat::forEachChannel(QJSValue callback) const
 {
-    QJSEngine *engine = DeclarativeView::globalEngine();
-    for (ChatChannel *channel : m_channels) {
-        QJSValueList args;
-        args << engine->toScriptValue(channel);
-        callback.call(args);
-    }
+	QJSEngine *engine = DeclarativeView::globalEngine();
+	for (ChatChannel *channel : m_channels) {
+		QJSValueList args;
+		args << engine->toScriptValue(channel);
+		callback.call(args);
+	}
 }
 
 void Chat::onCommandUrl(const QUrl &url)
 {
-    QUrlQuery query(url);
-    QString id = query.queryItemValue(QStringLiteral("id"));
-    QString method = query.queryItemValue(QStringLiteral("method"));
-    QString arg = query.queryItemValue(QStringLiteral("arg"));
+	QUrlQuery query(url);
+	QString id = query.queryItemValue(QStringLiteral("id"));
+	QString method = query.queryItemValue(QStringLiteral("method"));
+	QString arg = query.queryItemValue(QStringLiteral("arg"));
 
-    if (method != QStringLiteral("appendText") && method != QStringLiteral("appendNick"))
-        return;
+	if (method != QStringLiteral("appendText") && method != QStringLiteral("appendNick"))
+		return;
 
-    for (ChatChannel *channel : m_channels) {
-        if (channel->id() != id)
-            continue;
-        QMetaObject::invokeMethod(channel, method.toUtf8(), Q_ARG(QString, arg));
-    }
+	for (ChatChannel *channel : m_channels) {
+		if (channel->id() != id)
+			continue;
+		QMetaObject::invokeMethod(channel, method.toUtf8(), Q_ARG(QString, arg));
+	}
 }
 
 }

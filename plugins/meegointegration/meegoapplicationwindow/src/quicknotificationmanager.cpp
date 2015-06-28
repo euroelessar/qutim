@@ -89,7 +89,7 @@ void QuickNoficationManager::handleNotification(qutim_sdk_0_3::Notification *not
 		switch (notification->request().type()) {
 		case Notification::IncomingMessage:
 		case Notification::ChatIncomingMessage: {
-            m_notifications << notification;
+			m_notifications << notification;
 			updateNotification();
 			break;
 		}

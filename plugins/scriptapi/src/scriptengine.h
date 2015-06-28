@@ -32,7 +32,7 @@ class ScriptEngine : public QScriptEngine
 {
 	Q_OBJECT
 public:
-    explicit ScriptEngine(const QString &name, QObject *parent = 0);
+	explicit ScriptEngine(const QString &name, QObject *parent = 0);
 	void initApi();
 	inline QString name() const { return m_name; }
 private slots:

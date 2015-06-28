@@ -49,10 +49,10 @@ public:
 
 	qutim_sdk_0_3::AbstractDataForm *widget();
 	Jreen::DataForm::Ptr getDataForm();
-	
+
 	static qutim_sdk_0_3::DataItem convertToDataItem(const Jreen::DataForm::Ptr &form, const QList<Jreen::BitsOfBinary::Ptr> &bobs = QList<Jreen::BitsOfBinary::Ptr>());
 	static void convertFromDataItem(const Jreen::DataForm::Ptr &form, const qutim_sdk_0_3::DataItem &item);
-	
+
 private:
 	QScopedPointer<JDataFormPrivate> d_ptr;
 };

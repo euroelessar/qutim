@@ -49,11 +49,11 @@ class WebViewAppearance : public qutim_sdk_0_3::SettingsWidget
 public:
 	WebViewAppearance();
 	virtual ~WebViewAppearance();
-	
+
 	virtual void cancelImpl();
 	virtual void loadImpl();
 	virtual void saveImpl();
-	
+
 private slots:
 	void onVariableChanged();
 	void on_styleNameBox_currentIndexChanged(const QString &styleName);
@@ -66,7 +66,7 @@ private slots:
 	void on_backgroundTypeBox_currentIndexChanged(int index);
 	void on_imageButton_clicked(bool checked);
 	void on_colorButton_clicked(bool checked);
-	
+
 protected:
 	void rebuildChatView();
 	void updateCustomScript();
@@ -76,10 +76,10 @@ protected:
 	QColor backgroundColor() const;
 	void setDefaultFont(const QString &family, int size);
 	void makeSettings();
-	
+
 private:
 	void fillStylesComboBox();
-	
+
 	Ui::chatAppearance *ui;
 	WebKitPreview::Ptr m_preview;
 	QString m_styleName;

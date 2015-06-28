@@ -131,8 +131,8 @@ qutim_status_menu_plugin_update_icon(GdkPixbuf *pb, gboolean blink)
 static void
 qutim_status_menu_plugin_update_icon(char * path,bool blink)
 {
-    GdkPixbuf *pb = gdk_pixbuf_new_from_file(path,NULL);
-    qutim_status_menu_plugin_update_icon(pb, blink);
+	GdkPixbuf *pb = gdk_pixbuf_new_from_file(path,NULL);
+	qutim_status_menu_plugin_update_icon(pb, blink);
 }
 
 static void
@@ -268,11 +268,11 @@ static DBusHandlerResult message_filter(DBusConnection *connection, DBusMessage 
 			DBUS_TYPE_STRING, &new_owner,
 			DBUS_TYPE_INVALID)) {
 			if (!g_strcmp0(name, QUTIM_SYSTRAY_DBUS_SERVICE_NAME) &&
-			    !g_strcmp0(new_owner, ""))
+				!g_strcmp0(new_owner, ""))
 				status_menu_lost();
 			else
 			if (!g_strcmp0(name, QUTIM_SYSTRAY_DBUS_SERVICE_NAME) &&
-			    g_strcmp0(new_owner, "") &&
+				g_strcmp0(new_owner, "") &&
 					g_strcmp0(old_owner, new_owner))
 				if (qutim_status_menu_plugin_connect())
 					status_menu_found();

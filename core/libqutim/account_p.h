@@ -37,9 +37,9 @@ namespace qutim_sdk_0_3
 {
 struct AccountInterface
 {
-    AccountInterface() : object(nullptr) {}
+	AccountInterface() : object(nullptr) {}
 
-    QObject *object;
+	QObject *object;
 };
 
 class AccountPrivate : public MenuControllerPrivate
@@ -48,7 +48,7 @@ class AccountPrivate : public MenuControllerPrivate
 public:
 	AccountPrivate(Account *a) : MenuControllerPrivate(a), state(Account::Disconnected) {}
 	~AccountPrivate()
-    {
+	{
 	}
 
 	void updateStatus();
@@ -60,7 +60,7 @@ public:
 	Status status;
 	Status userStatus;
 
-    QMap<QByteArray, AccountInterface> interfaces;
+	QMap<QByteArray, AccountInterface> interfaces;
 };
 }
 

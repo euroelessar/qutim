@@ -60,7 +60,7 @@ public:
 	virtual void updateContact(Contact *contact, const QString &version = QString()) = 0;
 	virtual void removeContact(Contact *contact, const QString &version = QString()) = 0;
 protected:
-    RosterStorage();
+	RosterStorage();
 	virtual ~RosterStorage();
 private:
 	QScopedPointer<RosterStoragePrivate> d_ptr;

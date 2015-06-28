@@ -33,9 +33,9 @@ namespace MeegoIntegration
 {
 class ServiceManagerWrapper : public QDeclarativePropertyMap
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit ServiceManagerWrapper();
+	explicit ServiceManagerWrapper();
 	static void init();
 
 private slots:

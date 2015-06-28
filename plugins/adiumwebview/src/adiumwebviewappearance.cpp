@@ -51,7 +51,7 @@ class SignalBlocker
 public:
 	SignalBlocker(QObject *object) : m_object(object), m_blockValue(object->blockSignals(true)) {}
 	~SignalBlocker() { m_object->blockSignals(m_blockValue); }
-	
+
 private:
 	QObject *m_object;
 	bool m_blockValue;
@@ -65,7 +65,7 @@ WebViewAppearance::WebViewAppearance(): ui(new Ui::chatAppearance), m_isFillingS
 	m_preview = WebKitPreviewLoader().loadPreview(shareDir.filePath(QLatin1String("Preview.plist")));
 	m_controller = new WebViewController(true);
 	m_controller->setChatSession(m_preview->session.data());
-    ui->chatPreview->setPage(m_controller);
+	ui->chatPreview->setPage(m_controller);
 	m_style = m_controller->style();
 }
 
@@ -83,7 +83,7 @@ void WebViewAppearance::loadImpl()
 {
 	SignalBlocker styleBlocker(ui->styleNameBox);
 	fillStylesComboBox();
-	
+
 	Config config("appearance/adiumChat");
 	config.beginGroup("style");
 	ui->showUserIconBox->setChecked(config.value(QLatin1String("showUserIcons"), true));
@@ -99,7 +99,7 @@ void WebViewAppearance::loadImpl()
 void WebViewAppearance::saveImpl()
 {
 	Config config(QLatin1String("appearance/adiumChat"));
-	
+
 	config.beginGroup(QLatin1String("style"));
 	config.setValue(QLatin1String("showUserIcons"), ui->showUserIconBox->isChecked());
 	config.setValue(QLatin1String("showHeader"), ui->showHeaderBox->isChecked());
@@ -173,7 +173,7 @@ void WebViewAppearance::setDefaultFont(const QString &family, int size)
 	m_controller->setDefaultFont(family, size);
 	ui->fontLabel->setFont(QFont(m_controller->defaultFontFamily(), m_controller->defaultFontSize()));
 	ui->fontLabel->setText(QString("%1 %2pt").arg(m_controller->defaultFontFamily(),
-	                                              QString::number(m_controller->defaultFontSize())));
+												  QString::number(m_controller->defaultFontSize())));
 }
 
 void WebViewAppearance::onVariableChanged()
@@ -193,24 +193,24 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 	// We don't want to receive some of the events
 	SignalBlocker variantBlocker(ui->variantBox);
 	SignalBlocker backgroundTypeBlocker(ui->backgroundTypeBox);
-	
+
 	if (!m_styleName.isEmpty())
 		setModified(true);
 	m_styleName = styleName;
 	m_style->setStylePath(ThemeManager::path(QLatin1String("webkitstyle"), m_styleName));
-	
+
 	ui->customBackgroundBox->setEnabled(m_style->allowsCustomBackground());
 	ui->showUserIconBox->setEnabled(m_style->allowsUserIcons());
 	ui->showHeaderBox->setEnabled(m_style->hasHeader() || m_style->hasTopic());
-	
+
 	qDeleteAll(m_variables);
 	m_variables.clear();
-	
+
 	Config config(QLatin1String("appearance/adiumChat"));
 	config.beginGroup(QLatin1String("style"));
 	config.beginGroup(m_styleName);
 	m_style->setCustomBackgroundType(config.value(QLatin1String("backgroundType"),
-	                                              WebKitMessageViewStyle::BackgroundNormal));
+												  WebKitMessageViewStyle::BackgroundNormal));
 	ui->backgroundTypeBox->setCurrentIndex(m_style->customBackgroundType());
 	ui->customBackgroundBox->setChecked(config.value(QLatin1String("customBackground"), false));
 	QString customBackgroundPath = config.value(QLatin1String("backgroundPath"), QString());
@@ -225,7 +225,7 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 		m_style->setCustomBackgroundPath(customBackgroundPath);
 		m_style->setCustomBackgroundColor(customBackgroundColor);
 	}
-	
+
 	ui->variantBox->setEnabled(!m_style->variants().isEmpty());
 	ui->variantBox->clear();
 	if (ui->variantBox->isEnabled()) {
@@ -235,7 +235,7 @@ void WebViewAppearance::on_styleNameBox_currentIndexChanged(const QString &style
 		int index = qMax(0, ui->variantBox->findText(m_style->activeVariant()));
 		ui->variantBox->setCurrentIndex(index);
 	}
-	
+
 	QString customFile = m_style->pathForResource(QLatin1String("Custom.json"));
 	if (!customFile.isEmpty()) {
 		QVariantList values = config.value(QLatin1String("customStyle")).toList();
@@ -301,14 +301,14 @@ void WebViewAppearance::on_variantBox_currentIndexChanged(const QString &variant
 
 void WebViewAppearance::on_showUserIconBox_clicked(bool checked)
 {
-    m_style->setShowUserIcons(checked);
+	m_style->setShowUserIcons(checked);
 	rebuildChatView();
 	setModified(true);
 }
 
 void WebViewAppearance::on_showHeaderBox_clicked(bool checked)
 {
-    m_style->setShowHeader(checked);
+	m_style->setShowHeader(checked);
 	rebuildChatView();
 	setModified(true);
 }
@@ -341,7 +341,7 @@ void WebViewAppearance::on_customBackgroundBox_clicked(bool checked)
 
 void WebViewAppearance::on_backgroundTypeBox_currentIndexChanged(int index)
 {
-    m_style->setCustomBackgroundType(static_cast<WebKitMessageViewStyle::WebkitBackgroundType>(index));
+	m_style->setCustomBackgroundType(static_cast<WebKitMessageViewStyle::WebkitBackgroundType>(index));
 	rebuildChatView();
 	setModified(true);
 }
@@ -353,8 +353,8 @@ void WebViewAppearance::on_imageButton_clicked(bool checked)
 		m_style->setCustomBackgroundPath(QString());
 	} else if (checked) {
 		newPath = QFileDialog::getOpenFileName(this, tr("Choose background image"),
-		                                        QDir::homePath(),
-		                                        tr("Images (*.png *.xpm *.jpg *.bmp *.gif)"));
+												QDir::homePath(),
+												tr("Images (*.png *.xpm *.jpg *.bmp *.gif)"));
 		if (!newPath.isEmpty())
 			setBackgroundPath(newPath);
 		else

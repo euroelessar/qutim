@@ -41,106 +41,106 @@ class PacketHandler
 {
 public:
 	virtual ~PacketHandler() {}
-    virtual QList<quint32> handledTypes() = 0;
-    virtual bool handlePacket(class MrimPacket& packet) = 0;
+	virtual QList<quint32> handledTypes() = 0;
+	virtual bool handlePacket(class MrimPacket& packet) = 0;
 };
 
 class MrimPacket : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(quint32 msgType READ msgType WRITE setMsgType);
-    Q_PROPERTY(quint32 from READ from WRITE setFrom);
-    Q_PROPERTY(quint32 fromPort READ fromPort WRITE setFromPort);
-    Q_PROPERTY(quint32 sequence READ sequence WRITE setSequence);
+	Q_OBJECT
+	Q_PROPERTY(quint32 msgType READ msgType WRITE setMsgType);
+	Q_PROPERTY(quint32 from READ from WRITE setFrom);
+	Q_PROPERTY(quint32 fromPort READ fromPort WRITE setFromPort);
+	Q_PROPERTY(quint32 sequence READ sequence WRITE setSequence);
 
 public:
-    enum PacketError
-    {
-        NoError = 0,
-        HeaderCorrupted,
-        CannotReadFromSocket,
-        UnknownError
-    };
+	enum PacketError
+	{
+		NoError = 0,
+		HeaderCorrupted,
+		CannotReadFromSocket,
+		UnknownError
+	};
 
-    enum PacketState
-    {
-        ReadHeader = 0,
-        ReadData,
-        Finished,
-        Error
-    };
+	enum PacketState
+	{
+		ReadHeader = 0,
+		ReadData,
+		Finished,
+		Error
+	};
 
-    enum PacketMode
-    {
-        Receive,
-        Compose
-    };
+	enum PacketMode
+	{
+		Receive,
+		Compose
+	};
 
-public:	
+public:
 
-    MrimPacket(PacketMode mode = Receive);
-    virtual ~MrimPacket();
+	MrimPacket(PacketMode mode = Receive);
+	virtual ~MrimPacket();
 
-    static QString errorString(PacketError errCode);
+	static QString errorString(PacketError errCode);
 
-    //Compose mode
-    void append(const QString &str, bool unicode = false);
-    void append(LPString &lpStr);
-    void append(const quint32 &num);
-    MrimPacket& operator<<(const QString &str);
-    MrimPacket& operator<<(LPString &str);
-    MrimPacket& operator<<(const quint32 &num);
-    void setHeader(const QByteArray& header);
-    void setHeader(const mrim_packet_header_t& header);
-    void setBody(const QByteArray& body);
-    void setBody(const QString& body);
-    void setBody(const char *body);
-    void setSequence(quint32 seq);
-    void setMsgType(quint32 msgType);
-    void setFrom(quint32 from);
-    void setFromPort(quint32 fromPort);
-    QByteArray toByteArray();
-    qint64 writeTo(QIODevice *device, bool waitForWritten = false);
+	//Compose mode
+	void append(const QString &str, bool unicode = false);
+	void append(LPString &lpStr);
+	void append(const quint32 &num);
+	MrimPacket& operator<<(const QString &str);
+	MrimPacket& operator<<(LPString &str);
+	MrimPacket& operator<<(const quint32 &num);
+	void setHeader(const QByteArray& header);
+	void setHeader(const mrim_packet_header_t& header);
+	void setBody(const QByteArray& body);
+	void setBody(const QString& body);
+	void setBody(const char *body);
+	void setSequence(quint32 seq);
+	void setMsgType(quint32 msgType);
+	void setFrom(quint32 from);
+	void setFromPort(quint32 fromPort);
+	QByteArray toByteArray();
+	qint64 writeTo(QIODevice *device, bool waitForWritten = false);
 
-    //Receive mode
-    bool readFrom(QIODevice& device);
-    qint32 readTo(LPString &str, bool unicode = false);
-    qint32 readTo(QString *str, bool unicode = false);
-    qint32 readTo(quint32 &num);
-    inline quint32 currBodyPos() const;
-    inline bool atEnd() const;
-    
-    //Common
-    bool isHeaderCorrect();
-    inline quint32 dataLength() const { return m_header.dlen; }
-    inline quint32 msgType() const { return m_header.msg; }
-    inline quint32 sequence() const { return m_header.seq; }
-    inline quint32 from() const { return m_header.from; }
-    inline quint32 fromPort() const { return m_header.fromport; }
-    inline const QByteArray& data() const { return m_body; }
+	//Receive mode
+	bool readFrom(QIODevice& device);
+	qint32 readTo(LPString &str, bool unicode = false);
+	qint32 readTo(QString *str, bool unicode = false);
+	qint32 readTo(quint32 &num);
+	inline quint32 currBodyPos() const;
+	inline bool atEnd() const;
 
-    inline PacketError lastError() const;
-    inline QString lastErrorString() const;
-    void clear();
+	//Common
+	bool isHeaderCorrect();
+	inline quint32 dataLength() const { return m_header.dlen; }
+	inline quint32 msgType() const { return m_header.msg; }
+	inline quint32 sequence() const { return m_header.seq; }
+	inline quint32 from() const { return m_header.from; }
+	inline quint32 fromPort() const { return m_header.fromport; }
+	inline const QByteArray& data() const { return m_body; }
 
-    inline PacketState state() const;
-    inline bool isFinished() const;
-    inline PacketMode mode() const;
+	inline PacketError lastError() const;
+	inline QString lastErrorString() const;
+	void clear();
+
+	inline PacketState state() const;
+	inline bool isFinished() const;
+	inline PacketMode mode() const;
 
 private:
-    void initHeader();
-    void setState(PacketState newState);
-    void setError(PacketError errCode);
+	void initHeader();
+	void setState(PacketState newState);
+	void setError(PacketError errCode);
 
-    mrim_packet_header_t m_header;
-    mrim_connection_params_t m_connParams;
-    QByteArray m_body;
+	mrim_packet_header_t m_header;
+	mrim_connection_params_t m_connParams;
+	QByteArray m_body;
 	QByteArray m_headerData;
-    quint32 m_currBodyPos;
-    quint32 m_bytesLeft;
-    PacketState m_currState;
-    PacketError m_lastError;
-    PacketMode m_mode;
+	quint32 m_currBodyPos;
+	quint32 m_bytesLeft;
+	PacketState m_currState;
+	PacketError m_lastError;
+	PacketMode m_mode;
 };
 
 inline MrimPacket::PacketState MrimPacket::state() const

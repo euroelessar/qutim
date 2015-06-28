@@ -126,8 +126,8 @@ void debugClearConfig()
 	QString levelStr = QLatin1String("level");
 
 	Config config;
-    config.beginGroup(QLatin1String("debug"));
-    debugLevel = config.value(levelStr, DebugData::Default);
+	config.beginGroup(QLatin1String("debug"));
+	debugLevel = config.value(levelStr, DebugData::Default);
 
 	for (; it != end; it++) {
 		DebugData *data = it.value();
@@ -143,8 +143,8 @@ void debugClearConfig()
 
 QtMsgType debug_level(const char *name)
 {
-    (void) name;
-    return QtDebugMsg;
+	(void) name;
+	return QtDebugMsg;
 }
 
 }

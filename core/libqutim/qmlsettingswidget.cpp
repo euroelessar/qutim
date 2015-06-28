@@ -12,18 +12,18 @@
 namespace qutim_sdk_0_3 {
 
 #define ITEM_WRAPPER \
-    "import QtQuick 2.1\n" \
-    "import QtQuick.Controls 1.1\n" \
-    "import QtQuick.Window 2.1\n" \
-    "\n" \
-    "Window {\n" \
-    "    id: root\n" \
-    "}\n"
+	"import QtQuick 2.1\n" \
+	"import QtQuick.Controls 1.1\n" \
+	"import QtQuick.Window 2.1\n" \
+	"\n" \
+	"Window {\n" \
+	"    id: root\n" \
+	"}\n"
 
 QmlSettingsWidget::QmlSettingsWidget(const QString &name, QWidget *parent) :
-    SettingsWidget(parent), m_object(nullptr)
+	SettingsWidget(parent), m_object(nullptr)
 {
-    setObjectName(QStringLiteral("QmlSettingsWidget(%1)").arg(name));
+	setObjectName(QStringLiteral("QmlSettingsWidget(%1)").arg(name));
 
 //    QQmlComponent windowComponent(DeclarativeView::globalEngine());
 //    windowComponent.setData(ITEM_WRAPPER, QUrl());
@@ -36,59 +36,59 @@ QmlSettingsWidget::QmlSettingsWidget(const QString &name, QWidget *parent) :
 //    Q_ASSERT(windowObject);
 //    Q_ASSERT(window);
 
-    QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
-    path += QStringLiteral("/qml/settings/");
-    path += name;
-    path += QStringLiteral("/main.qml");
+	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
+	path += QStringLiteral("/qml/settings/");
+	path += name;
+	path += QStringLiteral("/main.qml");
 
-    QFileSelector selector;
-    QString selectedPath = selector.select(path);
+	QFileSelector selector;
+	QString selectedPath = selector.select(path);
 
-    QQuickView *window = new DeclarativeView;
-    window->setResizeMode(QQuickView::SizeRootObjectToView);
-    window->setSource(QUrl::fromLocalFile(selectedPath));
-    window->setColor(palette().window().color());
+	QQuickView *window = new DeclarativeView;
+	window->setResizeMode(QQuickView::SizeRootObjectToView);
+	window->setSource(QUrl::fromLocalFile(selectedPath));
+	window->setColor(palette().window().color());
 
-    m_wrapper.reset(window);
-    m_object = window->rootObject();
+	m_wrapper.reset(window);
+	m_object = window->rootObject();
 
-    if (!m_object) {
-        qDebug() << window->errors();
-        return;
-    }
+	if (!m_object) {
+		qDebug() << window->errors();
+		return;
+	}
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    setLayout(layout);
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	setLayout(layout);
 
-    QWidget *contentWidget = QWidget::createWindowContainer(window, this);
+	QWidget *contentWidget = QWidget::createWindowContainer(window, this);
 
-    layout->addWidget(contentWidget);
+	layout->addWidget(contentWidget);
 
-    QQmlProperty modified(m_object, QStringLiteral("__modified"));
-    modified.connectNotifySignal(this, SLOT(onModifiedChanged()));
+	QQmlProperty modified(m_object, QStringLiteral("__modified"));
+	modified.connectNotifySignal(this, SLOT(onModifiedChanged()));
 }
 
 void QmlSettingsWidget::setController(QObject *controller)
 {
-    QQmlProperty property(m_object, QStringLiteral("controller"));
-    if (property.isValid() && property.isWritable())
-        property.write(QVariant::fromValue(controller));
+	QQmlProperty property(m_object, QStringLiteral("controller"));
+	if (property.isValid() && property.isWritable())
+		property.write(QVariant::fromValue(controller));
 }
 
 void QmlSettingsWidget::onModifiedChanged()
 {
-    QQmlProperty modified(m_object, QStringLiteral("__modified"));
-    setModified(modified.read().toBool());
+	QQmlProperty modified(m_object, QStringLiteral("__modified"));
+	setModified(modified.read().toBool());
 }
 
 void QmlSettingsWidget::loadImpl()
 {
-    QMetaObject::invokeMethod(m_object, "__load");
+	QMetaObject::invokeMethod(m_object, "__load");
 }
 
 void QmlSettingsWidget::saveImpl()
 {
-    QMetaObject::invokeMethod(m_object, "__save");
+	QMetaObject::invokeMethod(m_object, "__save");
 	for (QObject *config : m_object->findChildren<QObject*>(QStringLiteral("QuickConfig"))) {
 		QMetaObject::invokeMethod(config, "forceSync");
 	}
@@ -96,7 +96,7 @@ void QmlSettingsWidget::saveImpl()
 
 void QmlSettingsWidget::cancelImpl()
 {
-    QMetaObject::invokeMethod(m_object, "__cancel");
+	QMetaObject::invokeMethod(m_object, "__cancel");
 }
 
 } // namespace qutim_sdk_0_3

@@ -31,7 +31,7 @@ namespace MeegoIntegration
 {
 
 QuickWidgetProxy::QuickWidgetProxy(QDeclarativeItem *parent) :
-    QDeclarativeItem(parent)
+	QDeclarativeItem(parent)
 {
 	setFlag(ItemHasNoContents, false);
 	m_proxy = new QGraphicsProxyWidget(this);

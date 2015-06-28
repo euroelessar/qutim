@@ -42,17 +42,17 @@ namespace Adium {
 
 class WebViewLoaderLoop : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	WebViewLoaderLoop();
 	~WebViewLoaderLoop();
-	
+
 	void addPage(QWebPage *page, const QString &html);
-	
+
 private slots:
 	void onPageLoaded();
 	void onPageDestroyed();
-	
+
 private:
 	QList<QPointer<QWebPage> > m_pages;
 	QStringList m_htmls;
@@ -60,12 +60,12 @@ private:
 
 class WebViewController : public QWebPage, public Core::AdiumChat::ChatViewController
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_INTERFACES(Core::AdiumChat::ChatViewController)
 public:
 	WebViewController(bool isPreview = false);
 	virtual ~WebViewController();
-	
+
 	virtual void setChatSession(qutim_sdk_0_3::ChatSession *session);
 	virtual qutim_sdk_0_3::ChatSession *getSession() const;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
@@ -76,7 +76,7 @@ public:
 	QString defaultFontFamily() const;
 	int defaultFontSize() const;
 	bool eventFilter(QObject *obj, QEvent *);
-	
+
 public slots:
 	QVariant evaluateJavaScript(const QString &script);
 	bool zoomImage(QWebElement elem);
@@ -85,13 +85,13 @@ public slots:
 	void contextMenu(const QVariant &nickVar);
 	void appendText(const QVariant &text);
 	void setTopic();
-	
+
 protected:
 	void clearFocusClass();
 	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
 	void loadSettings(bool onFly);
 	void loadHistory();
-	
+
 private slots:
 	void onSettingsSaved();
 	void onLoadFinished();
@@ -100,7 +100,7 @@ private slots:
 	void onContentsChanged();
 	void onObjectCleared();
 	void onLinkClicked(const QUrl &url);
-	
+
 private:
 	QPointer<qutim_sdk_0_3::ChatSession> m_session;
 	QString m_styleName;

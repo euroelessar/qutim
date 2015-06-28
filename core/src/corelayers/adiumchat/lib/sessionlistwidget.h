@@ -38,10 +38,10 @@ class ChatSessionImpl;
 class SessionListWidgetPrivate;
 class ADIUMCHAT_EXPORT SessionListWidget : public QListWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_DECLARE_PRIVATE(SessionListWidget)
 public:
-    explicit SessionListWidget(QWidget *parent = 0);
+	explicit SessionListWidget(QWidget *parent = 0);
 	void addSession(ChatSessionImpl *session);
 	void removeSession(ChatSessionImpl *session);
 	ChatSessionImpl *session(int index) const;

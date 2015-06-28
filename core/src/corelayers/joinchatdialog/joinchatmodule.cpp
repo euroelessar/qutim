@@ -69,8 +69,8 @@ void JoinChatModule::onJoinGroupChatTriggered(const QString &url)
 }
 
 JoinChatGenerator::JoinChatGenerator(QObject *module)
-    : ActionGenerator(Icon("meeting-attending"),
-          QT_TRANSLATE_NOOP("JoinGroupChat", "Join groupchat"),
+	: ActionGenerator(Icon("meeting-attending"),
+		  QT_TRANSLATE_NOOP("JoinGroupChat", "Join groupchat"),
 		  module, SLOT(onJoinGroupChatTriggered()))
 {
 

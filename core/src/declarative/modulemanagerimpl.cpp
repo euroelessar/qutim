@@ -48,7 +48,7 @@
 
 namespace qutim_sdk_0_3
 {
-LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); 
+LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
 LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
 }
 
@@ -79,7 +79,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 	}
 	Q_ASSERT(cryptoService);
 	Q_ASSERT(!configBackends.isEmpty());
-	
+
 	QVector<QDir> &dirs = *system_info_dirs();
 	dirs[SystemInfo::ConfigDir] = QDir::home().absoluteFilePath(".config/qutim");
 	dirs[SystemInfo::HistoryDir] = QDir::home().absoluteFilePath(".config/qutim/history");
@@ -100,7 +100,7 @@ ModuleManagerImpl::ModuleManagerImpl()
 		config.setValue("crypto",cryptoService->metaObject()->className());
 		config.setValue("config", QLatin1String(configBackends.first()->metaObject()->className()));
 		config.setValue("portable", false);
-		
+
 		config.setValue("configDir", SystemInfo::getPath(SystemInfo::ConfigDir));
 		config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
 		config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
@@ -120,7 +120,7 @@ void ModuleManagerImpl::initExtensions()
 	QString path = SystemInfo::getPath(SystemInfo::SystemShareDir);
 	path += QLatin1String("/ca-certs/*.pem");
 	QSslSocket::addDefaultCaCertificates(path, QSsl::Pem, QRegExp::Wildcard);
-	
+
 	ModuleManager::initExtensions();
 
 	NotificationRequest request(Notification::AppStartup);

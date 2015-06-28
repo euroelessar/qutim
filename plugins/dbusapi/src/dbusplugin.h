@@ -35,7 +35,7 @@ class DBusPlugin : public Plugin
 {
 	Q_OBJECT
 public:
-    explicit DBusPlugin();
+	explicit DBusPlugin();
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();

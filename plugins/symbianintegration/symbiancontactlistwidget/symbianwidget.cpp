@@ -177,7 +177,7 @@ void SymbianWidget::init()
 
 	QMenu *menu = controller->menu(false);
 
-        connect(m_actionsBtn, SIGNAL(destroyed), menu, SLOT(deleteLater()));
+		connect(m_actionsBtn, SIGNAL(destroyed), menu, SLOT(deleteLater()));
 
 	m_actionsBtn->setMenu(menu);
 	addAction(m_actionsBtn);

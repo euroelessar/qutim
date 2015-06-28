@@ -36,13 +36,13 @@ namespace qutim_sdk_0_3
 struct ScriptDataItemPtr
 {
 	QSharedPointer<DataItem> item;
-	
+
 	static ScriptDataItemPtr create(const DataItem &item)
 	{
 		ScriptDataItemPtr ptr = { QSharedPointer<DataItem>(new DataItem(item)) };
 		return ptr;
 	}
-	
+
 	static QVariant variant(const DataItem &item)
 	{
 		return qVariantFromValue(create(item));
@@ -103,18 +103,18 @@ QScriptValue scriptSubitems(QScriptContext *context, QScriptEngine *engine)
 }
 
 ScriptDataItemPropertyIterator::ScriptDataItemPropertyIterator(const QScriptValue &object)
-    : QScriptClassPropertyIterator(object), m_id(-1)
+	: QScriptClassPropertyIterator(object), m_id(-1)
 {
 	DataItem *item = get_data_item(object);
 	QScriptEngine *engine = object.engine();
 	const char *names[] = {
 		"name",
-	    "title",
-	    "data",
-	    "maxCount",
-	    "defaultSubitem",
-	    "onDataChangedReceiver",
-	    "onDataChangedMethod"
+		"title",
+		"data",
+		"maxCount",
+		"defaultSubitem",
+		"onDataChangedReceiver",
+		"onDataChangedMethod"
 	};
 	for (uint i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
 		m_names << engine->toStringHandle(QLatin1String(names[i]));
@@ -173,8 +173,8 @@ ScriptDataItem::ScriptDataItem(QScriptEngine *engine) : QScriptClass(engine)
 }
 
 QScriptClass::QueryFlags ScriptDataItem::queryProperty(const QScriptValue &object,
-                                                             const QScriptString &name,
-                                                             QueryFlags flags, uint *id)
+															 const QScriptString &name,
+															 QueryFlags flags, uint *id)
 {
 	Q_UNUSED(name);
 	Q_UNUSED(object);
@@ -204,7 +204,7 @@ QScriptValue ScriptDataItem::property(const QScriptValue &object, const QScriptS
 }
 
 void ScriptDataItem::setProperty(QScriptValue &object, const QScriptString &name,
-                                uint id, const QScriptValue &value)
+								uint id, const QScriptValue &value)
 {
 	Q_UNUSED(id);
 	DataItem *item = get_data_item(object);
@@ -212,7 +212,7 @@ void ScriptDataItem::setProperty(QScriptValue &object, const QScriptString &name
 }
 
 QScriptValue::PropertyFlags ScriptDataItem::propertyFlags(const QScriptValue &object,
-                                                         const QScriptString &name, uint id)
+														 const QScriptString &name, uint id)
 {
 	Q_UNUSED(object);
 	Q_UNUSED(name);

@@ -41,7 +41,7 @@ class JAccountResource : public JContact
 public:
 	JAccountResource(JAccount *account, const QString &id, const QString &resource);
 	~JAccountResource();
-	
+
 	void setName(const QString &name);
 	void setTags(const QStringList &tags);
 	void setInList(bool inList);

@@ -98,9 +98,9 @@ void UrlHandler::loadSettings()
 MessageHandlerAsyncResult UrlHandler::doHandle(Message &message)
 {
 	ChatSession *session = ChatLayer::get(message.chatUnit(), false);
-    if (!session || !session->property("supportJavaScript").toBool()) {
+	if (!session || !session->property("supportJavaScript").toBool()) {
 		return makeAsyncResult(Accept, QString());
-    }
+	}
 
 	const QString originalHtml = message.html();
 	QString html;
@@ -124,11 +124,11 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	const char *entitiesIn[] = { "&quot;", "&gt;", "&lt;", "&amp;" };
 	const char *entitiesOut[] = { "\"", ">", "<", "&" };
 	const int entitiesCount = sizeof(entitiesIn) / sizeof(entitiesIn[0]);
-	
+
 	for (int i = 0; i < entitiesCount; ++i) {
 		link.replace(QLatin1String(entitiesIn[i]),
-		             QLatin1String(entitiesOut[i]),
-		             Qt::CaseInsensitive);
+					 QLatin1String(entitiesOut[i]),
+					 Qt::CaseInsensitive);
 	}
 
 	foreach (QString key, m_exceptionList) {
@@ -138,14 +138,14 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 	const QUrl url = QUrl::fromUserInput(link);
 
 	if (m_flags & PreviewYoutube) {
-        QString urlquery = QUrlQuery(url.query()).queryItemValue(QLatin1String("v"));
+		QString urlquery = QUrlQuery(url.query()).queryItemValue(QLatin1String("v"));
 		const QString youtubeId = (url.host() == QLatin1String("youtube.com")
 								   || url.host() == QLatin1String("www.youtube.com"))
 								  ? (url.path().startsWith(QLatin1String("/v/"))
 									 ? url.path().mid(3)
 									 : (url.path().startsWith(QLatin1String("/embed/"))
 										? url.path().mid(7)
-                                        : urlquery))
+										: urlquery))
 								  : (url.host() == QLatin1String("youtu.be")
 									 ? url.path().mid(1)
 									 : QString());
@@ -211,15 +211,15 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 	foreach (QString header, reply->rawHeaderList()) {
 		if (type.isEmpty()) {
 			hrx.setPattern("^content-type$");
-            if (hrx.indexIn(header)==0) typeheader = header.toLatin1();
+			if (hrx.indexIn(header)==0) typeheader = header.toLatin1();
 		}
 		if (sizeheader.isEmpty()) {
 			hrx.setPattern("^content-range$");
-            if (hrx.indexIn(header)==0) sizeheader = header.toLatin1();
+			if (hrx.indexIn(header)==0) sizeheader = header.toLatin1();
 		}
 		if (sizeheader.isEmpty()) {
 			hrx.setPattern("^content-length$");
-            if (hrx.indexIn(header)==0) sizeheader = header.toLatin1();
+			if (hrx.indexIn(header)==0) sizeheader = header.toLatin1();
 		}
 	}
 	if (!typeheader.isEmpty()) {
@@ -282,12 +282,12 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 			 || type == QLatin1String("application/xhtml")
 			 || type == QLatin1String("application/xhtml+xml"))) {
 		QUrl rcaUrl(QLatin1String("http://rca.yandex.com/"));
-        QUrlQuery yaquery;
-        yaquery.addQueryItem("key", "svV1bfH1");
-        yaquery.addQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
-        rcaUrl.setQuery(yaquery);
-        //rcaUrl.addEncodedQueryItem("key", "svV1bfH1");
-        //rcaUrl.addEncodedQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
+		QUrlQuery yaquery;
+		yaquery.addQueryItem("key", "svV1bfH1");
+		yaquery.addQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
+		rcaUrl.setQuery(yaquery);
+		//rcaUrl.addEncodedQueryItem("key", "svV1bfH1");
+		//rcaUrl.addEncodedQueryItem("url", url.toUtf8().toPercentEncoding("", "+"));
 		QNetworkRequest request(rcaUrl);
 		QNetworkReply *rcaReply = m_netman->get(request);
 		rcaReply->setProperty("yandexRCA", true);
@@ -310,7 +310,7 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		amsg.replace("%MAXW%", QString::number(m_maxImageSize.width()));
 		amsg.replace("%MAXH%", QString::number(m_maxImageSize.height()));
 		pstr += amsg;
-	}	
+	}
 
 	updateData(reply->property("unit").value<ChatUnit *>(),
 			   uid,

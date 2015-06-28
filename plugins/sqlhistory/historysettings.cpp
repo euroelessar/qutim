@@ -30,8 +30,8 @@
 namespace SqlHistoryNamespace {
 
 SqlHistorySettings::SqlHistorySettings(const QString &profile_name,QWidget *parent)
-    : QWidget(parent),
-    m_profile_name(profile_name)
+	: QWidget(parent),
+	m_profile_name(profile_name)
 {
 	ui.setupUi(this);
 	changed = false;

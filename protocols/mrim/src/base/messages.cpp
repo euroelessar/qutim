@@ -46,74 +46,74 @@
 struct MsgIdLink
 {
 	MsgIdLink(quint64 i, MrimContact *c) : msgId(i), unit(c) {}
-    quint64 msgId;
+	quint64 msgId;
 	QPointer<MrimContact> unit;
 };
 
 class MessagesPrivate
 {
 public:
-    quint32 msgSeq;
+	quint32 msgSeq;
 	QPointer<MrimConnection> conn;
 	QCache<quint32, MsgIdLink> msgIdLink;
 #ifndef NO_RTF_SUPPORT
-    Rtf *rtf;
+	Rtf *rtf;
 #endif
 };
 
 MrimMessages::MrimMessages(MrimConnection *conn) :
-    QObject(conn), p(new MessagesPrivate)
+	QObject(conn), p(new MessagesPrivate)
 {
-    p->msgSeq = 0;
-    p->conn = conn;
+	p->msgSeq = 0;
+	p->conn = conn;
 	p->conn.data()->registerPacketHandler(this);
 	p->msgIdLink.setMaxCost(10);
 #ifndef NO_RTF_SUPPORT
-    p->rtf = new Rtf("cp1251");
+	p->rtf = new Rtf("cp1251");
 #endif
 }
 
 MrimMessages::~MrimMessages()
 {
 #ifndef NO_RTF_SUPPORT
-    delete p->rtf;
+	delete p->rtf;
 #endif
 }
 
 QList<quint32> MrimMessages::handledTypes()
 {
-    return QList<quint32>() << MRIM_CS_MESSAGE_ACK
-                            << MRIM_CS_MESSAGE_STATUS
-                            << MRIM_CS_OFFLINE_MESSAGE_ACK
-                            << MRIM_CS_AUTHORIZE_ACK;
+	return QList<quint32>() << MRIM_CS_MESSAGE_ACK
+							<< MRIM_CS_MESSAGE_STATUS
+							<< MRIM_CS_OFFLINE_MESSAGE_ACK
+							<< MRIM_CS_AUTHORIZE_ACK;
 }
 
 bool MrimMessages::handlePacket(class MrimPacket& packet)
 {
-    switch (packet.msgType()) {
-    case MRIM_CS_MESSAGE_STATUS:
-        handleMessageStatus(packet);
-        break;
-    case MRIM_CS_MESSAGE_ACK:
-        handleMessageAck(packet);
-        break;
+	switch (packet.msgType()) {
+	case MRIM_CS_MESSAGE_STATUS:
+		handleMessageStatus(packet);
+		break;
+	case MRIM_CS_MESSAGE_ACK:
+		handleMessageAck(packet);
+		break;
 	case MRIM_CS_OFFLINE_MESSAGE_ACK:
 		handleOfflineMessageAck(packet);
 		break;
-    default:
+	default:
 		return false;
-    }
-    return true;
+	}
+	return true;
 }
 
 quint32 MrimMessages::sequence() const
 {
-    return p->msgSeq++;
+	return p->msgSeq++;
 }
 
 void MrimMessages::send(MrimContact *contact, const Message &msg, Flags flags)
 {
-    send(contact, msg.text(), flags, msg.id());
+	send(contact, msg.text(), flags, msg.id());
 }
 
 void MrimMessages::sendComposingNotification(MrimContact *contact)
@@ -139,81 +139,81 @@ void MrimMessages::send(MrimContact *contact, const QString &text, Flags flags, 
 
 void MrimMessages::handleMessageStatus(MrimPacket &packet)
 {
-    quint32 status = 0;
-    packet.readTo(status);
-    QString errString;
+	quint32 status = 0;
+	packet.readTo(status);
+	QString errString;
 	MsgIdLink *msgLink = p->msgIdLink.take(packet.sequence());
-	
+
 	ChatSession *sess = msgLink ? ChatLayer::instance()->getSession(msgLink->unit.data()) : 0;
-    bool delivered = false;
+	bool delivered = false;
 
-    switch (status) {
-    case MESSAGE_DELIVERED:
-        delivered = true;
-        break;
-    case MESSAGE_REJECTED_NOUSER:
-        errString = tr("No such user");
-        break;
-    case MESSAGE_REJECTED_TOO_LARGE:
-        errString = tr("Message too large");
-        break;
-    case MESSAGE_REJECTED_LIMIT_EXCEEDED:
-        errString = tr("Limit exceeded");
-        break;
-    case MESSAGE_REJECTED_DENY_OFFMSG:
-        errString = tr("User denied receiving offline messages");
-        break;
-    case MESSAGE_REJECTED_DENY_OFFFLSH:
-        errString = tr("User denied receiving offline flash movies");
-        break;
-    default:
-        errString = tr("Internal error");
-        break;
-    }
+	switch (status) {
+	case MESSAGE_DELIVERED:
+		delivered = true;
+		break;
+	case MESSAGE_REJECTED_NOUSER:
+		errString = tr("No such user");
+		break;
+	case MESSAGE_REJECTED_TOO_LARGE:
+		errString = tr("Message too large");
+		break;
+	case MESSAGE_REJECTED_LIMIT_EXCEEDED:
+		errString = tr("Limit exceeded");
+		break;
+	case MESSAGE_REJECTED_DENY_OFFMSG:
+		errString = tr("User denied receiving offline messages");
+		break;
+	case MESSAGE_REJECTED_DENY_OFFFLSH:
+		errString = tr("User denied receiving offline flash movies");
+		break;
+	default:
+		errString = tr("Internal error");
+		break;
+	}
 
-    if (sess) {
-        QApplication::instance()->postEvent(sess, new MessageReceiptEvent(msgLink->msgId, delivered));
-    }
+	if (sess) {
+		QApplication::instance()->postEvent(sess, new MessageReceiptEvent(msgLink->msgId, delivered));
+	}
 
-    if (!errString.isEmpty()) {
-        errString.prepend(tr("Message was not delivered!")+"\n");
+	if (!errString.isEmpty()) {
+		errString.prepend(tr("Message was not delivered!")+"\n");
 		NotificationRequest request(Notification::System);
 		request.setObject(p->conn.data()->account());
 		request.setText(errString);
 		request.send();
-    }
+	}
 }
 
 void MrimMessages::handleMessageAck(MrimPacket &packet)
 {
-    quint32 msgId = 0, flags = 0;
-    QString from, plainText;
-    packet.readTo(msgId);
-    packet.readTo(flags);
-    bool isAuth = (flags & MESSAGE_FLAG_AUTHORIZE);
-    bool isUnicode = !(flags & MESSAGE_FLAG_CP1251);
+	quint32 msgId = 0, flags = 0;
+	QString from, plainText;
+	packet.readTo(msgId);
+	packet.readTo(flags);
+	bool isAuth = (flags & MESSAGE_FLAG_AUTHORIZE);
+	bool isUnicode = !(flags & MESSAGE_FLAG_CP1251);
 #ifndef NO_RTF_SUPPORT
-    bool hasRtf = (flags & MESSAGE_FLAG_RTF);
+	bool hasRtf = (flags & MESSAGE_FLAG_RTF);
 #endif
-    bool isTyping = (flags & MESSAGE_FLAG_NOTIFY);
-    packet.readTo(&from);
-    packet.readTo(&plainText, isUnicode);
-	
+	bool isTyping = (flags & MESSAGE_FLAG_NOTIFY);
+	packet.readTo(&from);
+	packet.readTo(&plainText, isUnicode);
+
 	MrimContact *contact = p->conn.data()->account()->roster()->getContact(from, true);
 	// FIXME: Add handling messages from contacts not from roster
 	if (!contact)
 		return;
 
-    if (isTyping) {
+	if (isTyping) {
 		contact->updateComposingState();
-        return;
-    }
+		return;
+	}
 
 
-    if (!isAuth && !(flags & MESSAGE_FLAG_NORECV)) {
-        sendDeliveryReport(from, msgId);
-    }
-	
+	if (!isAuth && !(flags & MESSAGE_FLAG_NORECV)) {
+		sendDeliveryReport(from, msgId);
+	}
+
 	Message message;
 	message.setIncoming(true);
 	message.setChatUnit(contact);
@@ -221,15 +221,15 @@ void MrimMessages::handleMessageAck(MrimPacket &packet)
 	message.setText(plainText);
 
 #ifndef NO_RTF_SUPPORT
-    if (hasRtf) {
-        QString rtfMsg;
-        packet.readTo(&rtfMsg);
+	if (hasRtf) {
+		QString rtfMsg;
+		packet.readTo(&rtfMsg);
 		QString html;
-        p->rtf->parse(rtfMsg, &plainText, &html);
+		p->rtf->parse(rtfMsg, &plainText, &html);
 		message.setProperty("html", html);
 		if (!plainText.trimmed().isEmpty())
 			message.setText(plainText);
-    }
+	}
 #endif
 	contact->clearComposingState();
 	if (isAuth) {
@@ -283,15 +283,15 @@ bool parser_is_boundary(const QByteArray &line, const QByteArray &boundary, bool
 
 void MrimMessages::handleOfflineMessageAck(MrimPacket &packet)
 {
-    quint32 uidl1 = 0, uidl2 = 0;
+	quint32 uidl1 = 0, uidl2 = 0;
 	LPString string;
-    packet.readTo(uidl1);
-    packet.readTo(uidl2);
+	packet.readTo(uidl1);
+	packet.readTo(uidl2);
 	packet.readTo(string);
 	QByteArray tmpData = string.toByteArray();
-	
+
 	// Simple implementation of RFC-0822
-	
+
 	char *data = tmpData.data();
 	const char *value;
 	Message message;
@@ -408,14 +408,14 @@ void MrimMessages::handleOfflineMessageAck(MrimPacket &packet)
 		if (parser_is_boundary(line, boundary, &final) && final)
 			break;
 	}
-	
+
 	if (flags & MessageFlagAuthorize) {
 		QEvent *event = new Authorization::Reply(Authorization::Reply::New, contact, message.text());
 		qApp->postEvent(Authorization::service(), event);
 	} else {
 		ChatLayer::get(contact, true)->appendMessage(message);
 	}
-	
+
 	MrimPacket deletePacket(MrimPacket::Compose);
 	deletePacket.setMsgType(MRIM_CS_DELETE_OFFLINE_MESSAGE);
 	deletePacket.append(uidl1);
@@ -425,11 +425,11 @@ void MrimMessages::handleOfflineMessageAck(MrimPacket &packet)
 
 void MrimMessages::sendDeliveryReport(const QString& from, quint32 msgId)
 {
-    MrimPacket deliveryPacket(MrimPacket::Compose);
-    deliveryPacket.setMsgType(MRIM_CS_MESSAGE_RECV);
-    deliveryPacket << from;
-    deliveryPacket << msgId;
-    debug(DebugVerbose)<<"Sending delivery report for msg #"<<msgId<<"...";
+	MrimPacket deliveryPacket(MrimPacket::Compose);
+	deliveryPacket.setMsgType(MRIM_CS_MESSAGE_RECV);
+	deliveryPacket << from;
+	deliveryPacket << msgId;
+	debug(DebugVerbose)<<"Sending delivery report for msg #"<<msgId<<"...";
 	p->conn.data()->sendPacket(deliveryPacket);
 }
 

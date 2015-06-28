@@ -49,19 +49,19 @@ public:
 	explicit BearerManager();
 	void init();
 	bool load();
-    bool unload();
+	bool unload();
 
 signals:
 	void onlineStateChanged(bool isOnline);
 
 private slots:
-    void onOnlineStatusChanged(bool isOnline);
+	void onOnlineStatusChanged(bool isOnline);
 
-private:	
-    bool isNetworkOnline() const;
+private:
+	bool isNetworkOnline() const;
 
 	bool m_isOnline;
-    QNetworkConfigurationManager *m_confManager;
+	QNetworkConfigurationManager *m_confManager;
 };
 
 #endif // BEARERMANAGER_H

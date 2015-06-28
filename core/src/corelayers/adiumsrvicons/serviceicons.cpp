@@ -61,22 +61,22 @@ namespace Adium
 	ServiceIcons::~ServiceIcons()
 	{
 	}
-	
+
 	QIcon ServiceIcons::doLoadIcon(const QString &name)
 	{
 		return m_icons.value(name, QIcon());
 	}
-	
+
 	QMovie *ServiceIcons::doLoadMovie(const QString &)
 	{
 		return 0;
 	}
-	
+
 	QString ServiceIcons::doIconPath(const QString &, uint)
 	{
 		return QString();
 	}
-	
+
 	QString ServiceIcons::doMoviePath(const QString &, uint)
 	{
 		return QString();

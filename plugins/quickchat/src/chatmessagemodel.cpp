@@ -51,7 +51,7 @@ enum {
 };
 
 ChatMessageModel::ChatMessageModel(QObject *parent) :
-    QAbstractListModel(parent)
+	QAbstractListModel(parent)
 {
 	parent->installEventFilter(this);
 }
@@ -119,34 +119,34 @@ QVariant ChatMessageModel::data(const QModelIndex &index, int role) const
 		if (index.row() > 0) {
 			const Message &prev = m_messages[index.row() - 1];
 			return prev.isIncoming() == msg.isIncoming()
-			        && prev.time().date() == msg.time().date()
-			        && createSenderName(prev) == createSenderName(msg);
+					&& prev.time().date() == msg.time().date()
+					&& createSenderName(prev) == createSenderName(msg);
 		}
 		return false;
 	default:
 		return QVariant();
-    }
+	}
 }
 
 QHash<int, QByteArray> ChatMessageModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames.insert(IdRole, "messageId");
-    roleNames.insert(SenderNameRole, "senderName");
-    roleNames.insert(SenderAvatarRole, "senderAvatar");
-    roleNames.insert(AccountAvatarRole, "accountAvatar");
-    roleNames.insert(TitleRole, "title");
-    roleNames.insert(Qt::DisplayRole, "text");
-    roleNames.insert(Qt::DecorationRole, "iconSource");
-    roleNames.insert(TimeRole, "time");
-    roleNames.insert(IncomingRole, "incoming");
-    roleNames.insert(UnitRole, "contact");
-    roleNames.insert(DeliveredRole, "delivered");
-    roleNames.insert(HtmlRole, "html");
-    roleNames.insert(ActionRole, "action");
-    roleNames.insert(ServiceRole, "service");
-    roleNames.insert(AppendingRole, "appending");
-    return roleNames;
+	QHash<int, QByteArray> roleNames;
+	roleNames.insert(IdRole, "messageId");
+	roleNames.insert(SenderNameRole, "senderName");
+	roleNames.insert(SenderAvatarRole, "senderAvatar");
+	roleNames.insert(AccountAvatarRole, "accountAvatar");
+	roleNames.insert(TitleRole, "title");
+	roleNames.insert(Qt::DisplayRole, "text");
+	roleNames.insert(Qt::DecorationRole, "iconSource");
+	roleNames.insert(TimeRole, "time");
+	roleNames.insert(IncomingRole, "incoming");
+	roleNames.insert(UnitRole, "contact");
+	roleNames.insert(DeliveredRole, "delivered");
+	roleNames.insert(HtmlRole, "html");
+	roleNames.insert(ActionRole, "action");
+	roleNames.insert(ServiceRole, "service");
+	roleNames.insert(AppendingRole, "appending");
+	return roleNames;
 }
 
 QString ChatMessageModel::createSenderName(const Message &msg) const

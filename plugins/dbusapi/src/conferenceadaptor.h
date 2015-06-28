@@ -40,21 +40,21 @@ class ConferenceAdaptor : public QDBusAbstractAdaptor
 	Q_PROPERTY(QString topic READ topic WRITE setTopic NOTIFY topicChanged)
 	Q_PROPERTY(QDBusObjectPath me READ me NOTIFY meChanged)
 public:
-    explicit ConferenceAdaptor(const QDBusConnection &dbus, Conference *conf);
+	explicit ConferenceAdaptor(const QDBusConnection &dbus, Conference *conf);
 	inline QString topic() const { return static_cast<Conference*>(parent())->topic(); }
 	inline void setTopic(const QString &text) const;
 	QDBusObjectPath me() const;
-	
+
 public slots:
 	inline void join() { static_cast<Conference*>(parent())->join(); }
 	inline void leave() { static_cast<Conference*>(parent())->leave(); }
-	
+
 signals:
 	void topicChanged(const QString &);
 	void meChanged(const QDBusObjectPath &);
 	void leaved();
 	void joined();
-	
+
 private slots:
 	void onMeChanged(qutim_sdk_0_3::Buddy *buddy);
 private:

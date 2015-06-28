@@ -51,7 +51,7 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	m_filter(0x1f)
 {
 	m_ui->setupUi(this);
-	
+
 	QPalette pal = palette();
 	pal.setColor(QPalette::Base, Qt::black);
 	pal.setColor(QPalette::Text, Qt::white);
@@ -59,7 +59,7 @@ XmlConsole::XmlConsole(QWidget *parent) :
 	QTextDocument *doc = m_ui->xmlBrowser->document();
 //	doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
 	doc->clear();
-	
+
 	QTextFrameFormat format = doc->rootFrame()->frameFormat();
 	format.setBackground(QColor(Qt::black));
 	format.setMargin(0);
@@ -131,9 +131,9 @@ void XmlConsole::init(Account *account)
 	Client *client = qobject_cast<Client*>(account->property("client"));
 	init(client);
 	account->addAction(new ActionGenerator(Icon("utilities-terminal"),
-	                                       QT_TRANSLATE_NOOP("Jabber", "Xml console"),
-	                                       this, SLOT(show())),
-	                   "Additional");
+										   QT_TRANSLATE_NOOP("Jabber", "Xml console"),
+										   this, SLOT(show())),
+					   "Additional");
 }
 
 void XmlConsole::init(Jreen::Client *client)
@@ -323,7 +323,7 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 			token = d->tokens.isEmpty() ? 0 : d->tokens.last();
 			if (token && token->type == QXmlStreamReader::StartElement && !token->startTag.empty) {
 				if (*token->startTag.name == QLatin1String("auth")
-				        && *token->startTag.xmlns == QLatin1String("urn:ietf:params:xml:ns:xmpp-sasl")) {
+						&& *token->startTag.xmlns == QLatin1String("urn:ietf:params:xml:ns:xmpp-sasl")) {
 					d->tokens << new StackToken(QLatin1String("<<Private data>>"));
 				} else {
 					d->tokens << new StackToken(d->reader);
@@ -338,7 +338,7 @@ void XmlConsole::stackProcess(const QByteArray &data, bool incoming)
 //	if (d->reader.tokenType() == QXmlStreamReader::Invalid)
 //		dbg << d->reader.error() << d->reader.errorString();
 	if (!incoming && d->depth > 1) {
-        qFatal("outgoing depth %d on\n%s", d->depth, data.constData());
+		qFatal("outgoing depth %d on\n%s", d->depth, data.constData());
 	}
 }
 
@@ -371,7 +371,7 @@ void Jabber::XmlConsole::on_lineEdit_textChanged(const QString &text)
 {
 	int filterType = m_filter & 0xf0;
 	JID filterJid = (filterType == ByJid) ? text : QString();
-    for (int i = 0; i < m_nodes.size(); i++) {
+	for (int i = 0; i < m_nodes.size(); i++) {
 		XmlNode &node = m_nodes[i];
 		bool ok = true;
 		switch (filterType) {
@@ -400,8 +400,8 @@ void Jabber::XmlConsole::on_lineEdit_textChanged(const QString &text)
 
 void Jabber::XmlConsole::on_saveButton_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save XMPP log to file"),
-	                                                QString(), tr("OpenDocument Format (*.odf);;HTML file (*.html);;Plain text (*.txt)"));
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save XMPP log to file"),
+													QString(), tr("OpenDocument Format (*.odf);;HTML file (*.html);;Plain text (*.txt)"));
 	if (!fileName.isEmpty()) {
 		QTextDocumentWriter writer(fileName);
 		writer.write(m_ui->xmlBrowser->document());

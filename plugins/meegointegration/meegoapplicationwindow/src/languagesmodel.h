@@ -40,13 +40,13 @@ struct LanguageModel
 
 class LanguagesModel : public QAbstractListModel
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit LanguagesModel(QObject *parent = 0);
-	
+	explicit LanguagesModel(QObject *parent = 0);
+
 	// QAbstractListModel
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 signals:
 
@@ -56,7 +56,7 @@ private slots:
 	//void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	//void onSessionUnreadChanged();
 	//void onSessionDeath(QObject *object);
-	
+
 private:
 	//QList<qutim_sdk_0_3::ChatSession*> m_sessions;
 	QList<LanguageModel*> m_languages;

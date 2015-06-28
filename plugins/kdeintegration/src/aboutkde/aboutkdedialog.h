@@ -30,10 +30,10 @@
 
 class AboutKdeDialog : public QObject, public qutim_sdk_0_3::StartupModule
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 public:
-    AboutKdeDialog();
+	AboutKdeDialog();
 };
 
 #endif // ABOUTKDEDIALOG_H

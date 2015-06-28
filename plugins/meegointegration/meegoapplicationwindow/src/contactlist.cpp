@@ -66,9 +66,9 @@ ContactList::ContactList()
 	NotificationManagerWrapper::init();
 	foreach (Protocol *protocol, Protocol::all()) {
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+				SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
 		connect(protocol, SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),
-		        SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
+				SLOT(onAccountRemoved(qutim_sdk_0_3::Account*)));
 		m_accounts << protocol->accounts();
 	}
 	m_protocols = Protocol::all().values();

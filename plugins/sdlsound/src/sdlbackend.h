@@ -36,17 +36,17 @@ class SDLSoundData;
 
 class SDLSoundBackend : public SoundBackend
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    SDLSoundBackend();
-    ~SDLSoundBackend();
+	SDLSoundBackend();
+	~SDLSoundBackend();
 
-    void playSound(const QString &filename);
-    QStringList supportedFormats();
+	void playSound(const QString &filename);
+	QStringList supportedFormats();
 
-    static void channelFinished(int channel);
+	static void channelFinished(int channel);
 private:
-    QCache<QString, SDLSoundData> m_cache;
+	QCache<QString, SDLSoundData> m_cache;
 };
 
 #endif // SDLSOUNDBACKEND_H

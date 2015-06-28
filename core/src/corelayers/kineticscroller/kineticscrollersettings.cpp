@@ -27,14 +27,14 @@
 #include "ui_kineticscrollersettings.h"
 
 KineticScrollerSettings::KineticScrollerSettings(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::KineticScrollerSettings)
+	QWidget(parent),
+	ui(new Ui::KineticScrollerSettings)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 }
 
 KineticScrollerSettings::~KineticScrollerSettings()
 {
-    delete ui;
+	delete ui;
 }
 

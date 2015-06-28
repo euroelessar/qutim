@@ -36,12 +36,12 @@ enum {
 };
 
 PackageDelegate::PackageDelegate(QObject *parent) :
-    QAbstractItemDelegate(parent)
+	QAbstractItemDelegate(parent)
 {
 }
 
 void PackageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const
+							const QModelIndex &index) const
 {
 	Q_UNUSED(painter);
 	Q_UNUSED(option);
@@ -50,21 +50,21 @@ void PackageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 }
 
 QSize PackageDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                const QModelIndex &index) const
+								const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+	Q_UNUSED(index);
 
-    QSize size;
-    size.setWidth(option.fontMetrics.height() * 4);
+	QSize size;
+	size.setWidth(option.fontMetrics.height() * 4);
 	// up to 6 lines of text, and two margins
-    size.setHeight(qMax(option.fontMetrics.height() * 7, int(PreviewHeight)));
-    return size;
+	size.setHeight(qMax(option.fontMetrics.height() * 7, int(PreviewHeight)));
+	return size;
 
 }
 
 void PackageDelegate::updateEditorGeometry(QWidget *editor,
-                                           const QStyleOptionViewItem &option,
-                                           const QModelIndex &index) const
+										   const QStyleOptionViewItem &option,
+										   const QModelIndex &index) const
 {
 	Q_UNUSED(index);
 	editor->setGeometry(option.rect);

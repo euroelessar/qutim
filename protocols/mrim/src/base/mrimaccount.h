@@ -40,19 +40,19 @@ class MrimAccount : public Account
 {
 	Q_OBJECT
 public:
-    MrimAccount(const QString& email);
+	MrimAccount(const QString& email);
 	~MrimAccount();
 	QString name() const;
-    ChatUnit *getUnit(const QString &unitId, bool create = false);
-    MrimConnection *connection() const;
-    MrimRoster *roster() const;
-    void setStatus(Status status);
+	ChatUnit *getUnit(const QString &unitId, bool create = false);
+	MrimConnection *connection() const;
+	MrimRoster *roster() const;
+	void setStatus(Status status);
 	void setAccountStatus(const Status &status);
 	void setUserInfo(const QMap<QString, QString> &info);
 
 private:
 	friend class MrimRoster;
-    QScopedPointer<MrimAccountPrivate> p;
+	QScopedPointer<MrimAccountPrivate> p;
 };
 
 #endif // MRIMACCOUNT_H

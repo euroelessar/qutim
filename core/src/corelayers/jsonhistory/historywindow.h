@@ -42,7 +42,7 @@ class JsonEngine;
 
 class HistoryWindow : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	HistoryWindow(const ChatUnit *unit);
@@ -50,19 +50,19 @@ public:
 
 private slots:
 	void fillContactComboBox(int index);
-    void fillDateTreeWidget(int index);
+	void fillDateTreeWidget(int index);
 	void fillMonth(QTreeWidgetItem *month);
 	void on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 	void on_searchButton_clicked();
 	void findPrevious();
-    
+
 private:
 	void fillAccountComboBox();
 	void setIcons();
-    Ui::HistoryWindowClass ui;
-    QMetaObject::Connection m_contactConnection;
-    History::ContactInfo m_unitInfo;
-    QRegularExpression m_search;
+	Ui::HistoryWindowClass ui;
+	QMetaObject::Connection m_contactConnection;
+	History::ContactInfo m_unitInfo;
+	QRegularExpression m_search;
 	QString m_search_word;
 };
 

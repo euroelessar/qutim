@@ -63,16 +63,16 @@ public:
 			isServicesInited(false),
 			protocols(AccountManagerPrivate::getPrivate(&accountManager)->protocols)
 	{}
-    inline ~ModuleManagerPrivate() {}
+	inline ~ModuleManagerPrivate() {}
 	void initLocalPeer(const QString &message, bool *shouldExit);
 
-    QList<QPointer<Plugin> > plugins;
+	QList<QPointer<Plugin> > plugins;
 	QScopedPointer<QtLocalPeer> localPeer;
 	bool is_inited;
 	bool isServicesInited;
 	AccountManager accountManager;
 	ProtocolHash &protocols;
-    QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
+	QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 	QHash<QByteArray, QObject *> services;
 	QObjectList serviceOrder;
 	QHash<QByteArray, ExtensionInfo> extensionsHash;

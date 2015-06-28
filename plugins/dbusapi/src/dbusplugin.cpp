@@ -49,15 +49,15 @@ QDBusArgument &operator<<(QDBusArgument &argument, const Status &status)
 		argument.beginMapEntry();
 		argument << QString::fromLatin1("type") << QDBusVariant(qint32(status.type()));
 		argument.endMapEntry();
-		
+
 		argument.beginMapEntry();
 		argument << QString::fromLatin1("name") << QDBusVariant(status.name().toString());
 		argument.endMapEntry();
-		
+
 		argument.beginMapEntry();
 		argument << QString::fromLatin1("text") << QDBusVariant(status.text());
 		argument.endMapEntry();
-		
+
 //		argument.beginMapEntry();
 //		argument << QLatin1String("extendedStatuses") << QDBusVariant(status.extendedStatuses());
 //		argument.endMapEntry();
@@ -98,21 +98,21 @@ QDBusArgument &operator<<(QDBusArgument &argument, const Message &msg)
 		argument.beginMapEntry();
 		argument << QString::fromLatin1("time") << QDBusVariant(msg.time());
 		argument.endMapEntry();
-		
+
 		argument.beginMapEntry();
 		ChatUnit *unit = const_cast<ChatUnit*>(msg.chatUnit());
 		QDBusObjectPath path = ChatUnitAdaptor::ensurePath(QDBusConnection::sessionBus(), unit);
 		argument << QString::fromLatin1("chatUnit") << QDBusVariant(qVariantFromValue(path));
 		argument.endMapEntry();
-		
+
 		argument.beginMapEntry();
 		argument << QString::fromLatin1("text") << QDBusVariant(msg.text());
 		argument.endMapEntry();
-		
+
 		argument.beginMapEntry();
 		argument << QString::fromLatin1("incoming") << QDBusVariant(msg.isIncoming());
 		argument.endMapEntry();
-		
+
 		foreach (const QByteArray &prop, msg.dynamicPropertyNames()) {
 			argument.beginMapEntry();
 			argument << QString::fromLatin1(prop, prop.size());

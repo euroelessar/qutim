@@ -150,7 +150,7 @@ namespace Core
 			return QVariant(QVariant::Invalid);
 		}
 	}
-	
+
 	void PListConfigBackend::save(const QString &file, const QVariant &entry)
 	{
 		QDomImplementation domImpl;
@@ -175,12 +175,12 @@ namespace Core
 		root.save(out, 2, QDomNode::EncodingFromDocument);
 		output.commit();
 	}
-	
+
 	QVariant PListConfigBackend::generateConfigEntry(const QDomNode &val)
 	{
 		if (val.isNull())
 			return QVariant();
-		
+
 		QDomElement element = val.toElement();
 		if (element.nodeName()=="true") {
 			return true;
@@ -216,7 +216,7 @@ namespace Core
 		}
 		return QVariant(QVariant::Invalid);
 	}
-	
+
 	QDomElement PListConfigBackend::generateQDomElement (const QVariant &entry, QDomDocument &root)
 	{
 		QDomElement element;

@@ -50,15 +50,15 @@ SearchLayer::SearchLayer()
 	}
 	QObject *contactList = ServiceManager::getByName("ContactList");
 	if (contactList) {
-        ActionGenerator *gen = new ActionGenerator(Icon("edit-find-contact"),
+		ActionGenerator *gen = new ActionGenerator(Icon("edit-find-contact"),
 									  QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
 									  this,
 									  SLOT(showContactSearch(QObject*)));
 		//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(qutim_sdk_0_3::ActionGenerator*, button.data()));
-        gen->addHandler(ActionVisibilityChangedHandler,this);
+		gen->addHandler(ActionVisibilityChangedHandler,this);
 		MenuController *controller = qobject_cast<MenuController*>(contactList);
 		if (controller)
-            controller->addAction(gen);
+			controller->addAction(gen);
 	}
 }
 

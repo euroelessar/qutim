@@ -83,15 +83,15 @@ void ContactWidget::contextMenuEvent(QContextMenuEvent * event)
 
 void ContactWidget::mousePressEvent(QMouseEvent *event)
 {
-    m_mouse_pressed = event->button() == Qt::LeftButton;
-    m_position = event->pos();
+	m_mouse_pressed = event->button() == Qt::LeftButton;
+	m_position = event->pos();
 	update();
 }
 
 void ContactWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton) {
-        m_mouse_pressed = false;
+	if(event->button() == Qt::LeftButton) {
+		m_mouse_pressed = false;
 		QWidget *widget = m_view->window();
 		if (widget->isVisible() && widget->geometry().intersects(geometry()))
 			emit wantDie(m_contact);
@@ -102,8 +102,8 @@ void ContactWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void ContactWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    if(m_mouse_pressed)
-        move(event->globalPos() - m_position);
+	if(m_mouse_pressed)
+		move(event->globalPos() - m_position);
 }
 
 void ContactWidget::mouseDoubleClickEvent(QMouseEvent *)
@@ -113,7 +113,7 @@ void ContactWidget::mouseDoubleClickEvent(QMouseEvent *)
 
 void ContactWidget::wheelEvent(QWheelEvent *event)
 {
-    setWindowOpacity(windowOpacity()+event->delta()/2400.0);
+	setWindowOpacity(windowOpacity()+event->delta()/2400.0);
 }
 
 void ContactWidget::paintEvent(QPaintEvent *event)

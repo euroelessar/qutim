@@ -42,7 +42,7 @@ public:
 	RegionListParser(QString relPath);
 	~RegionListParser(void);
 	inline const QList<LiveRegion>* getRegionsList() { return m_regionsList; }
-	
+
 private:
 	void addRegion(QString aStr);
 

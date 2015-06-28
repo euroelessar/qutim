@@ -86,8 +86,8 @@ QStringList LocalizationModule::determineSystemLocale()
 			foreach (const QString &lang, QString(QLatin1String(data)).split(':')) {
 				QString sublang = lang.section('.', 0, 0);
 				if (langs.contains(sublang)
-				        || (sublang.contains(QLatin1Char('_'))
-				            && langs.contains(sublang.section(QLatin1Char('_'), 0, 0)))) {
+						|| (sublang.contains(QLatin1Char('_'))
+							&& langs.contains(sublang.section(QLatin1Char('_'), 0, 0)))) {
 					langsByCountry << sublang;
 				}
 			}

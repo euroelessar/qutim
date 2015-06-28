@@ -36,14 +36,14 @@ namespace qutim_sdk_0_3
 }
 
 namespace Ui {
-    class ProfileDialog;
+	class ProfileDialog;
 }
 
 namespace Core
 {
 class ProfileDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	ProfileDialog(Config &config, ModuleManager *parent = 0);
 	~ProfileDialog();
@@ -57,7 +57,7 @@ protected slots:
 	void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 
 private:
 	ModuleManager *m_manager;

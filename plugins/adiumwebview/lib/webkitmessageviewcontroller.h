@@ -34,17 +34,17 @@
 
 class ADIUMWEBVIEW_EXPORT WebViewLoaderLoop : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	WebViewLoaderLoop();
 	~WebViewLoaderLoop();
-	
+
 	void addPage(QWebPage *page, const QString &html);
-	
+
 private slots:
 	void onPageLoaded();
 	void onPageDestroyed();
-	
+
 private:
 	QList<QPointer<QWebPage> > m_pages;
 	QStringList m_htmls;
@@ -59,7 +59,7 @@ class ADIUMWEBVIEW_EXPORT WebKitMessageViewController : public QObject
 public:
 	WebKitMessageViewController(bool isPreview);
 	~WebKitMessageViewController();
-	
+
 	qutim_sdk_0_3::ChatSession *session() const;
 	void setSession(qutim_sdk_0_3::ChatSession *session);
 	WebKitMessageViewStyle *style();
@@ -67,7 +67,7 @@ public:
 	bool eventFilter(QObject *obj, QEvent *);
 	bool isPreview() const;
 	void setPreview(bool preview);
-	
+
 public slots:
 	void clearChat();
 	QVariant evaluateJavaScript(const QString &script);
@@ -78,21 +78,21 @@ public slots:
 	virtual void appendText(const QVariant &text) = 0;
 	void setTopic();
 	virtual void setDefaultFont(const QString &family, int size) = 0;
-	
+
 private slots:
 	void onJavaScriptRequest(const QString &javaScript, QVariant *variant);
-	
+
 protected:
 	void setPage(QWebPage *page);
 	void clearFocusClass();
 	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
 	void loadSettings(bool onFly);
 	void loadHistory();
-	
+
 signals:
 	void sessionChanged(qutim_sdk_0_3::ChatSession *session);
 	void previewChanged(bool preview);
-	
+
 private slots:
 	void onSettingsSaved();
 	void onLoadFinished();
@@ -101,10 +101,10 @@ private slots:
 	void onContentsChanged();
 	void onObjectCleared();
 	void onLinkClicked(const QUrl &url);
-	
+
 private:
 	void init();
-	
+
 	QWebPage *m_page;
 	QPointer<qutim_sdk_0_3::ChatSession> m_session;
 	QString m_styleName;

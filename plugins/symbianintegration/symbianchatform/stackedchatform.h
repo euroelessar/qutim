@@ -39,7 +39,7 @@ namespace AdiumChat
 {
 namespace Symbian
 {
-	
+
 class StackedChatWidget;
 class StackedChatForm : public AbstractChatForm
 {

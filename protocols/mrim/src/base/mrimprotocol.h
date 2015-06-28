@@ -36,37 +36,37 @@ class MrimAccount;
 
 class MrimProtocol : public Protocol
 {
-    Q_OBJECT
-    Q_CLASSINFO("Protocol", "mrim")
+	Q_OBJECT
+	Q_CLASSINFO("Protocol", "mrim")
 
 public:
-    enum AccountCreationError
-    {
-        None,
-        AlreadyExists,
-        InvalidArguments
-    };
+	enum AccountCreationError
+	{
+		None,
+		AlreadyExists,
+		InvalidArguments
+	};
 
 public:
-    static MrimProtocol* instance();
-    MrimProtocol();
-    virtual ~MrimProtocol();
-    QList<Account *> accounts() const;
-    Account *account(const QString &id) const;
-    AccountCreationError createAccount(const QString& email, const QString& password);
+	static MrimProtocol* instance();
+	MrimProtocol();
+	virtual ~MrimProtocol();
+	QList<Account *> accounts() const;
+	Account *account(const QString &id) const;
+	AccountCreationError createAccount(const QString& email, const QString& password);
 	QVariant data(DataType type);
 protected slots:
 	void onAccountDestroyed(QObject *obj);
 protected:
 	virtual void virtual_hook(int id, void *data);
 private:
-    Q_DISABLE_COPY(MrimProtocol)
+	Q_DISABLE_COPY(MrimProtocol)
 	void addAccount(MrimAccount *account);
 	void loadActions();
-    void loadAccounts();
+	void loadAccounts();
 
-    QScopedPointer<MrimProtocolPrivate> p;
-    static MrimProtocol* self;
+	QScopedPointer<MrimProtocolPrivate> p;
+	static MrimProtocol* self;
 };
 
 #endif // MRIMPROTOCOL_H

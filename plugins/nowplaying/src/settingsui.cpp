@@ -167,7 +167,7 @@ namespace nowplaying {
 			}
 		}
 	}
-	
+
 	void SettingsUI::on_playerSettings_currentChanged(int index)
 	{
 		QString playerId = ui->players->itemData(index).toString();

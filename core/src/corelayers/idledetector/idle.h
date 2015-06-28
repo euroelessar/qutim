@@ -37,55 +37,55 @@ class IdlePlatform;
 
 class Idle : public QObject
 {
-    Q_OBJECT
-    Q_CLASSINFO("Service", "Idle")
+	Q_OBJECT
+	Q_CLASSINFO("Service", "Idle")
 public:
-    Idle();
-    ~Idle();
+	Idle();
+	~Idle();
 
-    bool isActive() const;
-    bool usingPlatform() const;
-    void start();
-    void stop();
-    int secondsIdle();
+	bool isActive() const;
+	bool usingPlatform() const;
+	void start();
+	void stop();
+	int secondsIdle();
 
 signals:
-    void secondsIdle(int);
+	void secondsIdle(int);
 
 private slots:
-    void doCheck();
+	void doCheck();
 
 private:
-    class Private;
-    Private *d;
+	class Private;
+	Private *d;
 };
 
 class IdlePlatform
 {
 public:
-    IdlePlatform();
-    ~IdlePlatform();
+	IdlePlatform();
+	~IdlePlatform();
 
-    bool init();
-    int secondsIdle();
+	bool init();
+	int secondsIdle();
 
 private:
-    class Private;
-    Private *d;
+	class Private;
+	Private *d;
 };
 
 class Idle::Private
 {
 public:
-    Private() {}
+	Private() {}
 
-    QPoint lastMousePos;
-    QDateTime idleSince;
+	QPoint lastMousePos;
+	QDateTime idleSince;
 
-    bool active;
-    int idleTime;
-    QDateTime startTime;
-    QTimer checkTimer;
+	bool active;
+	int idleTime;
+	QDateTime startTime;
+	QTimer checkTimer;
 };
 }
 

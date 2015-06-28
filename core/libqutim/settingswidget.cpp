@@ -190,7 +190,7 @@ const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *prop
 {
 	const QMetaObject *meta = widget->metaObject();
 	WidgetInfo info = { widget, NULL, QVariant(), false };
-    QByteArray signalCopy;
+	QByteArray signalCopy;
 	// Firstly try to search this widget in predefined classes
 	if (!signal && !property) {
 		for (int i = 0, size = sizeof(widget_infos) / sizeof(AbstractWidgetInfo*); i < size; i++) {
@@ -210,8 +210,8 @@ const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *prop
 					|| (!property && prop.isUser()))) {
 				info.property = prop.name();
 				signalCopy = prop.notifySignal().methodSignature();
-                signalCopy.prepend(QSIGNAL_CODE);
-                signal = signalCopy.constData();
+				signalCopy.prepend(QSIGNAL_CODE);
+				signal = signalCopy.constData();
 				break;
 			}
 		}
@@ -252,19 +252,19 @@ void SettingsWidget::virtual_hook(int id, void *data)
 
 void SettingsWidget::setController(QObject *controller)
 {
-    Q_UNUSED(controller);
+	Q_UNUSED(controller);
 }
 
 void SettingsWidget::paintEvent(QPaintEvent *event)
 {
-    if (qobject_cast<QmlSettingsWidget *>(this)) {
-        return QWidget::paintEvent(event);
-    }
+	if (qobject_cast<QmlSettingsWidget *>(this)) {
+		return QWidget::paintEvent(event);
+	}
 
-    QPainter painter(this);
-    painter.setPen(QColor(Qt::red));
-    painter.drawRect(0, 0, width(), height());
-    event->accept();
+	QPainter painter(this);
+	painter.setPen(QColor(Qt::red));
+	painter.drawRect(0, 0, width(), height());
+	event->accept();
 }
 
 void SettingsWidget::setModified(bool modified)

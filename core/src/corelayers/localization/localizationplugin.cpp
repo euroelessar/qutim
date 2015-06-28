@@ -40,7 +40,7 @@ void LocalizationPlugin::init()
 	LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Default qutIM localization engine");
 	setInfo(name, description, QUTIM_VERSION, icon);
 	addExtension<Core::LocalizationModule,qutim_sdk_0_3::StartupModule>(name, description, icon);
-	
+
 	QStringList langs = LocalizationModule::determineSystemLocale();
 	if (!langs.isEmpty())
 		LocalizationModule::loadLanguage(langs);

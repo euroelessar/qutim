@@ -32,8 +32,8 @@ namespace Core {
 class SimpleActions;
 class SimpleActionsPlugin : public qutim_sdk_0_3::Plugin
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
+	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 	Q_CLASSINFO("Uses", "ContactInfo")
 public:
 	SimpleActionsPlugin();

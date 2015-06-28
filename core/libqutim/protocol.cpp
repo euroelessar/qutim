@@ -42,21 +42,21 @@ AccountCreationWizard::~AccountCreationWizard()
 
 ExtensionInfo AccountCreationWizard::info() const
 {
-    QVariant info = property("protocolinfo");
-    if (!info.canConvert<ExtensionInfo>())
-        info = parent()->property("extensioninfo");
-    return info.value<ExtensionInfo>();
+	QVariant info = property("protocolinfo");
+	if (!info.canConvert<ExtensionInfo>())
+		info = parent()->property("extensioninfo");
+	return info.value<ExtensionInfo>();
 }
 
 void AccountCreationWizard::setInfo(const ExtensionInfo &info)
 {
-    setProperty("protocolinfo", QVariant::fromValue(info));
+	setProperty("protocolinfo", QVariant::fromValue(info));
 }
 
 void AccountCreationWizard::virtual_hook(int id, void *data)
 {
-    Q_UNUSED(id);
-    Q_UNUSED(data);
+	Q_UNUSED(id);
+	Q_UNUSED(data);
 }
 
 Protocol::Protocol() : d_ptr(new ProtocolPrivate)
@@ -73,56 +73,56 @@ Protocol::~Protocol()
 
 Config Protocol::config()
 {
-    return Config(id());
+	return Config(id());
 }
 
 ConfigGroup Protocol::config(const QString &group)
 {
-    return config().group(group);
+	return config().group(group);
 }
 
 QString Protocol::id() const
 {
-    Q_D(const Protocol);
-    if(d->id.isNull())
-        d->id = QString::fromUtf8(MetaObjectBuilder::info(metaObject(), "Protocol"));
-    return d->id;
+	Q_D(const Protocol);
+	if(d->id.isNull())
+		d->id = QString::fromUtf8(MetaObjectBuilder::info(metaObject(), "Protocol"));
+	return d->id;
 }
 
 void Protocol::virtual_hook(int id, void *data)
 {
-    Q_UNUSED(id);
-    Q_UNUSED(data);
+	Q_UNUSED(id);
+	Q_UNUSED(data);
 }
 
 QVariant Protocol::data(DataType type)
 {
-    switch (type) {
-    case ProtocolIdName:
-        return "ID";
-    case ProtocolContainsContacts:
-        return false;
-    default:
-        return QVariant();
-    }
+	switch (type) {
+	case ProtocolIdName:
+		return "ID";
+	case ProtocolContainsContacts:
+		return false;
+	default:
+		return QVariant();
+	}
 }
 
 void Protocol::removeAccount(Account *account, RemoveFlag flags)
 {
-    Config general = config().group("general");
-    QStringList accounts = general.value("accounts",QStringList());
-    accounts.removeAll(account->id());
-    general.setValue("accounts",accounts);
-    general.sync();
-    emit accountRemoved(account);
+	Config general = config().group("general");
+	QStringList accounts = general.value("accounts",QStringList());
+	accounts.removeAll(account->id());
+	general.setValue("accounts",accounts);
+	general.sync();
+	emit accountRemoved(account);
 
-    if (flags & DeleteAccount)
-        account->deleteLater();
+	if (flags & DeleteAccount)
+		account->deleteLater();
 }
 
 ProtocolHash Protocol::all()
 {
-    return allProtocols();
+	return allProtocols();
 }
 }
 

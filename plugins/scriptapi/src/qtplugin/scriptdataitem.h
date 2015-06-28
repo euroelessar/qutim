@@ -37,15 +37,15 @@ class DataItem;
 class ScriptDataItemPropertyIterator : public QScriptClassPropertyIterator
 {
 public:
-    ScriptDataItemPropertyIterator(const QScriptValue &object);
-	
-    virtual bool hasNext() const;
-    virtual void next();
-    virtual bool hasPrevious() const;
-    virtual void previous();
-    virtual void toFront();
-    virtual void toBack();
-    virtual QScriptString name() const;
+	ScriptDataItemPropertyIterator(const QScriptValue &object);
+
+	virtual bool hasNext() const;
+	virtual void next();
+	virtual bool hasPrevious() const;
+	virtual void previous();
+	virtual void toFront();
+	virtual void toBack();
+	virtual QScriptString name() const;
 private:
 	QList<QScriptString> m_names;
 	int m_id;
@@ -54,7 +54,7 @@ private:
 class ScriptDataItem : public QScriptClass
 {
 public:
-    ScriptDataItem(QScriptEngine *engine);
+	ScriptDataItem(QScriptEngine *engine);
 
 	virtual QueryFlags queryProperty(const QScriptValue &object, const QScriptString &name,
 									 QueryFlags flags, uint *id);
@@ -62,9 +62,9 @@ public:
 	virtual void setProperty(QScriptValue &object, const QScriptString &name,
 							 uint id, const QScriptValue &value);
 	virtual QScriptValue::PropertyFlags propertyFlags(const QScriptValue &object,
-	                                                  const QScriptString &name, uint id);
+													  const QScriptString &name, uint id);
 	virtual QScriptClassPropertyIterator *newIterator(const QScriptValue &object);
-    virtual QScriptValue prototype() const;
+	virtual QScriptValue prototype() const;
 	virtual QString name() const;
 
 private:

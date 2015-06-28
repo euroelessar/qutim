@@ -181,7 +181,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		if (!server.isEmpty())
 			send(QString("PONG %1").arg(server));
 		else
-			qDebug() << "Incorrect PING request";		
+			qDebug() << "Incorrect PING request";
 	} else if (cmd == "PRIVMSG") {
 		QString text = params.value(1);
 		if (ctcpRx.indexIn(text) == 0) { // Is it CTCP request?
@@ -547,7 +547,7 @@ void IrcConnection::channelIsNotJoinedError(const QString &cmd, const QString &c
 	else
 		str = QString("%1 request");
 	str = str.arg(cmd);
-    qDebug() << str << "message on the channel" << channel
+	qDebug() << str << "message on the channel" << channel
 			<< "the account is not connected to";
 }
 
@@ -603,7 +603,7 @@ void IrcConnection::readData()
 
 void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 {
-    qWarning() << "New connection state:" << state;
+	qWarning() << "New connection state:" << state;
 	if (state == QAbstractSocket::ConnectedState) {
 		SystemIntegration::keepAlive(m_socket);
 		IrcServer server = m_servers.at(m_currentServer);

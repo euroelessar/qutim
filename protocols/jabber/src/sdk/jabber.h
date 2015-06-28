@@ -83,7 +83,7 @@ class PersonEventConverter
 {
 public:
 	virtual ~PersonEventConverter() {}
-	
+
 	virtual QString name() const = 0;
 	virtual int entityType() const = 0;
 	virtual QSharedPointer<Jreen::Payload> convertTo(const QVariantHash &map) const = 0;
@@ -95,8 +95,8 @@ public:
 template<typename T>
 T qobject_cast(const QVariant &item)
 {
-    QObject *o = item.value<QObject*>();
-    return qobject_cast<T>(o);
+	QObject *o = item.value<QObject*>();
+	return qobject_cast<T>(o);
 }
 
 Q_DECLARE_INTERFACE(Jabber::JabberExtension,		"org.qutim.jabber.JabberExtension")

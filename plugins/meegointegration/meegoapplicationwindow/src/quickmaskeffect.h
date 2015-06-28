@@ -9,24 +9,24 @@ namespace MeegoIntegration
 
 class QuickMaskEffect : public QGraphicsEffect
 {
-    Q_OBJECT
-    Q_PROPERTY(QDeclarativeItem *mask READ mask WRITE setMask NOTIFY maskChanged)
-    
-public:
-    explicit QuickMaskEffect(QObject *parent = 0);
+	Q_OBJECT
+	Q_PROPERTY(QDeclarativeItem *mask READ mask WRITE setMask NOTIFY maskChanged)
 
-    QDeclarativeItem *mask() const;
-    void setMask(QDeclarativeItem *mask);
+public:
+	explicit QuickMaskEffect(QObject *parent = 0);
+
+	QDeclarativeItem *mask() const;
+	void setMask(QDeclarativeItem *mask);
 
 signals:
-    void maskChanged(QDeclarativeItem *mask);
-    
+	void maskChanged(QDeclarativeItem *mask);
+
 protected:
-    virtual void draw(QPainter *painter);
-    
+	virtual void draw(QPainter *painter);
+
 private:
-    QPixmap m_buffer;
-    QDeclarativeItem *m_mask;
+	QPixmap m_buffer;
+	QDeclarativeItem *m_mask;
 };
 
 }

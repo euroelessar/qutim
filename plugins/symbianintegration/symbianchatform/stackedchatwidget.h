@@ -53,7 +53,7 @@ using namespace qutim_sdk_0_3;
 
 class StackedChatWidget : public AbstractChatWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	StackedChatWidget(QWidget *parent = 0);
 	virtual void addAction(ActionGenerator *gen);
@@ -73,7 +73,7 @@ protected:
 	void changeEvent(QEvent *ev);
 	void setTitle(ChatSessionImpl *s);
 	void onAboutToChangeIndex(int index); //Symbian softkeys workaround
-protected slots:	
+protected slots:
 	void onSessionActivated(bool active);
 	void onUnreadChanged();
 	void onCurrentChanged(int index);

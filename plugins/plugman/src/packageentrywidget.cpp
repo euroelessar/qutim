@@ -38,7 +38,7 @@ enum {
 };
 
 PackageEntryWidget::PackageEntryWidget(const PackageEntry &entry)
-    : m_entry(entry)
+	: m_entry(entry)
 {
 //	QGridLayout *layout = new QGridLayout(this);
 	QHBoxLayout *layout = new QHBoxLayout(this);
@@ -74,45 +74,45 @@ void PackageEntryWidget::updateData()
 {
 	const Attica::Content content = m_entry.content();
 //	const QPixmap * const pixmap = m_previewLabel->pixmap();
-	
+
 //	if (!m_entry.smallPreview().isNull()) {
 //		if (!pixmap || pixmap->cacheKey() != m_entry.smallPreview().cacheKey())
 //			m_previewLabel->setPixmap(m_entry.smallPreview());
 //	}
 	m_previewLabel->setPreview(m_entry.smallPreview());
-	
+
 	QString info;
 	const QUrl url = content.detailpage();
 	if (url.isEmpty()) {
 		info += QLatin1Literal("<p><a href=\"") % QLatin1String(url.toEncoded())
-		        % QLatin1Literal("\">") % content.name() % QLatin1Literal("</a></p>");
+				% QLatin1Literal("\">") % content.name() % QLatin1Literal("</a></p>");
 	} else {
 		info += QLatin1Literal("<p><b>") % content.name() % QLatin1Literal("</b></p>");
 	}
-	
+
 	const QString authorName = content.author();
 	const QString authorEmail = content.attribute(QLatin1String("email"));
 	const QString authorPage = content.attribute(QLatin1String("profilepage"));
-	
+
 	info += QLatin1String("<p>");
 	if (!authorPage.isEmpty()) {
 		info += tr("By <i>%1</i>").arg(QLatin1Literal("<a href=\"") % authorPage % QLatin1Literal("\">")
-		                               % authorName % QLatin1Literal("</a>"));
+									   % authorName % QLatin1Literal("</a>"));
 	} else if (!authorEmail.isEmpty()) {
 		info += tr("By <i>%1</i>").arg(authorName) % QLatin1Literal("<a href=\"mailto")
-		        % authorEmail % QLatin1Literal("\">") % authorEmail % QLatin1Literal("</a>");
+				% authorEmail % QLatin1Literal("\">") % authorEmail % QLatin1Literal("</a>");
 	} else {
 		info += tr("By <i>%1</i>").arg(QLatin1Literal("<a href=\"") % authorPage % QLatin1Literal("\">")
-		                               % authorName % QLatin1Literal("</a>"));
+									   % authorName % QLatin1Literal("</a>"));
 	}
 	info += QLatin1String("</p>");
 	info += QLatin1Literal("<p>") % content.description() % QLatin1Literal("</p>");
 	m_detailsLabel->setText(info);
-	
+
 	QString text;
 	QIcon icon;
 	bool enabled = true;
-	
+
 	switch (m_entry.status()) {
 	default:
 		text = QString("Invalid - %1").arg(m_entry.status());
@@ -140,7 +140,7 @@ void PackageEntryWidget::updateData()
 		icon = Icon(QLatin1String("edit-delete"));
 		break;
 	}
-	
+
 	m_installButton->setText(text);
 	m_installButton->setIcon(icon);
 	m_installButton->setEnabled(enabled);

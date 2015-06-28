@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 #include "autosettings.h"
-#include  "modulemanagerimpl.h" 
+#include  "modulemanagerimpl.h"
 #include <libqutim/settingslayer.h>
 #include <QCheckBox>
 

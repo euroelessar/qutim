@@ -36,7 +36,7 @@ class KdeAboutAppDialog : public QObject
 	Q_CLASSINFO("Service", "AboutDialog")
 	Q_CLASSINFO("Uses", "ContactList")
 public:
-    KdeAboutAppDialog();
+	KdeAboutAppDialog();
 	~KdeAboutAppDialog();
 public slots:
 	void showWidget();

@@ -208,18 +208,18 @@ bool IcqContact::sendMessage(const Message &message)
 void IcqContact::setName(const QString &name)
 {
 	Q_D(IcqContact);
-	
+
 	FeedbagItem item = d->account->feedbag()->buddyForChange(d->uin);
 	if (!item.isInList())
 		return;
-	
+
 	if (!name.isEmpty())
 		item.setField(SsiBuddyNick, name);
 	else
 		item.removeField(SsiBuddyNick);
 	item.update();
-	
-	
+
+
 //	if (d->item.isNull())
 //		return;
 //	d->name = name;
@@ -244,12 +244,12 @@ void IcqContact::setTags(const QStringList &tags)
 	Q_D(IcqContact);
 	if (d->tags == tags)
 		return;
-	
+
 	Feedbag *feedbag = d->account->feedbag();
 	FeedbagItem item = feedbag->buddyForChange(d->uin);
 	if (!item.isInList())
 		return;
-	
+
 	FeedbagItem groupItem;
 	foreach (const QString &tag, tags) {
 		groupItem = feedbag->groupItem(tag);
@@ -271,12 +271,12 @@ void IcqContact::setTags(const QStringList &tags)
 	if (item.groupId() != groupItem.groupId()) {
 		FeedbagItem oldItem = item;
 		oldItem.remove();
-		
+
 		item.setInList(false);
 		item.setId(feedbag->uniqueItemId(SsiBuddy));
 		item.setGroup(groupItem.groupId());
 	}
-	
+
 	TLV tagsData(SsiBuddyTags);
 	foreach (const QString &tag, tags)
 		tagsData.append<quint16>(tag);

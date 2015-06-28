@@ -45,10 +45,10 @@ OtrClosure::OtrClosure(ChatUnit *unit) : QObject(unit), m_unit(unit), m_item(uni
 {
 	m_myAccount = m_item.m_account_name;
 	m_otherJid = m_item.m_item_name;
-    m_timer = new QTimer(this);
-    connect(m_timer,SIGNAL(timeout()),this,SLOT(updateState()));
-    m_timer->start(1000);
-    m_id = 0;
+	m_timer = new QTimer(this);
+	connect(m_timer,SIGNAL(timeout()),this,SLOT(updateState()));
+	m_timer->start(1000);
+	m_id = 0;
 	prevState = 666;
 	Config config = unit->account()->config("otr");
 	m_policy = config.value(unit->id(), -1);
@@ -83,42 +83,42 @@ void OtrClosure::setPolicy(int pol)
 
 void OtrClosure::verifyFingerprint(bool)
 {
-    SMPdialog dialog(m_item,m_otr,NULL);
-    dialog.exec();
+	SMPdialog dialog(m_item,m_otr,NULL);
+	dialog.exec();
 }
 
 //-----------------------------------------------------------------------------
 
 void OtrClosure::sessionID(bool)
 {
-    QString sId = m_otr->getSessionId(m_myAccount,
-                                      m_otherJid.toStdString().c_str(),m_item);
-    QString msg;
+	QString sId = m_otr->getSessionId(m_myAccount,
+									  m_otherJid.toStdString().c_str(),m_item);
+	QString msg;
 
-    if (sId.isEmpty() ||
-        (sId.compare(QString("<b></b>")) == 0) ||
-        (sId.compare(QString("<b> </b>")) == 0) ||
-        (sId.compare(QString(" <b> </b>")) == 0))
-    {
-        msg = tr("no active encrypted session");
-    }
-    else
-    {
-        msg = tr("Session ID of connection from account %1 to %2 is: ").arg(m_myAccount).arg(m_otherJid)+"<br/>" + sId + ".";
-    }
+	if (sId.isEmpty() ||
+		(sId.compare(QString("<b></b>")) == 0) ||
+		(sId.compare(QString("<b> </b>")) == 0) ||
+		(sId.compare(QString(" <b> </b>")) == 0))
+	{
+		msg = tr("no active encrypted session");
+	}
+	else
+	{
+		msg = tr("Session ID of connection from account %1 to %2 is: ").arg(m_myAccount).arg(m_otherJid)+"<br/>" + sId + ".";
+	}
 
-    QMessageBox mb(QMessageBox::Information, "qutim-otr", msg, NULL, NULL,
-                   Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-    mb.setTextFormat(Qt::RichText);
-    mb.exec();
+	QMessageBox mb(QMessageBox::Information, "qutim-otr", msg, NULL, NULL,
+				   Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+	mb.setTextFormat(Qt::RichText);
+	mb.exec();
 }
 
 //-----------------------------------------------------------------------------
 
 void OtrClosure::endSession(bool b)
 {
-        Q_UNUSED(b);
-        m_otr->endSession(m_myAccount, m_otherJid, m_item);
+		Q_UNUSED(b);
+		m_otr->endSession(m_myAccount, m_otherJid, m_item);
 		OTRCrypt::instance()->updateAction(this);
 }
 
@@ -126,16 +126,16 @@ void OtrClosure::endSession(bool b)
 
 void OtrClosure::fingerprint(bool)
 {
-    QString fingerprint =  (m_otr->getPrivateKeys().value(m_myAccount).value(m_item.m_protocol_name,
-                                                                             tr("no private key for ") +
-                                                                             m_myAccount));
+	QString fingerprint =  (m_otr->getPrivateKeys().value(m_myAccount).value(m_item.m_protocol_name,
+																			 tr("no private key for ") +
+																			 m_myAccount));
 
-        QString msg(tr("Fingerprint for account %1 is:").arg(m_myAccount)+"\n" + fingerprint + ".");
+		QString msg(tr("Fingerprint for account %1 is:").arg(m_myAccount)+"\n" + fingerprint + ".");
 
-        QMessageBox mb(QMessageBox::Information, "qutim-otr",
-                   msg, NULL, NULL,
-                   Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-        mb.exec();
+		QMessageBox mb(QMessageBox::Information, "qutim-otr",
+				   msg, NULL, NULL,
+				   Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+		mb.exec();
 }
 
 ChatUnit *OtrClosure::unit() const
@@ -152,12 +152,12 @@ int OtrClosure::getPolicy() const
 
 void OtrClosure::updateState()
 {
-    qint16 newState = this->getState();
+	qint16 newState = this->getState();
 	if (prevState == 666) {
-        prevState = newState;
-    } else if (prevState != newState) {
-        bool enabled = false;
-		
+		prevState = newState;
+	} else if (prevState != newState) {
+		bool enabled = false;
+
 		OtrMessaging *otr = OTRCrypt::instance()->connectionForPolicy(-1);
 		if (OTRCrypt::instance()->notifyUser()) {
 			if (otr->getPolicy() != PolicyOff)
@@ -168,10 +168,10 @@ void OtrClosure::updateState()
 			else if (m_policy > 0)
 				enabled = true;
 		}
-        if(!enabled)
-            return;
-        prevState = newState;
-        QString state = m_otr->getMessageStateString(m_myAccount,m_otherJid,m_item);
+		if(!enabled)
+			return;
+		prevState = newState;
+		QString state = m_otr->getMessageStateString(m_myAccount,m_otherJid,m_item);
 		Message message;
 		message.setChatUnit(m_item.unit());
 		message.setProperty("service", true);
@@ -179,7 +179,7 @@ void OtrClosure::updateState()
 		message.setIncoming(true);
 		message.setText(tr("OTR state is changed. New state is [%1]").arg(state));
 		ChatLayer::get(message.chatUnit(), true)->append(message);
-    }
+	}
 }
 
 void OtrClosure::updateMessageState()

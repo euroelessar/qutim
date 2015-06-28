@@ -31,8 +31,8 @@ namespace Control {
 
 Crypter::Crypter(const QByteArray &key) : m_key(new QCA::SymmetricKey(key))
 {
-    QCA::init();
-    QCA::setAppName(QCoreApplication::applicationName());
+	QCA::init();
+	QCA::setAppName(QCoreApplication::applicationName());
 }
 
 Crypter::~Crypter()
@@ -41,25 +41,25 @@ Crypter::~Crypter()
 
 QByteArray Crypter::encode(const QByteArray &data, bool *ok) const
 {
-    QCA::InitializationVector iv(16);
-    QCA::Cipher cipher(QString("aes256"),
-                       QCA::Cipher::CBC,
-                       QCA::Cipher::DefaultPadding,
-                       QCA::Encode,
-                       *m_key.data(),
-                       iv);
-    QCA::SecureArray result = cipher.update(data);
-    QCA::SecureArray final = cipher.final();
-    if (!cipher.ok()) {
-        *ok = false;
-        qCritical("Something wrong");
-        return QByteArray();
-    }
-    *ok = true;
-    return iv.toByteArray()
-            .append(result.toByteArray())
-            .append(final.toByteArray())
-            .toBase64();
+	QCA::InitializationVector iv(16);
+	QCA::Cipher cipher(QString("aes256"),
+					   QCA::Cipher::CBC,
+					   QCA::Cipher::DefaultPadding,
+					   QCA::Encode,
+					   *m_key.data(),
+					   iv);
+	QCA::SecureArray result = cipher.update(data);
+	QCA::SecureArray final = cipher.final();
+	if (!cipher.ok()) {
+		*ok = false;
+		qCritical("Something wrong");
+		return QByteArray();
+	}
+	*ok = true;
+	return iv.toByteArray()
+			.append(result.toByteArray())
+			.append(final.toByteArray())
+			.toBase64();
 }
 
 } // namespace Control

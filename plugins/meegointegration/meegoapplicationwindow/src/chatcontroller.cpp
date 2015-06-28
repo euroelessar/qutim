@@ -40,9 +40,9 @@ void ChatController::setWebView(QObject *webView)
 		m_webView = webView;
 		emit webViewChanged(webView);
 		QString script = QLatin1String("client.handleElement(document.querySelector('*'));");
-        QMetaObject::invokeMethod(m_webView, "evaluateJavaScript",
-                                  Qt::QueuedConnection,
-                                  Q_ARG(QString, script));
+		QMetaObject::invokeMethod(m_webView, "evaluateJavaScript",
+								  Qt::QueuedConnection,
+								  Q_ARG(QString, script));
 	}
 }
 

@@ -50,7 +50,7 @@ namespace qutim_sdk_0_3
 		QByteArray str;
 		QList<QString> args;
 	};
-	
+
 	QString LocalizedString::toString() const
 	{
 		if (m_ctx.isEmpty())
@@ -69,19 +69,19 @@ namespace qutim_sdk_0_3
 
 QDataStream &operator<<(QDataStream &out, const qutim_sdk_0_3::LocalizedString &str)
 {
-    out << str.context();
-    out << str.original();
-    return out;
+	out << str.context();
+	out << str.original();
+	return out;
 }
 
 QDataStream &operator>>(QDataStream &in, qutim_sdk_0_3::LocalizedString &str)
 {
-    QByteArray context;
-    QByteArray original;
-    in >> context;
-    in >> original;
-    str.setContext(context);
-    str.setOriginal(original);
-    return in;
+	QByteArray context;
+	QByteArray original;
+	in >> context;
+	in >> original;
+	str.setContext(context);
+	str.setOriginal(original);
+	return in;
 }
 

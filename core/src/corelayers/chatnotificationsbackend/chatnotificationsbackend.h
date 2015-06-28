@@ -39,7 +39,7 @@ class ChatNotificationsBackend : public QObject, public qutim_sdk_0_3::StartupMo
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 public:
-    ChatNotificationsBackend();
+	ChatNotificationsBackend();
 protected:
 	virtual void handleNotification(qutim_sdk_0_3::Notification *notification);
 private slots:

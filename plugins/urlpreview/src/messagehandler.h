@@ -49,7 +49,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(UrlPreview::PreviewFlags)
 
 class UrlHandler : public QObject, public qutim_sdk_0_3::MessageHandler
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit UrlHandler();
 

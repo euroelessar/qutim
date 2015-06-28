@@ -25,7 +25,7 @@
 
 #include "imagepubsettings.h"
 
-imagepubSettings::imagepubSettings(QString profile_name) 
+imagepubSettings::imagepubSettings(QString profile_name)
 {
 	ui.setupUi(this);
 	m_profile_name = profile_name;
@@ -69,7 +69,7 @@ imagepubSettings::imagepubSettings(QString profile_name)
 
 imagepubSettings::~imagepubSettings()
 {
-	
+
 }
 
 void imagepubSettings::saveSettings()

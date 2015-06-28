@@ -41,14 +41,14 @@ Q_IMPORT_PLUGIN(qgif)
 
 int main(int argc, char *argv[])
 {
-    {
-        std::random_device rd;
-        srand(rd());
-        qsrand(rd());
-    }
-    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    QApplication app(argc, argv);
+	{
+		std::random_device rd;
+		srand(rd());
+		qsrand(rd());
+	}
+	QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+	QApplication app(argc, argv);
 
 	Core::ModuleManagerImpl core;
 	Q_UNUSED(core);
