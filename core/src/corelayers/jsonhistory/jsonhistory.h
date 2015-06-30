@@ -61,8 +61,8 @@ public:
 	bool hasJobRunnable;
 	EndCache cache;
 
-	QMutex lambdaMutex;
-	QQueue< std::function<void ()> > fqueue;
+	QMutex queueLock;
+	QQueue< std::function<void ()> > queue;
 };
 
 class JsonHistoryJob : public QRunnable

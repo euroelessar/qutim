@@ -48,14 +48,14 @@ JsonHistoryJob::JsonHistoryJob(JsonHistoryScope::Ptr scope)
 void JsonHistoryJob::run()
 {
 	forever {
-		d->lambdaMutex.lock();
-		if(d->fqueue.isEmpty()) {
+		d->queueLock.lock();
+		if(d->queue.isEmpty()) {
 			d->hasJobRunnable = false;
-			d->lambdaMutex.unlock();
+			d->queueLock.unlock();
 			break;
 		}
-		auto f = d->fqueue.dequeue();
-		d->lambdaMutex.unlock();
+		auto f = d->queue.dequeue();
+		d->queueLock.unlock();
 
 		f();
 	}
@@ -64,9 +64,9 @@ void JsonHistoryJob::run()
 template <typename Method>
 static void runJob(JsonHistoryScope::Ptr scope, Method method)
 {
-	QMutexLocker locker(&scope->lambdaMutex);
+	QMutexLocker locker(&scope->queueLock);
 
-	scope->fqueue.enqueue(std::move(method));
+	scope->queue.enqueue(std::move(method));
 
 	if(!scope->hasJobRunnable) {
 		scope->hasJobRunnable = true;
