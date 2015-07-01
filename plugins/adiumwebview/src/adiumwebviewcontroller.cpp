@@ -129,7 +129,7 @@ void WebViewController::setChatSession(ChatSession *session)
 		if (!m_isPreview) {
 			loadSettings(false);
 			clearChat();
-			loadHistory();
+			//loadHistory();
 		}
 	}
 }
@@ -149,11 +149,6 @@ bool WebViewController::isContentSimiliar(const Message &a, const Message &b)
 
 void WebViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
-	if(m_fetchingHistory == Fetching) {
-		m_awaitingMessages.append(msg);
-		return;
-	}
-
 	Message copy = msg;
 	QString html = UrlParser::parseUrls(copy.html(), UrlParser::Html);
 	copy.setProperty("messageId", msg.id());
@@ -385,25 +380,6 @@ void WebViewController::onSettingsSaved()
 	loadSettings(true);
 	evaluateJavaScript(m_style.scriptForChangingVariant());
 	evaluateJavaScript(m_style.scriptForSettingCustomStyle());
-}
-
-void WebViewController::loadHistory()
-{
-	MessageList messages = m_session.data()->messageListOnStart();
-
-	foreach (Message mess, messages) {
-		mess.setProperty("silent", true);
-		mess.setProperty("store", false);
-		mess.setProperty("history", true);
-		if (!mess.chatUnit()) //TODO FIXME
-			mess.setChatUnit(m_session.data()->unit());
-
-		m_awaitingMessages.append(mess);
-	}
-
-	m_fetchingHistory = Appending;
-	appendAwaitingMessages();
-	m_fetchingHistory = Done;
 }
 
 void WebViewController::onLoadFinished()

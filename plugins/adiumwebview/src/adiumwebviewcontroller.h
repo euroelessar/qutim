@@ -90,7 +90,6 @@ protected:
 	void clearFocusClass();
 	bool isContentSimiliar(const qutim_sdk_0_3::Message &a, const qutim_sdk_0_3::Message &b);
 	void loadSettings(bool onFly);
-	void loadHistory();
 
 private slots:
 	void onSettingsSaved();

@@ -255,7 +255,7 @@ QUrl ChatChannel::commandUrl(const QString &method, const QString &arg) const
 	return url;
 }
 
-qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
+void ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
 	if (message.isIncoming())
 		emit messageReceived(&message);
@@ -263,7 +263,7 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 		emit messageSent(&message);
 
 	if (message.property("spam", false) || message.property("hide", false))
-		return message.id();
+		return;
 
 	bool service = message.property("service", false);
 
@@ -277,7 +277,7 @@ qint64 ChatChannel::doAppendMessage(qutim_sdk_0_3::Message &message)
 		Notification::send(message);
 
 	emit messageAppended(message);
-	return message.id();
+	return;
 }
 
 void ChatChannel::doSetActive(bool active)

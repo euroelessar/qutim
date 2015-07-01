@@ -109,7 +109,7 @@ public:
 
 protected:
 	void doSetActive(bool active);
-	qint64 doAppendMessage(qutim_sdk_0_3::Message &message);
+	void doAppendMessage(qutim_sdk_0_3::Message &message);
 
 private:
 	qutim_sdk_0_3::ChatUnit *m_unit;

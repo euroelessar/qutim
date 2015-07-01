@@ -60,7 +60,7 @@ public:
 	ChatSessionImpl(ChatUnit *unit, ChatLayer *chat);
 	virtual ~ChatSessionImpl();
 	virtual void addContact ( Buddy* c );
-	virtual qint64 doAppendMessage(Message &message);
+	virtual void doAppendMessage(Message &message);
 	virtual void removeContact ( Buddy* c );
 	QObject *controller();
 	QObject *controller() const;
@@ -79,6 +79,8 @@ public:
 	void setChatState(ChatUnit::ChatState state);
 	ChatUnit::ChatState getChatState() const;
 	bool isJavaScriptSupported() const;
+	void onInitialHistoryLoaded(const MessageList & messagelist);
+	void appendAwaitingMessages();
 signals:
 	void buddiesChanged();
 	void chatUnitChanged(qutim_sdk_0_3::ChatUnit *);

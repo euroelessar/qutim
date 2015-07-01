@@ -109,7 +109,6 @@ public:
 
 	bool active;
 	QDateTime dateOpened;
-	MessageList messageListOnStart;
 };
 
 struct ChatLayerData
@@ -190,17 +189,6 @@ void ChatSession::setDateOpened(const QDateTime &date)
 		return;
 	d->dateOpened = date;
 	emit dateOpenedChanged(d->dateOpened);
-}
-
-MessageList ChatSession::messageListOnStart() const
-{
-	return d_func()->messageListOnStart;
-}
-
-void ChatSession::setMessageListOnStart(const MessageList &messagelist)
-{
-	Q_D(ChatSession);
-	d->messageListOnStart = messagelist;
 }
 
 void ChatSession::setActive(bool active)

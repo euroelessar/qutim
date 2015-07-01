@@ -62,6 +62,12 @@ public:
 		FirstOutOfFocus = 0x03
 	};
 
+	enum HistoryStatus {
+		Fetching,
+		Appending,
+		Done
+	};
+
 	ChatSessionImplPrivate();
 	virtual ~ChatSessionImplPrivate();
 	void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root = true);
@@ -83,6 +89,8 @@ public:
 	QTimer inactive_timer;
 	MessageList unread;
 	MessageList lastMessages;
+	MessageList awaitingMessages;
+	HistoryStatus fetchingHistory = Fetching;
 	ChatUnit::ChatState myselfChatState;
 	ChatSessionImpl *q_ptr;
 	bool m_showReceiverId;

@@ -109,11 +109,6 @@ ChatSession *TextViewController::getSession() const
 
 void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
-	if(m_fetchingHistory == Fetching) {
-		m_awaitingMessages.append(msg);
-		return;
-	}
-
 	if (msg.text().isEmpty())
 		return;
 	QTextCursor cursor(this);
@@ -388,25 +383,7 @@ void TextViewController::init()
 
 void TextViewController::loadHistory()
 {
-	qDebug() << Q_FUNC_INFO;
-
-	MessageList messages = m_session->messageListOnStart();
-
-	foreach (Message mess, messages) {
-		mess.setProperty("silent", true);
-		mess.setProperty("store", false);
-		mess.setProperty("history", true);
-		if (!mess.chatUnit()) //TODO FIXME
-			mess.setChatUnit(m_session->getUnit());
-
-		m_awaitingMessages.append(mess);
-	}
-
 	m_lastSender.clear();
-
-	m_fetchingHistory = Appending;
-	appendAwaitingMessages();
-	m_fetchingHistory = Done;
 }
 
 QString TextViewController::makeName(const Message &mes)

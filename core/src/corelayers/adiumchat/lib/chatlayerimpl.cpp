@@ -99,9 +99,11 @@ ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 		Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
 		int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
 
-		MessageList l = qutim_sdk_0_3::History::instance()->readSync(unit, QDateTime::currentDateTime(), max_num);
+		auto messages = qutim_sdk_0_3::History::instance()->read(unit, QDateTime::currentDateTime(), max_num);
 
-		session->setMessageListOnStart(l);
+		messages.connect(session, [session] (const MessageList & messages) {
+			session->onInitialHistoryLoaded(messages);
+		});
 
 		connect(session, SIGNAL(destroyed(QObject*)), SLOT(onChatSessionDestroyed(QObject*)));
 		m_chatSessions.insert(unit,session);

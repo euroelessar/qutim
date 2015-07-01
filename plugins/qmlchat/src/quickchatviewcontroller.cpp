@@ -118,22 +118,6 @@ ChatSession *QuickChatController::getSession() const
 	return m_session.data();
 }
 
-void QuickChatController::loadHistory()
-{
-	qDebug() << Q_FUNC_INFO;
-	Config config = Config(QStringLiteral("appearance")).group(QStringLiteral("chat/history"));
-	int max_num = 50 + config.value(QStringLiteral("maxDisplayMessages"), 5);
-	MessageList messages = History::instance()->readSync(m_session.data()->getUnit(), max_num);
-	foreach (Message mess, messages) {
-		mess.setProperty("silent", true);
-		mess.setProperty("store", false);
-		mess.setProperty("history", true);
-		if (!mess.chatUnit()) //TODO FIXME
-			mess.setChatUnit(m_session.data()->getUnit());
-		m_session.data()->append(mess);
-	}
-}
-
 void QuickChatController::setChatSession(ChatSession *session)
 {
 	if (m_session.data() == session)
@@ -189,8 +173,6 @@ void QuickChatController::loadTheme(const QString &name)
 	emit itemChanged(m_item);
 
 	delete item;
-
-	loadHistory();
 }
 
 QString QuickChatController::parseEmoticons(const QString &text) const
