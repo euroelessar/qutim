@@ -2,6 +2,7 @@
 #define QUTIM_SDK_0_3_QUICKTHEMEMANAGER_H
 
 #include <QObject>
+#include <QStringList>
 
 namespace qutim_sdk_0_3 {
 
