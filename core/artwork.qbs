@@ -6,7 +6,7 @@ import qbs.TextFile
 Product {
     name: "artwork"
 
-    type: [" installed_content" ]
+    type: ["installed_content" ]
 
     property bool installConfig: true
     property bool installSoundTheme: true
@@ -21,7 +21,7 @@ Product {
     property string shareDir: project.qutim_share_path
 
     Group {
-        name: "config files"
+        name: "Config files"
         condition: installConfig
         fileTags: "install"
         qbs.installDir: project.qutim_share_path + "/config"
@@ -38,7 +38,7 @@ Product {
     }
 
     Group {
-        name: "webkitstyle and ca-certs"
+        name: "Webkitstyle and ca-certs"
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path
         qbs.install: true
@@ -49,7 +49,7 @@ Product {
     }
 
     Group {
-        name: "sounds"
+        name: "Sounds"
         condition: installSoundTheme
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path
@@ -58,7 +58,7 @@ Product {
     }
 
     Group {
-        name: "desktop file"
+        name: "Desktop file"
         condition: qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
         qbs.installDir: "share/applications"
@@ -68,7 +68,7 @@ Product {
     }
 
     Group {
-        name: "default tray icons"
+        name: "Default tray icons"
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
@@ -76,7 +76,7 @@ Product {
     }
     
     Group {
-        name: "default icon theme"
+        name: "Default icon theme"
         condition: installIcons
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
@@ -85,7 +85,7 @@ Product {
     }
 
     Group {
-        name: "fallback icon theme"
+        name: "Fallback icon theme"
         condition: installIcons && installHicolorTheme
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
@@ -94,12 +94,30 @@ Product {
     }
 
     Group {
-        name: "user-status icons"
+        name: "User-status icons"
         condition: installIcons
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/qutim-default/"
         qbs.install: true
         prefix: "../artwork/icons/user-status"
+    }
+
+    Group {
+        name: "User-role icons"
+        condition: installIcons
+        fileTags: [ "install" ]
+        qbs.installDir: shareDir + "/icons/hicolor/scalable/status/"
+        qbs.install: true
+        files: "../artwork/icons/user-status/hicolor/scalable/status/*.svg"
+    }
+
+    Group {
+        name: "Clients icons"
+        condition: installIcons
+        fileTags: [ "install" ]
+        qbs.installDir: shareDir + "/icons/hicolor/16x16/apps/"
+        qbs.install: true
+        files: "../artwork/icons/clients/hicolor/16x16/apps/*"
     }
 
     Group {
