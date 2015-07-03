@@ -34,7 +34,7 @@ namespace Core {
 
 SpellHighlighter::SpellHighlighter(QTextDocument *doc) : QSyntaxHighlighter(doc)
 {
-	// TODO FIXME
+	// TODO(nico-izo): change underlineStyle back once fixed
 	// In Qt 5.4+ QTextCharFormat::SpellCheckUnderline is broken
 	// on several platforms and in random conditions
 	// So let's use WaveUnderline
