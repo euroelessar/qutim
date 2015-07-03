@@ -28,12 +28,18 @@
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QContextMenuEvent>
+#include <QDebug>
 
 namespace Core {
 
 SpellHighlighter::SpellHighlighter(QTextDocument *doc) : QSyntaxHighlighter(doc)
 {
-	m_format.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+	// TODO FIXME
+	// In Qt 5.4+ QTextCharFormat::SpellCheckUnderline is broken
+	// on several platforms and in random conditions
+	// So let's use WaveUnderline
+	// https://bugreports.qt.io/browse/QTBUG-45162
+	m_format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 	m_format.setUnderlineColor(Qt::red);
 }
 
