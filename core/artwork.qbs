@@ -6,7 +6,7 @@ import qbs.TextFile
 Product {
     name: "artwork"
 
-    type: ["installed_content" ]
+    type: [ "installed_content" ]
 
     property bool installConfig: true
     property bool installSoundTheme: true
@@ -14,6 +14,7 @@ Product {
     property bool installOxygenTheme: !qbs.targetOS.contains("linux")
     property bool installUbuntuTheme: qbs.targetOS.contains("linux")
     property bool installHicolorTheme: !qbs.targetOS.contains("osx") && !qbs.targetOS.contains("windows")
+    property bool installClientsIcons: true
     property string qutim_version: project.qutim_version
 
     Depends { name: "Qt.core" }
@@ -113,7 +114,7 @@ Product {
 
     Group {
         name: "Clients icons"
-        condition: installIcons
+        condition: installIcons && installClientsIcons
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/hicolor/16x16/apps/"
         qbs.install: true
