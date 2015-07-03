@@ -148,7 +148,7 @@ void VAccount::saveSettings()
 {
 	config().setValue("access/uid", uid());
 	if (Vreen::OAuthConnection *c = qobject_cast<Vreen::OAuthConnection*>(m_client->connection()))
-		setAccessToken(c->accessToken(), c->expiresIn());
+		setAccessToken(c->accessToken().toLocal8Bit(), c->expiresIn());
 }
 
 VRoster *VAccount::roster() const
