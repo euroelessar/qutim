@@ -52,7 +52,7 @@ ContactListBaseModel::ContactListBaseModel(QObject *parent) :
 	m_chatUserJoinedIcon = Icon(QLatin1String("list-add-user-conference"));
 	m_chatUserLeftIcon = Icon(QLatin1String("list-remove-user-conference"));
 	m_qutimIcon = Icon(QLatin1String("qutim"));
-	m_transferCompletedIcon = Icon(QLatin1String("document-save-filetransfer-comleted"));
+	m_transferCompletedIcon = Icon(QLatin1String("document-save-filetransfer-completed"));
 	m_birthdayIcon = Icon(QLatin1String("view-calendar-birthday"));
 	m_defaultNotificationIcon = Icon(QLatin1String("dialog-information"));
 
