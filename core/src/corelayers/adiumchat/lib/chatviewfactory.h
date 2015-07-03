@@ -27,6 +27,8 @@
 
 #include <QWidget>
 #include "chatlayer_global.h"
+#include <qutim/message.h>
+#include <QDebug>
 
 namespace qutim_sdk_0_3
 {
@@ -68,6 +70,29 @@ public:
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg) = 0;
 	virtual void clearChat() {}
 	virtual QString quote() { return QString(); }
+protected:
+	enum FetchingStatus {
+		Fetching,
+		Appending,
+		Done
+	};
+
+	FetchingStatus m_fetchingHistory = Fetching;
+	QList<qutim_sdk_0_3::Message> m_awaitingMessages;
+
+	void appendAwaitingMessages() {
+		using qutim_sdk_0_3::Message;
+
+		std::stable_sort(m_awaitingMessages.begin(), m_awaitingMessages.end(), [](const Message &left, const Message &right) {
+			return left.time() < right.time();
+		});
+
+		for(auto m = m_awaitingMessages.begin(); m != m_awaitingMessages.end(); m++) {
+			appendMessage(*m);
+		}
+
+		m_awaitingMessages.clear();
+	}
 };
 
 }

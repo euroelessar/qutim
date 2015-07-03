@@ -74,7 +74,7 @@ public slots:
 	{  appendMessage(Message(text)); }
 protected:
 	virtual void doSetActive(bool active) = 0;
-	virtual qint64 doAppendMessage(qutim_sdk_0_3::Message &message) = 0;
+	virtual void doAppendMessage(qutim_sdk_0_3::Message &message) = 0;
 signals:
 	void dateOpenedChanged(const QDateTime &date);
 	void messageReceived(qutim_sdk_0_3::Message *message);

@@ -129,7 +129,7 @@ void WebViewController::setChatSession(ChatSession *session)
 		if (!m_isPreview) {
 			loadSettings(false);
 			clearChat();
-			loadHistory();
+			//loadHistory();
 		}
 	}
 }
@@ -380,21 +380,6 @@ void WebViewController::onSettingsSaved()
 	loadSettings(true);
 	evaluateJavaScript(m_style.scriptForChangingVariant());
 	evaluateJavaScript(m_style.scriptForSettingCustomStyle());
-}
-
-void WebViewController::loadHistory()
-{
-	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
-	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
-	MessageList messages = History::instance()->readSync(m_session.data()->unit(), max_num);
-	foreach (Message mess, messages) {
-		mess.setProperty("silent", true);
-		mess.setProperty("store", false);
-		mess.setProperty("history", true);
-		if (!mess.chatUnit()) //TODO FIXME
-			mess.setChatUnit(m_session.data()->unit());
-		m_session.data()->append(mess);
-	}
 }
 
 void WebViewController::onLoadFinished()

@@ -383,18 +383,6 @@ void TextViewController::init()
 
 void TextViewController::loadHistory()
 {
-	qDebug() << Q_FUNC_INFO;
-	Config config = Config(QLatin1String("appearance")).group(QLatin1String("chat/history"));
-	int max_num = config.value(QLatin1String("maxDisplayMessages"), 5);
-	MessageList messages = History::instance()->readSync(m_session->getUnit(), max_num);
-	foreach (Message mess, messages) {
-		mess.setProperty("silent", true);
-		mess.setProperty("store", false);
-		mess.setProperty("history", true);
-		if (!mess.chatUnit()) //TODO FIXME
-			mess.setChatUnit(m_session->getUnit());
-		m_session->append(mess);
-	}
 	m_lastSender.clear();
 }
 

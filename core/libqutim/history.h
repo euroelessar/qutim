@@ -70,6 +70,7 @@ namespace qutim_sdk_0_3
 		AsyncResult<MessageList> read(const ChatUnit *unit, const QDateTime &to, int max_num);
 		AsyncResult<MessageList> read(const ChatUnit *unit, int max_num);
 
+		MessageList readSync(const ChatUnit *unit, const QDateTime &to, int max_num);
 		MessageList readSync(const ChatUnit *unit, int max_num);
 
 		static ContactInfo info(const ChatUnit *unit);

@@ -55,8 +55,6 @@ public slots:
 	void loadSettings();
 	void loadTheme(const QString &name);
 	void appendText(const QString &string);
-protected slots:
-	void loadHistory();
 protected:
 	bool eventFilter(QObject *, QEvent *);
 signals:

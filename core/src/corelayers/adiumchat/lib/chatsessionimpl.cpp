@@ -102,9 +102,14 @@ void ChatSessionImpl::addContact(Buddy* c)
 	emit buddiesChanged();
 }
 
-qint64 ChatSessionImpl::doAppendMessage(Message &message)
+void ChatSessionImpl::doAppendMessage(Message &message)
 {
 	Q_D(ChatSessionImpl);
+	if(d_func()->fetchingHistory == ChatSessionImplPrivate::Fetching) {
+		d_func()->awaitingMessages.append(message);
+		return;
+	}
+
 	if (!message.chatUnit()) {
 		qWarning() << "Message" << message.text() << "must have a chatUnit";
 		message.setChatUnit(getUnit());
@@ -116,7 +121,7 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 		emit messageSent(&message);
 
 	if (message.property("spam", false) || message.property("hide", false))
-		return message.id();
+		return;
 
 	if ((!isActive() && !message.property("service", false))
 			&& message.isIncoming()
@@ -172,7 +177,6 @@ qint64 ChatSessionImpl::doAppendMessage(Message &message)
 			}
 		}
 	}
-	return message.id();
 }
 
 void ChatSessionImpl::removeContact(Buddy *c)
@@ -506,6 +510,38 @@ ChatUnit::ChatState ChatSessionImpl::getChatState() const
 bool ChatSessionImpl::isJavaScriptSupported() const
 {
 	return d_func()->hasJavaScript;
+}
+
+void ChatSessionImpl::onInitialHistoryLoaded(const MessageList &messages)
+{
+	MessageList historyList;
+
+	foreach (Message mess, messages) {
+		mess.setProperty("silent", true);
+		mess.setProperty("store", false);
+		mess.setProperty("history", true);
+		if (!mess.chatUnit()) //TODO FIXME
+			mess.setChatUnit(getUnit());
+
+		historyList.append(mess);
+	}
+
+	d_func()->awaitingMessages.append(historyList);
+	appendAwaitingMessages();
+}
+
+void ChatSessionImpl::appendAwaitingMessages() {
+	d_func()->fetchingHistory = ChatSessionImplPrivate::Appending;
+	std::stable_sort(d_func()->awaitingMessages.begin(), d_func()->awaitingMessages.end(), [](const Message &left, const Message &right) {
+		return left.time() < right.time();
+	});
+
+	for(auto m = d_func()->awaitingMessages.begin(); m != d_func()->awaitingMessages.end(); m++) {
+		doAppendMessage(*m);
+	}
+
+	d_func()->fetchingHistory = ChatSessionImplPrivate::Done;
+	d_func()->awaitingMessages.clear();
 }
 
 }

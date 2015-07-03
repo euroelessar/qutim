@@ -153,8 +153,8 @@ void WebKitPreviewSession::doSetActive(bool active)
 	Q_UNUSED(active);
 }
 
-qint64 WebKitPreviewSession::doAppendMessage(qutim_sdk_0_3::Message &message)
+void WebKitPreviewSession::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
-	return message.id();
+	return;
 }
 
