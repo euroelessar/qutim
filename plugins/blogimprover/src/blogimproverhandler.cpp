@@ -40,7 +40,7 @@ void BlogImproverHandler::loadSettings()
 {
 	Config cfg;
 	cfg.beginGroup("BlogImprover");
-	m_enablePstoIntegration = cfg.value(QLatin1String("enablePstoIntegration"), true);
+	m_enablePstoIntegration = cfg.value(QLatin1String("enablePointIntegration"), true);
 	m_enableJuickIntegration = cfg.value(QLatin1String("enableJuickIntegration"), true);
 	m_enableBnwIntegration = cfg.value(QLatin1String("enableBnwIntegration"), true);
 	cfg.endGroup();
