@@ -31,8 +31,6 @@
 #include <qutim/config.h>
 #include <qutim/settingslayer.h>
 #include <qutim/chatsession.h>
-
-#include "blogimproversettings.h"
 #include "blogimproverhandler.h"
 
 namespace qutim_sdk_0_3

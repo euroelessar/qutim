@@ -43,9 +43,9 @@ namespace BlogImprover
 	bool BlogImproverPlugin::load()
 	{
 
-		m_settingsItem.reset(new GeneralSettingsItem<BlogImproverSettings>(
-					Settings::Plugin,	QIcon(),
-					QT_TRANSLATE_NOOP("Plugin", "BlogImprover")));
+		m_settingsItem.reset(new QmlSettingsItem(QStringLiteral("blogimprover"),
+												 Settings::Plugin,	QIcon(),
+												 QT_TRANSLATE_NOOP("Plugin", "BlogImprover")));
 		Settings::registerItem(m_settingsItem.data());
 
 
