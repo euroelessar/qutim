@@ -49,10 +49,20 @@ lupdate = ensure_command('lupdate-qt5', 'lupdate')
 lconvert = ensure_command('lconvert-qt5', 'lconvert')
 msgmerge = ensure_command('msgmerge')
 
-modules = [('core', 'core')]
-modules += map(lambda module: ('plugins/' + module, module), os.listdir('plugins'))
-modules += map(lambda module: ('protocols/' + module, module), os.listdir('protocols'))
-modules = filter(lambda module: os.path.isdir(module[0]) and os.path.exists(os.path.join(module[0], module[1] + '.qbs')), modules)
+def is_valid_plugin(path, name):
+	if not os.path.isdir(path):
+		return False
+	return os.path.exists(os.path.join(path, '%s.qbs' % name))
+
+modules = [('core', 'src/bin')]
+for plugin_type in os.listdir('src/plugins'):
+	plugin_type_path = os.path.join('src/plugins', plugin_type)
+	if not os.path.isdir(plugin_type_path):
+		continue
+	for plugin in os.listdir(plugin_type_path):
+		modules += (os.path.join(plugin_type_path, plugin), plugin)
+
+modules = filter(lambda module: is_valid_plugin(module[0], module[1]), modules)
 
 files_to_remove = set()
 
@@ -66,7 +76,7 @@ def write_string(path, context, strings):
 
 strings = set()
 
-for resource in glob.glob("core/share/qutim/webkitstyle/*/Contents/Resources/*.json"):
+for resource in glob.glob("src/share/qutim/webkitstyle/*/Contents/Resources/*.json"):
     with open(resource) as f:
         try:
             for item in json.load(f):
@@ -75,7 +85,7 @@ for resource in glob.glob("core/share/qutim/webkitstyle/*/Contents/Resources/*.j
         except Exception as e:
             print '[ERROR] {0}: {1}'.format(resource, e)
         
-write_string('plugins/adiumwebview/__custom_json_from_styles.cpp', 'Style', strings)
+write_string('src/plugins/generic/adiumwebview/__custom_json_from_styles.cpp', 'Style', strings)
 
 strings = set()
 
@@ -85,7 +95,7 @@ for root, dirs, files in os.walk('plugins/weather'):
             for line in f:
                 strings.update(map(lambda x: x[:-2], re.findall('(?<=%localized{).*?}%', line)))
 
-write_string('plugins/weather/__template_from_weather.cpp', 'Weather', strings)
+write_string('src/plugins/generic/weather/__template_from_weather.cpp', 'Weather', strings)
 
 strings = set()
 
@@ -95,12 +105,12 @@ for root, dirs, files in os.walk('.'):
             for line in f:
                 strings.update(map(lambda x: x.group(1), re.finditer('Q_CLASSINFO.*"Service".*"(.*?)"\\)', line)))
 
-write_string('core/__generated_from_service_names.cpp', 'Service', strings)
+write_string('src/bin/__generated_from_service_names.cpp', 'Service', strings)
 
 authors = set()
 tasks = set()
 
-for file in glob.glob('core/contributers/*.json') + glob.glob('core/devels/*.json'):
+for file in glob.glob('src/bin/contributers/*.json') + glob.glob('src/bin/devels/*.json'):
     with open(file) as f:
         data = json.load(f)
         
