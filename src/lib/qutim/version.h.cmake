@@ -16,7 +16,7 @@
 #ifndef _QUTIM_VERSION_H_
 #define _QUTIM_VERSION_H_
 
-#include "libqutim_global.h"
+#include <qutim/libqutim_global.h>
 
 #define QUTIM_VERSION_STRING "${CMAKE_QUTIM_VERSION_STRING}"
 #define QUTIM_VERSION_MAJOR ${CMAKE_QUTIM_VERSION_MAJOR}

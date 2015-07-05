@@ -1,6 +1,6 @@
-import "../../plugins/UreenPlugin.qbs" as UreenPlugin
+import "../Protocol.qbs" as Protocol
 
-UreenPlugin {
+Protocol {
     type: ['installed_content', 'dynamiclibrary']
 
     Depends { name: "vreen" }

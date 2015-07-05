@@ -155,6 +155,6 @@ void WebKitPreviewSession::doSetActive(bool active)
 
 void WebKitPreviewSession::doAppendMessage(qutim_sdk_0_3::Message &message)
 {
-	return;
+	Q_UNUSED(message);
 }
 

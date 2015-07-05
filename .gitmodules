@@ -1,17 +1,17 @@
 [submodule "translations"]
 	path = translations
 	url = git://github.com/euroelessar/qutim-translations.git
-[submodule "3rdparty/k8json"]
+[submodule "src/3rdparty/k8json"]
 	path = src/3rdparty/k8json
 	url = git://github.com/euroelessar/k8json.git
 [submodule "jabber/jreen"]
-	path = protocols/jabber/jreen
+	path = src/plugins/protocols/jabber/jreen
 	url = git://github.com/euroelessar/jreen.git
 [submodule "artwork"]
 	path = artwork
 	url = git://github.com/gorthauer/artwork.git
 [submodule "protocols/vkontakte/vreen"]
-	path = protocols/vkontakte/vreen
+	path = src/plugins/protocols/vkontakte/vreen
 	url = git://github.com/gorthauer/vreen.git
 [submodule "plugins/docktile/qtdocktile"]
 	path = plugins/docktile/qtdocktile
@@ -19,6 +19,6 @@
 [submodule "qbs"]
 	path = qbs
 	url = git://github.com/qutIM/qbs-labs
-[submodule "qml/imports/Controls"]
-	path = qml/imports/Controls
+[submodule "src/qml/imports/Controls"]
+	path = src/qml/imports/Controls
 	url = git://github.com/gorthauer/Controls.Experimental.git

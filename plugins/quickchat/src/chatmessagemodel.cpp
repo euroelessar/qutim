@@ -67,6 +67,7 @@ bool ChatMessageModel::eventFilter(QObject *obj, QEvent *ev)
 {
 	if (ev->type() == MessageReceiptEvent::eventType()) {
 		MessageReceiptEvent *event = static_cast<MessageReceiptEvent*>(ev);
+		Q_UNUSED(event);
 	}
 	return QAbstractListModel::eventFilter(obj, ev);
 }
