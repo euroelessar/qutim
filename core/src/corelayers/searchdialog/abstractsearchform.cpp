@@ -27,7 +27,7 @@
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <QKeyEvent>
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 #include <QComboBox>
 #include <QAction>
 #include <QPushButton>

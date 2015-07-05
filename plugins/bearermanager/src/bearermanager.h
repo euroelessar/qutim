@@ -33,7 +33,7 @@
 #include <QScopedPointer>
 #include <QBasicTimer>
 #include <QDateTime>
-#include <plugin.h>
+#include <qutim/plugin.h>
 
 typedef QHash<qutim_sdk_0_3::Account*, qutim_sdk_0_3::Status> StatusHash;
 

@@ -28,7 +28,7 @@
 #include <QApplication>
 #include <QHelpEvent>
 #include <QTreeView>
-#include <qutim/avatarfilter.h>
+#include <qutim/utils/avatarfilter.h>
 #include <QPainter>
 #include <QStringBuilder>
 #include <qutim/config.h>

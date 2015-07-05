@@ -5,7 +5,7 @@
 #include <QQmlParserStatus>
 #include <QPointer>
 #include <QMetaProperty>
-#include "config.h"
+#include <qutim/config.h>
 
 namespace qutim_sdk_0_3 {
 

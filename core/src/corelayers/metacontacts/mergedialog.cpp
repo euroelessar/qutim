@@ -27,7 +27,7 @@
 #include "mergedialog.h"
 #include "ui_mergedialog.h"
 #include "model.h"
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 #include "manager.h"
 
 namespace Core {

@@ -32,7 +32,7 @@
 #include "ui_accountcreatorlist.h"
 #include <QListWidgetItem>
 #include <QContextMenuEvent>
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 #include <QMessageBox>
 #include <qutim/debug.h>
 #include <qutim/systemintegration.h>

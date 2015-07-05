@@ -27,7 +27,7 @@
 #define SIMPLEFILTERPROXYMODEL_H
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 
 namespace Core
 {

@@ -13,16 +13,18 @@
 ***************************************************************************
 *****************************************************************************/
 
-#include "../../libqutim/debug.h"
 #include "itemdelegate.h"
+
 #include <QPainter>
 #include <QApplication>
 #include <QLatin1Literal>
-#include <qtextlayout.h>
-#include "../../libqutim/localizedstring.h"
+#include <QTextLayout>
 #include <QTreeView>
 #include <QListView>
 #include <QStringBuilder>
+
+#include "../debug.h"
+#include "../localizedstring.h"
 
 namespace qutim_sdk_0_3
 {

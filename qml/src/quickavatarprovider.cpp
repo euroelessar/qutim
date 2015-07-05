@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <qutim/icon.h>
 #include <QUrlQuery>
-#include <qutim/avatarfilter.h>
+#include <qutim/utils/avatarfilter.h>
 
 namespace qutim_sdk_0_3 {
 

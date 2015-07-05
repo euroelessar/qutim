@@ -25,13 +25,13 @@
 ****************************************************************************/
 
 #include "model.h"
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 #include <qutim/metacontact.h>
 #include <qutim/protocol.h>
 #include <qutim/accountmanager.h>
 #include <qutim/account.h>
 #include <qutim/debug.h>
-#include <qutim/avatarfilter.h>
+#include <qutim/utils/avatarfilter.h>
 #include "metacontactimpl.h"
 
 namespace Core {

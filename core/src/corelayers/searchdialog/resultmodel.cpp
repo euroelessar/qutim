@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "resultmodel.h"
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 
 namespace Core {
 

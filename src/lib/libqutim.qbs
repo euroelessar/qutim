@@ -1,7 +1,7 @@
 import qbs.base
 import qbs.FileInfo
 import qbs.TextFile
-import "Framework.qbs" as Framework
+import "../../core/Framework.qbs" as Framework
 
 Framework {
     name: "libqutim"
@@ -20,8 +20,8 @@ Framework {
     Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick', 'widgets' ] }
 
     cpp.includePaths: [
-        "libqutim",
-        product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim"
+        ".",
+        product.buildDirectory + "/GeneratedFiles/include/qutim",
     ]
 
     Properties {
@@ -78,11 +78,12 @@ Framework {
         Depends { name: "cpp" }
 
         cpp.includePaths: [
-            product.buildDirectory + "/GeneratedFiles/libqutim/include",
-            product.buildDirectory + "/GeneratedFiles/libqutim/include/qutim",
-            "3rdparty/slidingstackedwidget",
-            "3rdparty/flowlayout",
-            "3rdparty/"
+            product.buildDirectory + "/GeneratedFiles/include",
+            product.buildDirectory + "/GeneratedFiles/include/qutim",
+            ".",
+            "../3rdparty/slidingstackedwidget",
+            "../3rdparty/flowlayout",
+            "../3rdparty/",
         ]
         cpp.cxxFlags: {
             var flags = base.concat("-std=c++11");
@@ -117,34 +118,27 @@ Framework {
     }
 
     files: [
-        'libqutim/**/*.cpp',
-        'libqutim/**/*_p.h',
-        'libqutim/version.h.cmake'
+        'qutim/**/*.cpp',
+        'qutim/**/*.h',
+        'qutim/version.h.cmake',
     ]
-
-    Group {
-        name: "Dev headers"
-        files: 'libqutim/**/*.h'
-        excludeFiles: 'libqutim/**/*_p.h'
-        fileTags: ["hpp", "devheader"]
-    }
 
     //TODO separate this libraries like qutim-adiumwebview
     Group {
         name: "SlidingStackedWidget"
-        prefix: "3rdparty/slidingstackedwidget/"
+        prefix: "../3rdparty/slidingstackedwidget/"
         files: ["*.h", "*.cpp"]
     }
     Group {
         name: "FlowLayout"
-        prefix: "3rdparty/flowlayout/"
+        prefix: "../3rdparty/flowlayout/"
         files: ["*.h", "*.cpp"]
     }
 
     Transformer {
-        inputs: [ "libqutim/version.h.cmake" ]
+        inputs: [ "qutim/version.h.cmake" ]
         Artifact {
-            filePath: "GeneratedFiles/libqutim/include/qutim/libqutim_version.h"
+            filePath: "GeneratedFiles/include/qutim/libqutim_version.h"
             fileTags: [ "hpp" ]
         }
         prepare: {
@@ -173,28 +167,6 @@ Framework {
                 file.write(content);
                 file.close();
             }
-            return cmd;
-        }
-    }
-
-    Rule {
-        inputs: [ "devheader" ]
-        Artifact {
-            fileTags: [ "hpp" ]
-            filePath: "GeneratedFiles/libqutim/include/qutim/" + input.fileName
-        }
-
-        prepare: {
-            var cmd = new JavaScriptCommand();
-            cmd.sourceCode = function() {
-                var inputFile = new TextFile(input.filePath, TextFile.ReadOnly);
-                var file = new TextFile(output.filePath, TextFile.WriteOnly);
-                file.truncate();
-                file.write("#include \"" + input.filePath + "\"\n");
-                file.close();
-            }
-            cmd.description = "generating " + FileInfo.fileName(output.filePath);
-            cmd.highlight = "filegen";
             return cmd;
         }
     }

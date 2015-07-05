@@ -32,7 +32,7 @@
 #include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
 #include <qutim/servicemanager.h>
-#include <qutim/avatarfilter.h>
+#include <qutim/utils/avatarfilter.h>
 
 namespace Core {
 namespace AdiumChat {

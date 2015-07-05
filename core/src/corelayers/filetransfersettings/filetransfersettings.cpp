@@ -31,7 +31,7 @@
 #include <qutim/icon.h>
 #include <QListWidget>
 #include <QVBoxLayout>
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 
 namespace Core {
 

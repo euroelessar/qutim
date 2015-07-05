@@ -29,7 +29,7 @@
 #include <QWizardPage>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include "../../libqutim/statisticshelper_p.h"
+#include <qutim/statisticshelper_p.h>
 
 class QTextBrowser;
 class QCheckBox;

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "bookmarksmodel.h"
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 #include <qutim/icon.h>
 
 namespace Core {

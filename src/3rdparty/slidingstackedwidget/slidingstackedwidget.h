@@ -31,7 +31,7 @@
 #define SLIDINGSTACKEDWIDGET_H
 
 #include <QStackedWidget>
-#include "../../libqutim/libqutim_global.h"
+#include "../lib/qutim/libqutim_global.h"
 #include <QtGui>
 #include <QWidget>
 #include <QDebug>

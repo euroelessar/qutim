@@ -273,6 +273,7 @@ public:
 		case Null:
 			return QVariant();
 		}
+		return QVariant();
 	}
 
 	Ptr child(const QString &name)

@@ -31,7 +31,7 @@
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <QStringBuilder>
-#include <qutim/itemdelegate.h>
+#include <qutim/utils/itemdelegate.h>
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <qutim/configbase.h>

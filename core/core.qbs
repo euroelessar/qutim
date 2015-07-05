@@ -4,7 +4,6 @@ Project {
     name: "Core"
 
     references: [
-        "libqutim.qbs",
         "qutim.qbs",
         "artwork.qbs"
     ]

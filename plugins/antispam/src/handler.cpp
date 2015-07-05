@@ -25,7 +25,7 @@
 ****************************************************************************/
 
 #include "handler.h"
-#include "settingswidget.h"
+#include <qutim/settingswidget.h>
 #include <qutim/contact.h>
 #include <qutim/config.h>
 #include <qutim/authorizationdialog.h>

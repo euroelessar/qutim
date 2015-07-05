@@ -27,7 +27,7 @@
 #include <qutim/icon.h>
 #include <qutim/conference.h>
 #include <QAbstractItemModel>
-#include <qutim/avatarfilter.h>
+#include <qutim/utils/avatarfilter.h>
 #include "chatsessionimpl.h"
 #include "chatlayerimpl.h"
 
