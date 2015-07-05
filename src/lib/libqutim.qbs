@@ -1,7 +1,7 @@
 import qbs.base
 import qbs.FileInfo
 import qbs.TextFile
-import "../../core/Framework.qbs" as Framework
+import "../Framework.qbs" as Framework
 
 Framework {
     name: "libqutim"
