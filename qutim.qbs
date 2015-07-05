@@ -57,11 +57,12 @@ Project {
     qbsSearchPaths: "."
 
     references: [
-        "core/core.qbs",
         "src/3rdparty/3rdparty.qbs",
+        "src/bin/bin.qbs",
         "src/lib/libqutim.qbs",
 		"src/plugins/plugins.qbs",
         "src/qml/qutimplugin.qbs",
+        "src/share/share.qbs",
     ]
 }
 

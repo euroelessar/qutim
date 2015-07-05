@@ -4,7 +4,7 @@ import qbs.File
 import qbs.TextFile
 
 Product {
-    name: "artwork"
+    name: "share"
 
     type: [ "installed_content" ]
 
@@ -39,13 +39,13 @@ Product {
     }
 
     Group {
-        name: "Webkitstyle and ca-certs"
+        name: "WebKit Styles and CA certificates"
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path
         qbs.install: true
         files: [
-            "share/qutim/ca-certs",
-            "share/qutim/webkitstyle"
+            "qutim/ca-certs",
+            "qutim/webkitstyle"
         ]
     }
 
@@ -55,7 +55,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path
         qbs.install: true
-        files: "../artwork/sounds"
+        files: "../../artwork/sounds"
     }
 
     Group {
@@ -73,7 +73,7 @@ Product {
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
-        files: "../artwork/icons/qutim"
+        files: "../../artwork/icons/qutim"
     }
     
     Group {
@@ -82,7 +82,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
         qbs.install: true
-        files: "../artwork/icons/qutim-default"
+        files: "../../artwork/icons/qutim-default"
     }
 
     Group {
@@ -91,7 +91,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
         qbs.install: true
-        files: "../artwork/icons/qutim/icons/hicolor"
+        files: "../../artwork/icons/qutim/icons/hicolor"
     }
 
     Group {
@@ -100,7 +100,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/qutim-default/"
         qbs.install: true
-        prefix: "../artwork/icons/user-status"
+        prefix: "../../artwork/icons/user-status"
     }
 
     Group {
@@ -109,7 +109,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/hicolor/scalable/status/"
         qbs.install: true
-        files: "../artwork/icons/user-status/hicolor/scalable/status/*.svg"
+        files: "../../artwork/icons/user-status/hicolor/scalable/status/*.svg"
     }
 
     Group {
@@ -118,7 +118,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/hicolor/16x16/apps/"
         qbs.install: true
-        files: "../artwork/icons/clients/hicolor/16x16/apps/*"
+        files: "../../artwork/icons/clients/hicolor/16x16/apps/*"
     }
 
     Group {
@@ -127,7 +127,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
         qbs.install: true
-        files: "../artwork/icons/humanity/"
+        files: "../../artwork/icons/humanity/"
     }
 
     Group { // Mac tray icons
@@ -136,7 +136,7 @@ Product {
         fileTags: [ "install" ]
         qbs.install: true
         qbs.installDir: project.qutim_share_path + "/icons/qutim-default/scalable/status/"
-        files: "../artwork/icons/tray/MacOS/*.svg"
+        files: "../../artwork/icons/tray/MacOS/*.svg"
     }
 
     Group {
@@ -145,7 +145,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons"
         qbs.install: true
-        files: "../artwork/icons/oxygen"
+        files: "../../artwork/icons/oxygen"
     }
 
     Group {
@@ -154,7 +154,7 @@ Product {
         fileTags: [ "install" ]
         qbs.install: true
         qbs.installDir: shareDir + "/icons/ubuntu-mono-light/scalable/status/"
-        files: "../artwork/icons/tray/ubuntu-mono-light/*.svg"
+        files: "../../artwork/icons/tray/ubuntu-mono-light/*.svg"
     }
 
     Group {
@@ -163,7 +163,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: shareDir + "/icons/ubuntu-mono-dark/scalable/status/"
         qbs.install: true
-        files: "../artwork/icons/tray/ubuntu-mono-dark/*.svg"
+        files: "../../artwork/icons/tray/ubuntu-mono-dark/*.svg"
     }
 
     Group {
@@ -176,6 +176,7 @@ Product {
     }
 
     Group {
+        name: "QtMenu.nib [osx]"
         condition: qbs.targetOS.contains("osx")
         fileTags: [ "install" ]
         qbs.install: true
