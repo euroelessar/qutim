@@ -707,7 +707,7 @@ FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivat
 			continue;
 		scope()->factories << gen->generate<FileTransferFactory>();
 	}
-	QStringList names = Config().value("filetransfer/factories").toStringList();
+	QStringList names = Config().value("filetransfer/factories", QStringList());
 	if (!names.isEmpty())
 		scope()->factories = sortFactories(names, scope()->factories);
 }

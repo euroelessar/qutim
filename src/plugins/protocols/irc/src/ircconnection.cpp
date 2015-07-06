@@ -411,12 +411,12 @@ void IrcConnection::loadSettings()
 	}
 	cfg.endArray();
 	// User nickname
-	m_nicks = cfg.value("nicks").toStringList();
+	m_nicks = cfg.value("nicks", QStringList());
 	if (m_nick.isEmpty())
 		m_nick = m_nicks.value(0);
 	// User fullname.
-	m_fullName = cfg.value("fullName").toString();
-	m_nickPassword = cfg.value("nickPassword").toString();
+	m_fullName = cfg.value("fullName", QString());
+	m_nickPassword = cfg.value("nickPassword", QString());
 	m_codec = QTextCodec::codecForName(cfg.value("codec", "utf8").toLatin1());
 	if (!m_codec)
 		m_codec = QTextCodec::codecForName("utf8");

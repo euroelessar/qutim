@@ -126,19 +126,22 @@ void QuickConfig::syncProperties(QObject *object)
 			continue;
 		}
 
-		QVariant actualValue = m_config.value(QLatin1String(property.name()), defaultValue);
-		property.write(object, actualValue);
+		ConfigValue<QVariant> actualValue = m_config.value(QLatin1String(property.name()), defaultValue);
+		property.write(object, actualValue.value());
 
-		new QuickConfigListener(m_path, m_group, property, object, this);
+		// Store actualValue as it's destruction will drop onChange listener
+		new QuickConfigListener(m_path, m_group, property, object, actualValue, this);
 
-		m_config.listen(property.name(), object, [object, property, defaultValue] (const QVariant &value) {
+		actualValue.onChange(object, [object, property, defaultValue] (const QVariant &value) {
 			property.write(object, value.isValid() ? value : defaultValue);
 		});
 	}
 }
 
-QuickConfigListener::QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QObject *object, QuickConfig *parent)
-	: QObject(parent), m_path(path), m_group(group), m_property(property), m_object(object)
+QuickConfigListener::QuickConfigListener(const QString &path, const QString &group,
+										 const QMetaProperty &property, QObject *object,
+										 const ConfigValue<QVariant> &value, QuickConfig *parent)
+	: QObject(parent), m_path(path), m_group(group), m_property(property), m_object(object), m_value(value)
 {
 	static int slotIndex = staticMetaObject.indexOfMethod("onPropertyChanged()");
 	QMetaMethod slot = staticMetaObject.method(slotIndex);

@@ -119,6 +119,23 @@ public:
 	QDateTime lastModified;
 };
 
+namespace Detail {
+
+class ConfigConnectionData : public QSharedData
+{
+	Q_DISABLE_COPY(ConfigConnectionData)
+public:
+	ConfigConnectionData(const QList<ConfigPath> &paths);
+	~ConfigConnectionData();
+
+	void onChange(const QVariant &value);
+
+	const QList<ConfigPath> paths;
+	QVector<QPair<qint64, std::function<void (const QVariant &)>>> callbacks;
+};
+
+}
+
 class ConfigNotifier
 {
 public:
@@ -138,28 +155,93 @@ public:
 
 	void notify();
 
-	void listen(const ConfigPath &path, QObject *guard, const std::function<void (const QVariant &)> &callback)
+	void listen(const ConfigPath &path, Detail::ConfigConnectionData *connection)
 	{
-		Entry entry = {
-			guard,
-			callback
-		};
-		m_callbacks.insert(qMakePair(path.path(), path.name()), entry);
+		auto &connections = m_connections[qMakePair(path.path(), path.name())];
+		connections << connection;
+	}
+
+	void forget(const ConfigPath &path, Detail::ConfigConnectionData *connection)
+	{
+		const auto id = qMakePair(path.path(), path.name());
+		auto &connections = m_connections[id];
+		connections.remove(connection);
+
+		if (connections.isEmpty()) {
+			m_connections.remove(id);
+		}
+	}
+
+	qint64 nextListenerId()
+	{
+		return ++m_listenerIdCounter;
 	}
 
 private:
-	struct Entry
-	{
-		QPointer<QObject> guard;
-		std::function<void (const QVariant &)> callback;
-	};
-
 	QSet<QPair<QString, QString>> m_changedPaths;
-	QMultiHash<QPair<QString, QString>, Entry> m_callbacks;
+	QHash<QPair<QString, QString>, QSet<Detail::ConfigConnectionData *>> m_connections;
+	qint64 m_listenerIdCounter = 0;
 	bool m_eventSent = false;
 };
 
 Q_GLOBAL_STATIC(ConfigNotifier, config_notifier)
+
+Detail::ConfigConnectionData::ConfigConnectionData(const QList<ConfigPath> &paths) : QSharedData(), paths(paths)
+{
+	for (const ConfigPath &path : paths)
+		config_notifier()->listen(path, this);
+}
+
+Detail::ConfigConnectionData::~ConfigConnectionData()
+{
+	for (const ConfigPath &path : paths)
+		config_notifier()->forget(path, this);
+}
+
+void Detail::ConfigConnectionData::onChange(const QVariant &value)
+{
+	for (const auto &pair : callbacks)
+		pair.second(value);
+}
+
+Detail::ConfigConnection::ConfigConnection()
+{
+}
+
+Detail::ConfigConnection::ConfigConnection(const Detail::ConfigConnection &other) : QSharedData(other)
+{
+}
+
+Detail::ConfigConnection::~ConfigConnection()
+{
+}
+
+Detail::ConfigConnection &Detail::ConfigConnection::operator =(const Detail::ConfigConnection &other)
+{
+	m_data = other.m_data;
+	return *this;
+}
+
+qint64 Detail::ConfigConnection::onChange(const std::function<void (const QVariant &)> &callback)
+{
+	if (Q_UNLIKELY(!m_data)) {
+		qFatal("Detail::ConfigConnection::onChange: m_data is null");
+	}
+	qint64 listenerId = config_notifier()->nextListenerId();
+	m_data->callbacks << qMakePair(listenerId, callback);
+	return listenerId;
+}
+
+void Detail::ConfigConnection::forget(qint64 listenerId)
+{
+	if (Q_UNLIKELY(!m_data)) {
+		qFatal("Detail::ConfigConnection::onChange: m_data is null");
+	}
+	for (int i = m_data->callbacks.size() - 1; i >= 0; --i) {
+		if (m_data->callbacks[i].first == listenerId)
+			m_data->callbacks.remove(i);
+	}
+}
 
 class ConfigAtom
 {
@@ -598,17 +680,13 @@ void ConfigNotifier::notify()
 				< std::make_tuple(second.first, -second.second.size(), second.second);
 	});
 	foreach (Pair path, sortedPaths) {
-		auto it = m_callbacks.find(path);
-		while (it != m_callbacks.end() && it.key() == path) {
-			if (!it.value().guard) {
-				auto it2 = it++;
-				m_callbacks.erase(it2);
-				continue;
-			}
-			QVariant value = Config(path.first).value(path.second);
-			it.value().callback(value);
-			++it;
-		}
+		auto it = m_connections.find(path);
+		if (it == m_connections.end())
+			continue;
+
+		QVariant value = Config(path.first).value(path.second);
+		foreach (Detail::ConfigConnectionData *connection, it.value())
+			connection->onChange(value);
 	}
 }
 
@@ -1198,12 +1276,16 @@ QVariant Config::rootValue(const QVariant &def, ValueFlags type) const
 		return var.isNull() ? def : var;
 }
 
-QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type) const
+ConfigValue<QVariant> Config::value(const QString &key, const QVariant &def, ValueFlags type) const
 {
 	Q_D(const Config);
+	Q_UNUSED(type);
+	Detail::ConfigConnection connection;
+	typedef Detail::ConfigValueData<QVariant> ConfigValueData;
+	typedef typename ConfigValueData::Ptr ConfigValueDataPtr;
 
 	if (d->current()->atoms.isEmpty())
-		return def;
+		return ConfigValue<QVariant>(ConfigValueDataPtr(new ConfigValueData(def, connection)));
 
 	QString name = key;
 	int slashIndex = name.lastIndexOf('/');
@@ -1215,26 +1297,38 @@ QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type)
 	const ConfigLevel::Ptr &level = d->current();
 
 	QVariant var;
+
 	QList<ConfigAtom::Ptr> &atoms = level->atoms;
 	for (int i = 0; i < atoms.size(); i++) {
 		ConfigAtom::Ptr atom = level->atoms.at(i);
 		Q_ASSERT(atom->isMap());
 
 		ConfigAtom::Ptr child = atom->child(name);
-		if (child && !child->isNull())
+		if (child && !child->isNull()) {
 			var = child->toVariant();
+		}
 
 		if (!var.isNull())
 			break;
 	}
 
+	QList<ConfigPath> paths;
+	for (int i = 0; i < atoms.size(); i++) {
+		ConfigAtom::Ptr atom = level->atoms.at(i);
+		Q_ASSERT(atom->isMap());
+
+		if (!atom->isReadOnly()) {
+			paths << atom->path();
+		}
+	}
+
 	if (slashIndex != -1)
 		const_cast<Config*>(this)->endGroup();
 
-	if (type & Config::Crypted)
-		return var.isNull() ? def : CryptoService::decrypt(var);
-	else
-		return var.isNull() ? def : var;
+	typedef QExplicitlySharedDataPointer<Detail::ConfigConnectionData> ConfigConnectionDataPtr;
+	connection.m_data = ConfigConnectionDataPtr(new Detail::ConfigConnectionData(paths));
+	ConfigValueDataPtr data(new ConfigValueData(var.isNull() ? def : var, connection));
+	return ConfigValue<QVariant>(data);
 }
 
 void Config::setValue(const QString &key, const QVariant &value, ValueFlags type)
@@ -1263,20 +1357,6 @@ void Config::setValue(const QString &key, const QVariant &value, ValueFlags type
 void Config::sync()
 {
 	d_func()->sync();
-}
-
-void Config::listen(const QString &name, QObject *guard, const std::function<void (const QVariant &)> &callback)
-{
-	const QStringList names = parseNames(name);
-	Q_ASSERT(!names.isEmpty());
-	foreach (ConfigAtom::Ptr atom, d_func()->current()->atoms) {
-		if (atom->isReadOnly())
-			continue;
-		ConfigPath path = atom->path();
-		for (int i = 0; i < names.size(); ++i)
-			path = path.child(names[i]);
-		config_notifier()->listen(path, guard, callback);
-	}
 }
 
 void Config::registerType(int type, SaveOperator saveOp, LoadOperator loadOp)
