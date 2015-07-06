@@ -154,7 +154,7 @@ void AutoPasterHandler::readSettings()
 	Config cfg;
 	cfg.beginGroup("autoPaster");
 	m_autoSubmit = cfg.value(QLatin1String("autoSubmit"), false);
-	m_defaultLocation = qBound(0, cfg.value(QLatin1String("defaultLocation"), 0), m_pasters.size() - 1);
+	m_defaultLocation = qBound(0, cfg.value(QLatin1String("defaultLocation"), 0).value(), m_pasters.size() - 1);
 	m_lineCount = cfg.value(QLatin1String("lineCount"), 5);
 
 	emit currentPasterIndexChanged(m_defaultLocation);

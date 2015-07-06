@@ -175,6 +175,31 @@ public:
 	QVarLengthArray<ConnectionInfo, 2> m_connections;
 };
 
+template <typename T>
+struct ConfigValueDataCaster
+{
+	static typename ConfigValueData<T>::Ptr cast(const typename ConfigValueData<QVariant>::Ptr &other)
+	{
+		typedef Detail::ConfigValueCaster<T> Caster;
+		typedef Detail::ConfigValueData<T> Data;
+		typedef typename Detail::ConfigValueData<T>::Ptr DataPtr;
+
+		if (!other)
+			return DataPtr();
+
+		return DataPtr(new Data(Caster::fromVariant(other->m_value), other->m_connection));
+	}
+};
+
+template <>
+struct ConfigValueDataCaster<QVariant>
+{
+	static typename ConfigValueData<QVariant>::Ptr cast(const typename ConfigValueData<QVariant>::Ptr &other)
+	{
+		return other;
+	}
+};
+
 }
 #endif
 
@@ -241,12 +266,12 @@ public:
 
 	QVariant rootValue(const QVariant &def = QVariant(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
 	template<typename T>
-	T value(const QString &key, const T &def = T(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+	ConfigValue<T> value(const QString &key, const T &def = T(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
 	ConfigValue<QVariant> value(const QString &key, const QVariant &def = QVariant(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
-	inline QString value(const QString &key, const QLatin1String &def, ValueFlags type = Normal) const Q_REQUIRED_RESULT;
-	inline QString value(const QString &key, const char *def, ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+	inline ConfigValue<QString> value(const QString &key, const QLatin1String &def, ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+	inline ConfigValue<QString> value(const QString &key, const char *def, ValueFlags type = Normal) const Q_REQUIRED_RESULT;
 	template <int N>
-	QString value(const QString &key, const char (&def)[N], ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+	ConfigValue<QString> value(const QString &key, const char (&def)[N], ValueFlags type = Normal) const Q_REQUIRED_RESULT;
 	template<typename T>
 	void setValue(const QString &key, const T &value, ValueFlags type = Normal);
 	void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
@@ -357,10 +382,11 @@ Q_INLINE_TEMPLATE void ConfigValue<T>::onChange(QObject *guard, const std::funct
 }
 
 template<typename T>
-Q_INLINE_TEMPLATE T Config::value(const QString &key, const T &def, Config::ValueFlags type) const
+Q_INLINE_TEMPLATE ConfigValue<T> Config::value(const QString &key, const T &def, Config::ValueFlags type) const
 {
 	typedef Detail::ConfigValueCaster<T> Caster;
-	return Caster::fromVariant(value(key, Caster::toVariant(def), type));
+	typedef Detail::ConfigValueDataCaster<T> DataCaster;
+	return ConfigValue<T>(DataCaster::cast(value(key, Caster::toVariant(def), type).m_data));
 }
 
 template<typename T>
@@ -369,18 +395,18 @@ Q_INLINE_TEMPLATE void Config::setValue(const QString &key, const T &value, Conf
 	setValue(key, Detail::ConfigValueCaster<T>::toVariant(value), type);
 }
 
-QString Config::value(const QString &key, const QLatin1String &def, ValueFlags type) const
+ConfigValue<QString> Config::value(const QString &key, const QLatin1String &def, ValueFlags type) const
 {
 	return value(key, QString(def), type);
 }
 
-QString Config::value(const QString &key, const char *def, ValueFlags type) const
+ConfigValue<QString> Config::value(const QString &key, const char *def, ValueFlags type) const
 {
 	return value(key, QString::fromUtf8(def), type);
 }
 
 template <int N>
-Q_INLINE_TEMPLATE QString Config::value(const QString &key, const char (&def)[N], ValueFlags type) const
+Q_INLINE_TEMPLATE ConfigValue<QString> Config::value(const QString &key, const char (&def)[N], ValueFlags type) const
 {
 	return value(key, QString::fromUtf8(def, N-1), type);
 }

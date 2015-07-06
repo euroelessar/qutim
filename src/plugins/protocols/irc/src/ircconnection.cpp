@@ -417,7 +417,7 @@ void IrcConnection::loadSettings()
 	// User fullname.
 	m_fullName = cfg.value("fullName", QString());
 	m_nickPassword = cfg.value("nickPassword", QString());
-	m_codec = QTextCodec::codecForName(cfg.value("codec", "utf8").toLatin1());
+	m_codec = QTextCodec::codecForName(cfg.value("codec", "utf8").value().toLatin1());
 	if (!m_codec)
 		m_codec = QTextCodec::codecForName("utf8");
 	Q_ASSERT(m_codec);

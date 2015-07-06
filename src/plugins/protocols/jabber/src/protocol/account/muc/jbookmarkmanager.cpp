@@ -172,7 +172,7 @@ QList<Bookmark::Conference> JBookmarkManager::readFromCache(const QString &type)
 		Config configBookmark = config.arrayElement(num);
 		Bookmark::Conference bookmark;
 		bookmark.setName(configBookmark.value("name", QString()));
-		bookmark.setJid(configBookmark.value("conference", QString()));
+		bookmark.setJid(JID(configBookmark.value("conference", QString())));
 		bookmark.setNick(configBookmark.value("nick", QString()));
 		bookmark.setPassword(configBookmark.value("password", QString(), Config::Crypted));
 		bookmark.setAutojoin(configBookmark.value("autojoin", false));
