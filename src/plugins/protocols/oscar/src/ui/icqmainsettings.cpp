@@ -130,7 +130,7 @@ void IcqMainSettings::loadImpl()
 {
 	Config cfg = IcqProtocol::instance()->config();
 	Config general = cfg.group("general");
-	QString codecName = general.value("codec", QTextCodec::codecForLocale()->name());
+	QString codecName = general.value("codec", QTextCodec::codecForLocale()->name()).value();
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	if (!codec)
 		codec = QTextCodec::codecForLocale();
@@ -158,7 +158,7 @@ void IcqMainSettings::loadImpl()
 		subitem.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
 									!general.value("avatars", true)));
 		subitem.addSubitem(DataItem("aimContacts", tr("Support AIM contacts"),
-									general.value("aimContacts", false)));
+									general.value("aimContacts", false).value()));
 		item.addSubitem(subitem);
 	}
 	foreach (SettingsExtension *extension, settingsExtensions())

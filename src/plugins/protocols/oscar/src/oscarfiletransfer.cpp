@@ -1233,7 +1233,7 @@ void OscarFileTransferSettings::loadSettings(DataItem &item, Config cfg)
 	{
 		DataItem item("alwaysUseProxy",
 					  tr("Always use file transfer proxy"),
-					  cfg.value("alwaysUseProxy", false));
+					  cfg.value("alwaysUseProxy", false).value());
 		settings.addSubitem(item);
 	}
 	{

@@ -192,7 +192,7 @@ bool MigrationStartPage::validatePage()
 		config.sync();
 		config = Config(protocol);
 		ConfigGroup group = config.group("general");
-		QStringList accounts = group.value("accounts", QStringList())
+		QStringList accounts = group.value("accounts", QStringList()).value()
 				<< item->data(Qt::UserRole + 1).toString();
 		accounts.removeDuplicates();
 		group.setValue("accounts", accounts);
