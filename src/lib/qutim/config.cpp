@@ -208,7 +208,7 @@ Detail::ConfigConnection::ConfigConnection()
 {
 }
 
-Detail::ConfigConnection::ConfigConnection(const Detail::ConfigConnection &other) : QSharedData(other)
+Detail::ConfigConnection::ConfigConnection(const Detail::ConfigConnection &other) : m_data(other.m_data)
 {
 }
 
