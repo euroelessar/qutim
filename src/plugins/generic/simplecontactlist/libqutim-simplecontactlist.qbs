@@ -10,7 +10,10 @@ Framework {
     Depends { name: "Qt"; submodules: [ "core", "gui", "widgets" ] }
     Depends { name: "simplecontactlist-headers" }
 
-    cpp.defines: "SIMPLECONTACTLIST_LIBRARY"
+    cpp.defines: [
+        "SIMPLECONTACTLIST_LIBRARY",
+        "QUTIM_PLUGIN_NAME=\"qutim-simplecontactlist\"",
+    ]
     cpp.visibility: 'hidden'
 
     Group {

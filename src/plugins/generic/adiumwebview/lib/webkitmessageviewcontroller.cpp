@@ -264,7 +264,7 @@ void WebKitMessageViewController::loadSettings(bool onFly)
 	QString css;
 	QString customFile = m_style.pathForResource(QLatin1String("Custom.json"));
 	if (!customFile.isEmpty()) {
-		QVariantList values = config.value(QLatin1String("customStyle")).toList();
+		QVariantList values = config.value(QLatin1String("customStyle"), QVariantList());
 		Config variables(customFile);
 		const int count = variables.arraySize();
 		for (int index = 0; index < count; index++) {

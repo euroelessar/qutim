@@ -60,7 +60,9 @@ class QuickConfigListener : public QObject
 {
 	Q_OBJECT
 public:
-	QuickConfigListener(const QString &path, const QString &group, const QMetaProperty &property, QObject *object, QuickConfig *parent);
+	QuickConfigListener(const QString &path, const QString &group,
+						const QMetaProperty &property, QObject *object,
+						const ConfigValue<QVariant> &value, QuickConfig *parent);
 
 public slots:
 	void onPropertyChanged();
@@ -70,6 +72,7 @@ private:
 	QString m_group;
 	QMetaProperty m_property;
 	QObject *m_object;
+	ConfigValue<QVariant> m_value;
 };
 
 } // namespace qutim_sdk_0_3
