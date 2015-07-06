@@ -212,6 +212,7 @@ template <typename T>
 class ConfigValue
 {
 public:
+	ConfigValue();
 	ConfigValue(const ConfigValue &other);
 	~ConfigValue();
 
@@ -334,6 +335,11 @@ protected:
 private:
 	QScopedPointer<ConfigBackendPrivate> d_ptr;
 };
+
+template <typename T>
+Q_INLINE_TEMPLATE ConfigValue<T>::ConfigValue()
+{
+}
 
 template <typename T>
 Q_INLINE_TEMPLATE ConfigValue<T>::ConfigValue(const typename Detail::ConfigValueData<T>::Ptr &data) : m_data(data)
