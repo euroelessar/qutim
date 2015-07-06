@@ -1322,7 +1322,7 @@ ConfigValue<QVariant> Config::value(const QString &key, const QVariant &def, Val
 		Q_ASSERT(atom->isMap());
 
 		if (!atom->isReadOnly()) {
-			paths << atom->path();
+			paths << atom->path().child(name);
 		}
 	}
 
