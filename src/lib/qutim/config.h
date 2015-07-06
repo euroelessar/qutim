@@ -98,7 +98,7 @@ struct ConfigValueCaster<QFlags<T>>
 
 class ConfigConnectionData;
 
-class ConfigConnection : public QSharedData
+class ConfigConnection
 {
 public:
 	ConfigConnection();
