@@ -25,18 +25,12 @@
 
 #include <QStringBuilder>
 #include "blogimproverhandler.h"
-#include <qutim/config.h>
 
 namespace BlogImprover {
 
 using namespace qutim_sdk_0_3;
 
 BlogImproverHandler::BlogImproverHandler()
-{
-	loadSettings();
-}
-
-void BlogImproverHandler::loadSettings()
 {
 	Config cfg;
 	cfg.beginGroup("BlogImprover");

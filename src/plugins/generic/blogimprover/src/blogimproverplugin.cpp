@@ -54,7 +54,6 @@ namespace BlogImprover
 													   QLatin1String("BlogImprover"),
 													   qutim_sdk_0_3::MessageHandler::HighPriority,
 													   qutim_sdk_0_3::MessageHandler::HighPriority);
-		m_settingsItem.data()->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
 		return true;
 	}
 
