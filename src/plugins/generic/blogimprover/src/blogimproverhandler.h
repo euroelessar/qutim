@@ -37,6 +37,7 @@
 
 #include <qutim/conference.h>
 #include <qutim/chatsession.h>
+#include <qutim/config.h>
 
 namespace BlogImprover {
 
@@ -56,8 +57,6 @@ public:
 
 protected:
 	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
-public slots:
-	void loadSettings();
 private:
 	class HtmlLinker
 	{
@@ -75,9 +74,9 @@ private:
 		QString m_template;
 	};
 
-	bool m_enablePstoIntegration;
-	bool m_enableJuickIntegration;
-	bool m_enableBnwIntegration;
+	qutim_sdk_0_3::ConfigValue<bool> m_enablePstoIntegration;
+	qutim_sdk_0_3::ConfigValue<bool> m_enableJuickIntegration;
+	qutim_sdk_0_3::ConfigValue<bool> m_enableBnwIntegration;
 	QRegExp m_pstoNick;
 	QRegExp m_pstoPost;
 	QRegExp m_pstoComment;
