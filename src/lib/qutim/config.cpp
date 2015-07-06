@@ -1280,12 +1280,16 @@ ConfigValue<QVariant> Config::value(const QString &key, const QVariant &def, Val
 {
 	Q_D(const Config);
 	Q_UNUSED(type);
-	Detail::ConfigConnection connection;
+
+	typedef QExplicitlySharedDataPointer<Detail::ConfigConnectionData> ConfigConnectionDataPtr;
 	typedef Detail::ConfigValueData<QVariant> ConfigValueData;
 	typedef typename ConfigValueData::Ptr ConfigValueDataPtr;
 
-	if (d->current()->atoms.isEmpty())
+	Detail::ConfigConnection connection;
+	if (d->current()->atoms.isEmpty()) {
+		connection.m_data = ConfigConnectionDataPtr(new Detail::ConfigConnectionData(QList<ConfigPath>()));
 		return ConfigValue<QVariant>(ConfigValueDataPtr(new ConfigValueData(def, connection)));
+	}
 
 	QString name = key;
 	int slashIndex = name.lastIndexOf('/');
