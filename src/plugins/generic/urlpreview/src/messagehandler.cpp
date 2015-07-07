@@ -57,17 +57,24 @@ UrlHandler::UrlHandler() :
 	connect(m_netman, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
 			SLOT(netmanSslErrors(QNetworkReply*,QList<QSslError>))
 			);
-	loadSettings();
-}
 
-void UrlHandler::loadSettings()
-{
 	Config cfg;
 	cfg.beginGroup("urlPreview");
 	m_flags = cfg.value(QLatin1String("flags"), PreviewImages | PreviewYoutube);
-	m_maxImageSize.setWidth(cfg.value(QLatin1String("maxWidth"), 800));
-	m_maxImageSize.setHeight(cfg.value(QLatin1String("maxHeight"), 600));
-	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), 100000);
+
+	m_maxImageHeight = cfg.value(QLatin1String("maxHeight"), (quint64)600);
+	m_maxImageWidth = cfg.value(QLatin1String("maxWidth"), (quint64)800);
+	m_maxImageSize.setHeight(m_maxImageHeight);
+	m_maxImageSize.setWidth(m_maxImageWidth);
+
+	m_maxImageHeight.onChange(this, [this] (const quint64 & height) {
+		m_maxImageSize.setHeight(height);
+	});
+	m_maxImageWidth.onChange(this, [this] (const quint64 & width) {
+		m_maxImageSize.setWidth(width);
+	});
+
+	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), (quint64)100000);
 	m_template = "<br><b>" % tr("URL Preview") % "</b>: <i>%TYPE%, %SIZE% " % tr("bytes") % "</i><br>";
 	m_imageTemplate = "<img class=\"urlpreview-image\" src=\"%URL%\" style=\"display: none;\" "
 								 "onload=\"if (this.width>%MAXW%) this.style.maxWidth='%MAXW%px';"
@@ -92,6 +99,7 @@ void UrlHandler::loadSettings()
 	m_enableHTML5Video = cfg.value("HTML5Video", true);
 	m_enableYandexRichContent = cfg.value("yandexRichContent", true);
 	m_exceptionList = cfg.value("exceptionList", QStringList());
+
 	cfg.endGroup();
 }
 
@@ -101,7 +109,6 @@ MessageHandlerAsyncResult UrlHandler::doHandle(Message &message)
 	if (!session || !session->property("supportJavaScript").toBool()) {
 		return makeAsyncResult(Accept, QString());
 	}
-
 	const QString originalHtml = message.html();
 	QString html;
 	foreach (const UrlParser::UrlToken &token,
@@ -116,6 +123,7 @@ MessageHandlerAsyncResult UrlHandler::doHandle(Message &message)
 		}
 	}
 	message.setHtml(html);
+
 	return makeAsyncResult(Accept, QString());
 }
 
@@ -131,13 +139,16 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 					 Qt::CaseInsensitive);
 	}
 
-	foreach (QString key, m_exceptionList) {
-		if(link.contains(key))
+	foreach (QString key, m_exceptionList.value()) {
+		// TODO: We have strange thing: after config update we have one empty string in list
+		// Of course every string contains empty string. And here is workaround
+		if(!key.isEmpty() && link.contains(key))
 			return;
 	}
+
 	const QUrl url = QUrl::fromUserInput(link);
 
-	if (m_flags & PreviewYoutube) {
+	if (m_flags.value() & PreviewYoutube) {
 		QString urlquery = QUrlQuery(url.query()).queryItemValue(QLatin1String("v"));
 		const QString youtubeId = (url.host() == QLatin1String("youtube.com")
 								   || url.host() == QLatin1String("www.youtube.com"))

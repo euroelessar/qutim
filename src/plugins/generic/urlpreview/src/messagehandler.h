@@ -31,7 +31,7 @@
 #include <QSslError>
 #include <QSize>
 #include <QStringList>
-
+#include <qutim/config.h>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -56,9 +56,6 @@ public:
 protected:
 	qutim_sdk_0_3::MessageHandlerAsyncResult doHandle(qutim_sdk_0_3::Message &message) override;
 
-public slots:
-	void loadSettings();
-
 private slots:
 	void netmanFinished(QNetworkReply *);
 	void authenticationRequired(QNetworkReply *, QAuthenticator *);
@@ -69,21 +66,24 @@ private:
 	void updateData(qutim_sdk_0_3::ChatUnit *unit, const QString &uid, const QString &html);
 
 	QNetworkAccessManager *m_netman;
-	PreviewFlags m_flags;
+	qutim_sdk_0_3::ConfigValue<PreviewFlags> m_flags;
 	QString m_template;
 	QString m_imageTemplate;
 	QString m_youtubeTemplate;
 	QString m_html5AudioTemplate;
 	QString m_html5VideoTemplate;
 	QString m_yandexRichContentTemplate;
+	qutim_sdk_0_3::ConfigValue<quint64> m_maxImageHeight;
+	qutim_sdk_0_3::ConfigValue<quint64> m_maxImageWidth;
+
 	QSize m_maxImageSize;
-	quint64 m_maxFileSize;
-	bool m_enableYoutubePreview;
-	bool m_enableImagesPreview;
-	bool m_enableHTML5Audio;
-	bool m_enableHTML5Video;
-	bool m_enableYandexRichContent;
-	QStringList m_exceptionList;
+	qutim_sdk_0_3::ConfigValue<quint64> m_maxFileSize;
+	qutim_sdk_0_3::ConfigValue<bool> m_enableYoutubePreview;
+	qutim_sdk_0_3::ConfigValue<bool> m_enableImagesPreview;
+	qutim_sdk_0_3::ConfigValue<bool> m_enableHTML5Audio;
+	qutim_sdk_0_3::ConfigValue<bool> m_enableHTML5Video;
+	qutim_sdk_0_3::ConfigValue<bool> m_enableYandexRichContent;
+	qutim_sdk_0_3::ConfigValue<QStringList> m_exceptionList;
 };
 
 } // namespace UrlPreview
