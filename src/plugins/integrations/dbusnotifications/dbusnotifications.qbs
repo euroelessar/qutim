@@ -1,6 +1,6 @@
-import "../GenericPlugin.qbs" as GenericPlugin
+import "../Integration.qbs" as Integration
 
-GenericPlugin {
+Integration {
     pluginTags: 'linux'
 
     Depends { condition: qbs.targetOS.contains("linux"); name: "Qt.dbus" }

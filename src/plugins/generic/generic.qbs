@@ -24,7 +24,6 @@ Project {
         "contactinfo/contactinfo.qbs",
         "contactmodel/contactmodel.qbs",
         "dataformsbackend/dataformsbackend.qbs",
-        "dbusnotifications/dbusnotifications.qbs",
         "emoedit/emoedit.qbs",
         "emoticonssettings/emoticonssettings.qbs",
         "filetransfer/filetransfer.qbs",
