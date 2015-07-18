@@ -124,12 +124,12 @@ namespace qutim_sdk_0_3
 
 	AsyncResult<MessageList> History::read(const ChatUnit *unit, const QDateTime &to, int max_num)
 	{
-		return read(info(unit), QDateTime(), to, max_num);
+		return read(info(unit), QDateTime::fromTime_t(1), to, max_num);
 	}
 
 	AsyncResult<MessageList> History::read(const ChatUnit *unit, int max_num)
 	{
-		return read(info(unit), QDateTime(), QDateTime::currentDateTime(), max_num);
+		return read(info(unit), QDateTime::fromTime_t(1), QDateTime::currentDateTime(), max_num);
 	}
 
 	MessageList History::readSync(const ChatUnit *unit, const QDateTime &to, int max_num) {
