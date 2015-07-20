@@ -1,0 +1,7 @@
+{
+	"pluginIcon": "",
+	"pluginName": "Sqlite History",
+	"pluginDescription": "New qutIM history implementation using sqlite",
+	"extensionHeader": "sqlitehistory.h",
+	"extensionClass": "Core::SqliteHistory"
+}
