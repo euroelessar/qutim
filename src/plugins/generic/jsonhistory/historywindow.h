@@ -62,7 +62,6 @@ private:
 	Ui::HistoryWindowClass ui;
 	QMetaObject::Connection m_contactConnection;
 	History::ContactInfo m_unitInfo;
-	QRegularExpression m_search;
 	QString m_search_word;
 };
 

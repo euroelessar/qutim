@@ -76,12 +76,12 @@ namespace qutim_sdk_0_3
 		 * Returns list of date(year, month). If search string is presented, you may return list of months where
 		 * at least message contains search string.
 		 */
-		virtual AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) = 0;
+		virtual AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QString &needle) = 0;
 		/**
 		 * Returns list of days in month of certain year. If search string is not empty, you should return list of days
 		 * where at least one message with search string is presented
 		 */
-		virtual AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) = 0;
+		virtual AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QString &needle) = 0;
 
 		AsyncResult<MessageList> read(const ChatUnit *unit, const QDateTime &to, int max_num);
 		AsyncResult<MessageList> read(const ChatUnit *unit, int max_num);

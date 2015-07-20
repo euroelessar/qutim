@@ -201,7 +201,7 @@ void HistoryWindow::fillDateTreeWidget(int index)
 
 	setWindowTitle(QStringLiteral("%1 (%2)").arg(ui.fromComboBox->currentText(), ui.accountComboBox->currentText()));
 
-	history()->months(contactInfo, m_search).connect(this, [this, contactInfo] (const QList<QDate> &months) {
+	history()->months(contactInfo, m_search_word).connect(this, [this, contactInfo] (const QList<QDate> &months) {
 		int index = ui.fromComboBox->currentIndex();
 		auto currentContactInfo = ui.fromComboBox->itemData(index).value<History::ContactInfo>();
 		if (!(currentContactInfo == contactInfo))
@@ -244,7 +244,7 @@ void HistoryWindow::fillMonth(QTreeWidgetItem *monthItem)
 	auto contactInfo = ui.fromComboBox->itemData(contactIndex).value<History::ContactInfo>();
 	auto month = monthItem->data(0, Qt::UserRole).toDate();
 
-	history()->dates(contactInfo, month, m_search).connect(this, [this, contactInfo, month] (const QList<QDate> &dates) {
+	history()->dates(contactInfo, month, m_search_word).connect(this, [this, contactInfo, month] (const QList<QDate> &dates) {
 		int contactIndex = ui.fromComboBox->currentIndex();
 		auto currentContactInfo = ui.fromComboBox->itemData(contactIndex).value<History::ContactInfo>();
 		if (!(currentContactInfo == contactInfo))
@@ -351,7 +351,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged(QTreeWidgetItem *dayIte
 				cursor.insertHtml(historyMessage);
 				cursor.insertText(QStringLiteral("\n"));
 			} else {
-				cursor.insertHtml(historyMessage.replace(m_search, resultString));
+				cursor.insertHtml(historyMessage.replace(m_search_word, resultString));
 				cursor.insertText(QStringLiteral("\n"));
 			}
 		}
@@ -382,8 +382,6 @@ void HistoryWindow::on_searchButton_clicked()
 			}
 		} else {
 			m_search_word = searchWord;
-			m_search.setPattern(QLatin1Char('(') + QRegularExpression::escape(searchWord) + QLatin1Char(')'));
-			m_search.setPatternOptions(QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
 			fillDateTreeWidget(ui.fromComboBox->currentIndex());
 		}
 	}

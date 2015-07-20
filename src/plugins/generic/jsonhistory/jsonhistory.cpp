@@ -396,9 +396,9 @@ AsyncResult<QVector<History::ContactInfo>> JsonHistory::contacts(const AccountIn
 	return handler.result();
 }
 
-AsyncResult<QList<QDate>> JsonHistory::months(const ContactInfo &contact, const QRegularExpression &regex)
+AsyncResult<QList<QDate>> JsonHistory::months(const ContactInfo &contact, const QString &needle)
 {
-	Q_UNUSED(regex);
+	Q_UNUSED(needle);
 	AsyncResultHandler<QList<QDate>> handler;
 
 	auto scope = m_scope;
@@ -430,12 +430,12 @@ AsyncResult<QList<QDate>> JsonHistory::months(const ContactInfo &contact, const 
 	return handler.result();
 }
 
-AsyncResult<QList<QDate>> JsonHistory::dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex)
+AsyncResult<QList<QDate>> JsonHistory::dates(const ContactInfo &contact, const QDate &month, const QString &needle)
 {
 	AsyncResultHandler<QList<QDate>> handler;
 
 	auto scope = m_scope;
-	runJob(m_scope, [handler, scope, contact, month, regex] () {
+	runJob(m_scope, [handler, scope, contact, month, needle] () {
 		QSet<QDate> result;
 
 		QFile file(scope->getFileName(contact, month));
@@ -479,7 +479,7 @@ AsyncResult<QList<QDate>> JsonHistory::dates(const ContactInfo &contact, const Q
 				const QDate date = QDateTime::fromString(message.value("datetime").toString(), Qt::ISODate).date();
 				const QString text = message.value("text").toString();
 
-				if (!regex.isValid() || text.contains(regex))
+				if (needle.isEmpty() || text.contains(needle, Qt::CaseInsensitive))
 					result.insert(date);
 			}
 		}

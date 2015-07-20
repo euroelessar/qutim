@@ -63,12 +63,12 @@ namespace qutim_sdk_0_3
 			return AsyncResult<QVector<ContactInfo>>::create(QVector<ContactInfo>());
 		}
 
-		AsyncResult<QList<QDate>> months(const ContactInfo &, const QRegularExpression &) override
+		AsyncResult<QList<QDate>> months(const ContactInfo &, const QString &) override
 		{
 			return AsyncResult<QList<QDate>>::create(QList<QDate>());
 		}
 
-		AsyncResult<QList<QDate>> dates(const ContactInfo &, const QDate &, const QRegularExpression &) override
+		AsyncResult<QList<QDate>> dates(const ContactInfo &, const QDate &, const QString &) override
 		{
 			return AsyncResult<QList<QDate>>::create(QList<QDate>());
 		}

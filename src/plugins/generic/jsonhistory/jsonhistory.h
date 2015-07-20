@@ -86,8 +86,8 @@ public:
 	AsyncResult<MessageList> read(const ContactInfo &info, const QDateTime &from, const QDateTime &to, int max_num) override;
 	AsyncResult<QVector<AccountInfo>> accounts() override;
 	AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) override;
-	AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) override;
-	AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) override;
+	AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QString &needle) override;
+	AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QString &needle) override;
 	void showHistory(const ChatUnit *unit) override;
 
 	static QString quote(const QString &str);
