@@ -368,7 +368,11 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged(QTreeWidgetItem *dayIte
 				cursor.insertHtml(historyMessage);
 				cursor.insertText(QStringLiteral("\n"));
 			} else {
-				cursor.insertHtml(historyMessage.replace(m_search_word, resultString));
+				QRegularExpression expr;
+				expr.setPattern(QLatin1Char('(') + QRegularExpression::escape(m_search_word) + QLatin1Char(')'));
+				expr.setPatternOptions(QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
+
+				cursor.insertHtml(historyMessage.replace(expr, resultString));
 				cursor.insertText(QStringLiteral("\n"));
 			}
 		}
