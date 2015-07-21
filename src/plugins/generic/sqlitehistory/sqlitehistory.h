@@ -55,7 +55,6 @@ public:
 	AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) override;
 	AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QString &needle) override;
 	AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QString &needle) override;
-	void showHistory(const ChatUnit *unit) override;
 
 private:
 	QThread* m_thread;
@@ -66,6 +65,14 @@ class SqliteWorker : public QObject
 {
 	Q_OBJECT
 public:
+
+	enum MessageType {
+		Message = 0,
+		Topic = 1,
+		Service = 2
+	};
+	Q_DECLARE_FLAGS(MessageTypes, MessageType)
+
 	void runJob(std::function<void ()> job);
 	static QString escapeSqliteLike(const QString &str);
 
@@ -76,6 +83,8 @@ signals:
 	void finished();
 
 private:
+	inline int currentVersion() { return 1; }
+	void makeMigration(int version);
 	QQueue<std::function<void ()>> m_queue;
 	QMutex m_queueLock;
 	QMutex m_runningLock;
@@ -84,6 +93,9 @@ private:
 	void exec();
 	bool m_isRunning = false;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SqliteWorker::MessageTypes)
+
 }
 
 #endif // SQLITEHISTORY_H

@@ -72,8 +72,8 @@ void SqliteHistory::store(const Message &message)
 	m_worker->runJob([message, contactInfo] () {
 		QSqlQuery query;
 
-		query.prepare("INSERT INTO qutim_history (account, protocol, contact, year, month, day, time, incoming, message, html, type) "
-					  "VALUES (:account, :protocol, :contact, :year, :month, :day, :time, :incoming, :message, :html, :type)");
+		query.prepare("INSERT INTO qutim_history (account, protocol, contact, year, month, day, time, incoming, message, html, type, sendername) "
+					  "VALUES (:account, :protocol, :contact, :year, :month, :day, :time, :incoming, :message, :html, :type, :sendername)");
 
 		query.bindValue(":account", contactInfo.account);
 		query.bindValue(":protocol", contactInfo.protocol);
@@ -87,7 +87,15 @@ void SqliteHistory::store(const Message &message)
 		query.bindValue(":incoming", message.isIncoming());
 		query.bindValue(":message", message.text());
 		query.bindValue(":html", message.html());
-		query.bindValue(":type", 0);
+
+		SqliteWorker::MessageTypes type = SqliteWorker::Message;
+		if(message.property("topic", false))
+			type |= SqliteWorker::Topic;
+		if(message.property("service", false))
+			type |= SqliteWorker::Service;
+
+		query.bindValue(":type", static_cast<int>(type));
+		query.bindValue(":sendername", message.property("senderName", QString()));
 		query.exec();
 	});
 }
@@ -99,7 +107,7 @@ AsyncResult<MessageList> SqliteHistory::read(const ContactInfo &info, const QDat
 	m_worker->runJob([info, from, to, max_num, handler] () {
 		QSqlQuery query;
 
-		QString queryString = "SELECT time, incoming, message, html FROM qutim_history WHERE protocol = :protocol "
+		QString queryString = "SELECT time, incoming, message, html, type, sendername FROM qutim_history WHERE protocol = :protocol "
 							  "AND account = :account "
 							  "AND contact = :contact ";
 		if(from.isValid())
@@ -108,7 +116,7 @@ AsyncResult<MessageList> SqliteHistory::read(const ContactInfo &info, const QDat
 		if(to.isValid())
 			queryString += "AND time <= :time_to ";
 
-		queryString += "ORDER BY time ASC ";
+		queryString += "ORDER BY time DESC ";
 
 		if(max_num != -1)
 			queryString += "LIMIT :max";
@@ -144,8 +152,24 @@ AsyncResult<MessageList> SqliteHistory::read(const ContactInfo &info, const QDat
 			msg.setIncoming(query.value(1).toBool());
 			msg.setText(query.value(2).toString());
 			msg.setHtml(query.value(3).toString());
+
+			if(!query.value(5).isNull())
+				msg.setProperty("senderName", query.value(5).toString());
+
+			SqliteWorker::MessageTypes type = static_cast<SqliteWorker::MessageTypes>(query.value(4).toInt());
+
+			if(type.testFlag(SqliteWorker::Topic))
+				msg.setProperty("topic", true);
+
+			if(type.testFlag(SqliteWorker::Service))
+				msg.setProperty("service", true);
+
 			items.append(msg);
 		}
+
+		std::stable_sort(items.begin(), items.end(), [](const Message &left, const Message &right) {
+			return left.time() < right.time();
+		});
 
 		handler.handle(items);
 	});
@@ -163,11 +187,13 @@ AsyncResult<QVector<History::AccountInfo>> SqliteHistory::accounts()
 		QSqlQuery query;
 		query.prepare("SELECT DISTINCT account, protocol FROM qutim_history");
 		query.exec();
+		qDebug() << "accounts()";
 
 		while(query.next()) {
 			AccountInfo info;
-			info.protocol = query.value(0).toString();
-			info.account = query.value(1).toString();
+			info.account = query.value(0).toString();
+			info.protocol = query.value(1).toString();
+			qDebug() << "AccountInfo" << info.protocol << info.account;
 			result << info;
 		}
 
@@ -184,11 +210,23 @@ AsyncResult<QVector<History::ContactInfo>> SqliteHistory::contacts(const Account
 	m_worker->runJob([handler, account] () {
 		QVector<ContactInfo> result;
 
+		qDebug() << "contacts()";
 		QSqlQuery query;
 		query.prepare("SELECT DISTINCT contact FROM qutim_history WHERE account = :account AND protocol = :protocol");
 		query.bindValue(":account", account.account);
 		query.bindValue(":protocol", account.protocol);
 		query.exec();
+
+		qDebug() << query.executedQuery();
+		qDebug() << "account" << account.account;
+		qDebug() << "protocol" << account.protocol;
+		auto error = query.lastError();
+		if (error.isValid()) {
+			qDebug() << "Error type: " << error.type();
+			qDebug() << "Database: " << error.databaseText();
+			qDebug() << "Driver: " << error.driverText();
+		}
+
 
 		while(query.next()) {
 			ContactInfo info;
@@ -196,6 +234,7 @@ AsyncResult<QVector<History::ContactInfo>> SqliteHistory::contacts(const Account
 			info.protocol = account.protocol;
 			info.contact = query.value(0).toString();
 
+			qDebug() << info.contact;
 			result << info;
 		}
 
@@ -224,13 +263,15 @@ AsyncResult<QList<QDate>> SqliteHistory::months(const ContactInfo &contact, cons
 		query.bindValue(":protocol", contact.protocol);
 		query.bindValue(":contact", contact.contact);
 		if(!needle.isEmpty())
-			query.bindValue(":needle", '%' + SqliteWorker::escapeSqliteLike(needle) + '%');
+			query.bindValue(":needle", QLatin1Char('%') + SqliteWorker::escapeSqliteLike(needle) + QLatin1Char('%'));
 		query.exec();
+		qDebug() << "months()";
 
 		while(query.next()) {
 			int year = query.value(0).toInt();
 			int month = query.value(1).toInt();
 
+			qDebug() << QDate(year, month, 1);
 			result << QDate(year, month, 1);
 		}
 
@@ -265,7 +306,7 @@ AsyncResult<QList<QDate>> SqliteHistory::dates(const ContactInfo &contact, const
 		query.bindValue(":year", month.year());
 		query.bindValue(":month", month.month());
 		if(!needle.isEmpty())
-			query.bindValue(":needle", '%' + SqliteWorker::escapeSqliteLike(needle) + '%');
+			query.bindValue(":needle", QLatin1Char('%') + SqliteWorker::escapeSqliteLike(needle) + QLatin1Char('%'));
 		query.exec();
 
 		while(query.next()) {
@@ -280,32 +321,74 @@ AsyncResult<QList<QDate>> SqliteHistory::dates(const ContactInfo &contact, const
 	return handler.result();
 }
 
-void SqliteHistory::showHistory(const ChatUnit *unit)
-{
-	Q_UNUSED(unit);
-}
-
 void SqliteWorker::prepareDb()
 {
 	QString dbScheme = "CREATE TABLE IF NOT EXISTS qutim_history ("
-					   "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-					   "account TEXT NOT NULL, "
-					   "protocol TEXT NOT NULL, "
-					   "contact TEXT NOT NULL, "
-					   "year INTEGER(2) NOT NULL, "
-					   "month INTEGER(1) NOT NULL, "
-					   "day INTEGER(1) NOT NULL, "
-					   "time TIMESTAMP NOT NULL, "
-					   "incoming INTEGER(1) NOT NULL, "
-					   "message TEXT NOT NULL, "
-					   "html TEXT NOT NULL, "
-					   "type INTEGER(1) NOT NULL"
+					   "`id` INTEGER PRIMARY KEY AUTOINCREMENT, "
+					   "`account` TEXT NOT NULL, "
+					   "`protocol` TEXT NOT NULL, "
+					   "`contact` TEXT NOT NULL, "
+					   "`year` INTEGER(2) NOT NULL, "
+					   "`month` INTEGER(1) NOT NULL, "
+					   "`day` INTEGER(1) NOT NULL, "
+					   "`time` TIMESTAMP NOT NULL, "
+					   "`incoming` INTEGER(1) NOT NULL, "
+					   "`message` TEXT NOT NULL, "
+					   "`html` TEXT NOT NULL, "
+					   "`type` INTEGER(1) NOT NULL, "
+					   "`sendername` TEXT DEFAULT NULL"
 					   ");";
 
 	QSqlQuery res = m_db.exec(dbScheme);
 	auto error = res.lastError();
 	if(error.isValid())
 		qDebug() << "Error during db init:" << error;
+
+	QString dbMigrations = "CREATE TABLE IF NOT EXISTS qutim_history_version ("
+						   "`key` VARCHAR(32) NOT NULL, "
+						   "`value` INTEGER(1) NOT NULL, "
+						   "primary key (`key`)"
+						   ");";
+	QSqlQuery migrationsResult = m_db.exec(dbMigrations);
+	auto migrationsError = migrationsResult.lastError();
+	if(migrationsError.isValid())
+		qDebug() << "Error during creation of qutim_history_version:" << error;
+
+	qDebug() << "Checking version of database...";
+
+	QSqlQuery query;
+	query.prepare("SELECT value FROM qutim_history_version WHERE key = :key LIMIT 1");
+	query.bindValue(":key", "sqlitehistory");
+	query.exec();
+
+	if(query.first()) {
+		int version = query.value(0).toInt();
+		if(version == currentVersion()) {
+			qDebug() << "No migration needed";
+			return;
+		} else if(version > currentVersion()) {
+			qDebug() << "Current version of sqlitehistory plugin is" << currentVersion();
+			qDebug() << "But qutim.sqlite version = " << version;
+			qFatal("qutIM sqlite database is older than plugin. Cannot proceed. Please upgrade qutIM to last version");
+		} else if(version < currentVersion()) {
+			qDebug() << "Database older than plugin, executing migrations";
+			for(int i = version + 1; i < currentVersion(); ++i)
+				makeMigration(i);
+		}
+	} else {
+		qDebug() << "First run, inserting current version";
+		QSqlQuery query;
+
+		query.prepare("INSERT INTO qutim_history_version (key, value) "
+					  "VALUES (:key, :value)");
+		query.bindValue(":key", "sqlitehistory");
+		query.bindValue(":value", currentVersion());
+		query.exec();
+
+		qDebug() << "No migration needed";
+	}
+
+
 }
 
 void SqliteWorker::exec()
@@ -352,6 +435,8 @@ QString SqliteWorker::escapeSqliteLike(const QString &str)
 	escaped.replace('@', "@@");
 	escaped.replace('_', "@_");
 	escaped.replace('%', "@%");
+
+	return escaped;
 }
 
 void SqliteWorker::process()
@@ -374,6 +459,44 @@ void SqliteWorker::process()
 	m_isRunning = true;
 	m_runningLock.unlock();
 	exec();
+}
+
+void SqliteWorker::makeMigration(int version)
+{
+	qDebug() << "Executing migration to version" << version;
+	m_db.transaction();
+	QSqlQuery query;
+
+	switch(version) {
+	case 0:
+		query.prepare("ALTER TABLE qutim_history ADD COLUMN `sendername` TEXT DEFAULT NULL");
+		break;
+	default:
+		qFatal("Unhandled migration to version %i! Seems like a bug", version);
+		break;
+	}
+
+	query.exec();
+
+	m_db.commit();
+
+	auto error = query.lastError();
+	if(error.isValid()) {
+		qDebug() << "Error during migration from" << version - 1 << "to" << version;
+		qDebug() << "Error type: " << error.type();
+		qDebug() << "Database: " << error.databaseText();
+		qDebug() << "Driver: " << error.driverText();
+
+		m_db.rollback();
+		qFatal("Exiting...");
+	} else {
+		qDebug() << "Successful migration to version" << version;
+		QSqlQuery q;
+		q.prepare("UPDATE qutim_history_version SET value = :value WHERE key = :key");
+		q.bindValue(":key", "sqlitehistory");
+		q.bindValue(":value", version);
+		q.exec();
+	}
 }
 
 }
