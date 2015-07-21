@@ -4,6 +4,7 @@
 **
 ** Copyright © 2008 Rustam Chakin <qutim.develop@gmail.com>
 ** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2015 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -24,48 +25,37 @@
 **
 ****************************************************************************/
 
-#ifndef HISTORYWINDOW_H
-#define HISTORYWINDOW_H
+#ifndef HISTVIEW_H
+#define HISTVIEW_H
 
 #include <QWidget>
 #include <QByteArray>
 #include <QRegularExpression>
 #include <qutim/chatunit.h>
 #include <qutim/history.h>
-#include "ui_historywindow.h"
+#include "historywindow.h"
 
 using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-class JsonEngine;
 
-class HistoryWindow : public QWidget
+class HistView : public QObject
 {
 	Q_OBJECT
-
+	Q_CLASSINFO("Service", "HistView")
+	Q_CLASSINFO("Uses", "ChatLayer")
 public:
-	HistoryWindow(const ChatUnit *unit);
-	void setUnit(const ChatUnit *unit);
+	HistView();
 
-private slots:
-	void fillContactComboBox(int index);
-	void fillDateTreeWidget(int index);
-	void fillMonth(QTreeWidgetItem *month);
-	void on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
-	void on_searchButton_clicked();
-	void findPrevious();
+public slots:
+	void onHistoryActionTriggered(QObject *object);
 
 private:
-	void fillAccountComboBox();
-	void setIcons();
-	Ui::HistoryWindowClass ui;
-	QMetaObject::Connection m_contactConnection;
-	History::ContactInfo m_unitInfo;
-	QString m_search_word;
+	QPointer<HistoryWindow> m_historyWindow;
+	void showHistory(const ChatUnit *unit);
 };
 
 }
 
-#endif // HISTORYWINDOW_H
-
+#endif // HISTVIEW_H
