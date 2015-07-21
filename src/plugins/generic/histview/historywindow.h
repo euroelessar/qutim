@@ -24,8 +24,8 @@
 **
 ****************************************************************************/
 
-#ifndef HISTORYWINDOW2_H
-#define HISTORYWINDOW2_H
+#ifndef HISTORYWINDOW_H
+#define HISTORYWINDOW_H
 
 #include <QWidget>
 #include <QByteArray>
@@ -38,7 +38,6 @@ using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-class JsonEngine;
 
 class HistoryWindow : public QWidget
 {
@@ -52,6 +51,7 @@ private slots:
 	void fillContactComboBox(int index);
 	void fillDateTreeWidget(int index);
 	void fillMonth(QTreeWidgetItem *month);
+	void clearMonth(QTreeWidgetItem *month);
 	void on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 	void on_searchButton_clicked();
 	void findPrevious();
@@ -63,9 +63,10 @@ private:
 	QMetaObject::Connection m_contactConnection;
 	History::ContactInfo m_unitInfo;
 	QString m_search_word;
+	QTreeWidgetItem* findChild(QTreeWidgetItem *parent, const QVariant &value);
 };
 
 }
 
-#endif // HISTORYWINDOW2_H
+#endif // HISTORYWINDOW_H
 

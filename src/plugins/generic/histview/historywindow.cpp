@@ -69,7 +69,7 @@ HistoryWindow::HistoryWindow(const ChatUnit *unit)
 	ui.setupUi(this);
 
 	ui.historyLog->setHtml("<p align='center'><span style='font-size:36pt;'>"
-			+ tr("No History") + "</span></p>");
+						   + tr("No History") + "</span></p>");
 	ui.label_in->setText( tr( "In: %L1").arg( 0 ) );
 	ui.label_out->setText( tr( "Out: %L1").arg( 0 ) );
 	ui.label_all->setText( tr( "All: %L1").arg( 0 ) );
@@ -91,6 +91,8 @@ HistoryWindow::HistoryWindow(const ChatUnit *unit)
 	m_unitInfo = unit ? History::info(unit) : History::ContactInfo();
 
 	connect(ui.dateTreeWidget, &QTreeWidget::itemExpanded, this, &HistoryWindow::fillMonth);
+
+	connect(ui.dateTreeWidget, &QTreeWidget::itemCollapsed, this, &HistoryWindow::clearMonth);
 
 	fillAccountComboBox();
 
@@ -126,7 +128,21 @@ void HistoryWindow::setUnit(const ChatUnit *unit)
 void HistoryWindow::setIcons()
 {
 //	setWindowIcon(Icon("history"));
-//	ui.searchButton->setIcon(Icon("search"));
+	//	ui.searchButton->setIcon(Icon("search"));
+}
+
+QTreeWidgetItem *HistoryWindow::findChild(QTreeWidgetItem *parent, const QVariant &value)
+{
+	if (!parent)
+		return nullptr;
+
+	for (int i = 0; i < parent->childCount(); ++i) {
+		QTreeWidgetItem *child = parent->child(i);
+		if (child->data(0, Qt::UserRole) == value)
+			return child;
+	}
+
+	return nullptr;
 }
 
 void HistoryWindow::fillAccountComboBox()
@@ -146,12 +162,14 @@ void HistoryWindow::fillAccountComboBox()
 		connect(ui.accountComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 				this, &HistoryWindow::fillContactComboBox);
 		int accountIndex = ui.accountComboBox->findData(QVariant::fromValue<History::AccountInfo>(m_unitInfo));
+
 		if (accountIndex < 0)
 			fillContactComboBox(0);
-		else
+		else {
 			ui.accountComboBox->setCurrentIndex(accountIndex);
+			fillContactComboBox(accountIndex);
+		}
 
-		qDebug() << "accountIndex" << accountIndex;
 	});
 }
 
@@ -252,19 +270,6 @@ void HistoryWindow::fillMonth(QTreeWidgetItem *monthItem)
 		if (!(currentContactInfo == contactInfo))
 			return;
 
-		auto findChild = [] (QTreeWidgetItem *parent, const QVariant &value) -> QTreeWidgetItem * {
-			if (!parent)
-				return nullptr;
-
-			for (int i = 0; i < parent->childCount(); ++i) {
-				QTreeWidgetItem *child = parent->child(i);
-				if (child->data(0, Qt::UserRole) == value)
-					return child;
-			}
-
-			return nullptr;
-		};
-
 		auto monthItem = findChild(findChild(ui.dateTreeWidget->invisibleRootItem(), month.year()), month);
 		if (!monthItem)
 			return;
@@ -277,6 +282,16 @@ void HistoryWindow::fillMonth(QTreeWidgetItem *monthItem)
 		}
 	});
 }
+
+void HistoryWindow::clearMonth(QTreeWidgetItem *monthItem) {
+	auto month = monthItem->data(0, Qt::UserRole).toDate();
+
+	auto item = findChild(findChild(ui.dateTreeWidget->invisibleRootItem(), month.year()), month);
+
+	if(item)
+		item->takeChildren();
+}
+
 
 void HistoryWindow::on_dateTreeWidget_currentItemChanged(QTreeWidgetItem *dayItem, QTreeWidgetItem *)
 {
