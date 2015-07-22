@@ -56,6 +56,9 @@ public:
 	AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QString &needle) override;
 	AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QString &needle) override;
 
+public slots:
+	void errorHandler(const QString & error);
+
 private:
 	QThread* m_thread;
 	SqliteWorker* m_worker;
@@ -81,6 +84,7 @@ public slots:
 	//void deleteLater();
 signals:
 	void finished();
+	void error(const QString &error);
 
 private:
 	inline int currentVersion() { return 1; }

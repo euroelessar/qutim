@@ -321,6 +321,11 @@ AsyncResult<QList<QDate>> SqliteHistory::dates(const ContactInfo &contact, const
 	return handler.result();
 }
 
+void SqliteHistory::errorHandler(const QString &error)
+{
+	qDebug() << error;
+}
+
 void SqliteWorker::prepareDb()
 {
 	QString dbScheme = "CREATE TABLE IF NOT EXISTS qutim_history ("
@@ -387,8 +392,6 @@ void SqliteWorker::prepareDb()
 
 		qDebug() << "No migration needed";
 	}
-
-
 }
 
 void SqliteWorker::exec()
@@ -423,7 +426,6 @@ void SqliteWorker::runJob(std::function<void ()> job)
 		m_runningLock.unlock();
 		exec();
 	}
-
 }
 
 /**
@@ -448,9 +450,10 @@ void SqliteWorker::process()
 	m_db.setDatabaseName(pathToHistory);
 	bool openSuccess = m_db.open();
 
-	if(!openSuccess)
+	if(!openSuccess) {
 		qDebug() << m_db.lastError();
-	else
+		qFatal("Cannot open sqlite database");
+	} else
 		qDebug() << "Database opened!";
 
 	prepareDb();
