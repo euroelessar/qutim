@@ -288,8 +288,10 @@ void HistoryWindow::clearMonth(QTreeWidgetItem *monthItem) {
 
 	auto item = findChild(findChild(ui.dateTreeWidget->invisibleRootItem(), month.year()), month);
 
-	if(item)
-		item->takeChildren();
+	if(item) {
+		auto items = item->takeChildren();
+		qDeleteAll(items);
+	}
 }
 
 

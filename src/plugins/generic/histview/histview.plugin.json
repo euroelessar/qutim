@@ -2,6 +2,6 @@
 	"pluginIcon": "",
 	"pluginName": "History View",
 	"pluginDescription": "Simple separate window plugin for viewing history",
-	"extensionHeader": "histview.h",
+	"extensionHeader": "src/histview.h",
 	"extensionClass": "Core::HistView"
 }

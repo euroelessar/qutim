@@ -44,15 +44,15 @@ class HistView : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "HistView")
-	Q_CLASSINFO("Uses", "ChatLayer")
 public:
 	HistView();
-
+	~HistView();
 public slots:
 	void onHistoryActionTriggered(QObject *object);
 
 private:
 	QPointer<HistoryWindow> m_historyWindow;
+	ActionGenerator* m_historyAction;
 	void showHistory(const ChatUnit *unit);
 };
 
