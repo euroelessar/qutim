@@ -36,6 +36,7 @@
 #include <QQueue>
 #include <QtSql/QSqlError>
 #include <QRegularExpression>
+#include <QTimer>
 
 namespace Core
 {
@@ -60,6 +61,11 @@ SqliteHistory::SqliteHistory() :
 
 SqliteHistory::~SqliteHistory()
 {
+	m_worker->shutdown();
+	m_thread->wait();
+
+	delete m_worker;
+	delete m_thread;
 }
 
 void SqliteHistory::store(const Message &message)
@@ -72,21 +78,21 @@ void SqliteHistory::store(const Message &message)
 	m_worker->runJob([message, contactInfo] () {
 		QSqlQuery query;
 
-		query.prepare("INSERT INTO qutim_history (account, protocol, contact, year, month, day, time, incoming, message, html, type, sendername) "
-					  "VALUES (:account, :protocol, :contact, :year, :month, :day, :time, :incoming, :message, :html, :type, :sendername)");
+		query.prepare(QStringLiteral("INSERT INTO qutim_history (account, protocol, contact, year, month, day, time, incoming, message, html, type, sendername) "
+									 "VALUES (:account, :protocol, :contact, :year, :month, :day, :time, :incoming, :message, :html, :type, :sendername)"));
 
-		query.bindValue(":account", contactInfo.account);
-		query.bindValue(":protocol", contactInfo.protocol);
-		query.bindValue(":contact", contactInfo.contact);
+		query.bindValue(QStringLiteral(":account"), contactInfo.account);
+		query.bindValue(QStringLiteral(":protocol"), contactInfo.protocol);
+		query.bindValue(QStringLiteral(":contact"), contactInfo.contact);
 
-		query.bindValue(":year", message.time().date().year());
-		query.bindValue(":month", message.time().date().month());
-		query.bindValue(":day", message.time().date().day());
-		query.bindValue(":time", message.time().toTime_t());
+		query.bindValue(QStringLiteral(":year"), message.time().date().year());
+		query.bindValue(QStringLiteral(":month"), message.time().date().month());
+		query.bindValue(QStringLiteral(":day"), message.time().date().day());
+		query.bindValue(QStringLiteral(":time"), message.time().toTime_t());
 
-		query.bindValue(":incoming", message.isIncoming());
-		query.bindValue(":message", message.text());
-		query.bindValue(":html", message.html());
+		query.bindValue(QStringLiteral(":incoming"), message.isIncoming());
+		query.bindValue(QStringLiteral(":message"), message.text());
+		query.bindValue(QStringLiteral(":html"), message.html());
 
 		SqliteWorker::MessageTypes type = SqliteWorker::Message;
 		if(message.property("topic", false))
@@ -94,8 +100,8 @@ void SqliteHistory::store(const Message &message)
 		if(message.property("service", false))
 			type |= SqliteWorker::Service;
 
-		query.bindValue(":type", static_cast<int>(type));
-		query.bindValue(":sendername", message.property("senderName", QString()));
+		query.bindValue(QStringLiteral(":type"), static_cast<int>(type));
+		query.bindValue(QStringLiteral(":sendername"), message.property("senderName", QString()));
 		query.exec();
 	});
 }
@@ -123,17 +129,17 @@ AsyncResult<MessageList> SqliteHistory::read(const ContactInfo &info, const QDat
 		query.prepare(queryString);
 
 		if(from.isValid())
-			query.bindValue(":time_from", from.toTime_t());
+			query.bindValue(QStringLiteral(":time_from"), from.toTime_t());
 		if(to.isValid())
-			query.bindValue(":time_to", to.toTime_t());
+			query.bindValue(QStringLiteral(":time_to"), to.toTime_t());
 
 		qDebug() << "Trying to read messages";
 
-		query.bindValue(":account", info.account);
-		query.bindValue(":protocol", info.protocol);
-		query.bindValue(":contact", info.contact);
+		query.bindValue(QStringLiteral(":account"), info.account);
+		query.bindValue(QStringLiteral(":protocol"), info.protocol);
+		query.bindValue(QStringLiteral(":contact"), info.contact);
 
-		query.bindValue(":max", max_num);
+		query.bindValue(QStringLiteral(":max"), max_num);
 
 		query.exec();
 
@@ -185,7 +191,7 @@ AsyncResult<QVector<History::AccountInfo>> SqliteHistory::accounts()
 		QVector<AccountInfo> result;
 
 		QSqlQuery query;
-		query.prepare("SELECT DISTINCT account, protocol FROM qutim_history");
+		query.prepare(QStringLiteral("SELECT DISTINCT account, protocol FROM qutim_history"));
 		query.exec();
 		qDebug() << "accounts()";
 
@@ -212,9 +218,9 @@ AsyncResult<QVector<History::ContactInfo>> SqliteHistory::contacts(const Account
 
 		qDebug() << "contacts()";
 		QSqlQuery query;
-		query.prepare("SELECT DISTINCT contact FROM qutim_history WHERE account = :account AND protocol = :protocol");
-		query.bindValue(":account", account.account);
-		query.bindValue(":protocol", account.protocol);
+		query.prepare(QStringLiteral("SELECT DISTINCT contact FROM qutim_history WHERE account = :account AND protocol = :protocol"));
+		query.bindValue(QStringLiteral(":account"), account.account);
+		query.bindValue(QStringLiteral(":protocol"), account.protocol);
 		query.exec();
 
 		qDebug() << query.executedQuery();
@@ -251,19 +257,19 @@ AsyncResult<QList<QDate>> SqliteHistory::months(const ContactInfo &contact, cons
 	m_worker->runJob([handler, contact, needle] () {
 		QList<QDate> result;
 
-		QString queryString = "SELECT DISTINCT year, month FROM qutim_history WHERE account = :account "
-						   "AND protocol = :protocol "
-						   "AND contact = :contact ";
+		QString queryString = QStringLiteral("SELECT DISTINCT year, month FROM qutim_history WHERE account = :account "
+							  "AND protocol = :protocol "
+							  "AND contact = :contact ");
 
 		if(!needle.isEmpty())
-			queryString += "AND message LIKE :needle ESCAPE '@'";
+			queryString += QStringLiteral("AND message LIKE :needle ESCAPE '@'");
 		QSqlQuery query;
 		query.prepare(queryString);
-		query.bindValue(":account", contact.account);
-		query.bindValue(":protocol", contact.protocol);
-		query.bindValue(":contact", contact.contact);
+		query.bindValue(QStringLiteral(":account"), contact.account);
+		query.bindValue(QStringLiteral(":protocol"), contact.protocol);
+		query.bindValue(QStringLiteral(":contact"), contact.contact);
 		if(!needle.isEmpty())
-			query.bindValue(":needle", QLatin1Char('%') + SqliteWorker::escapeSqliteLike(needle) + QLatin1Char('%'));
+			query.bindValue(QStringLiteral(":needle"), QLatin1Char('%') + SqliteWorker::escapeSqliteLike(needle) + QLatin1Char('%'));
 		query.exec();
 		qDebug() << "months()";
 
@@ -290,23 +296,23 @@ AsyncResult<QList<QDate>> SqliteHistory::dates(const ContactInfo &contact, const
 	m_worker->runJob([handler, contact, month, needle] () {
 		QList<QDate> result;
 
-		QString queryString = "SELECT DISTINCT day FROM qutim_history WHERE account = :account "
+		QString queryString = QStringLiteral("SELECT DISTINCT day FROM qutim_history WHERE account = :account "
 							  "AND protocol = :protocol "
 							  "AND contact = :contact "
 							  "AND year = :year "
-							  "AND month = :month ";
+							  "AND month = :month ");
 		if(!needle.isEmpty())
-			queryString += "AND message LIKE :needle ESCAPE '@'";
+			queryString += QStringLiteral("AND message LIKE :needle ESCAPE '@'");
 
 		QSqlQuery query;
 		query.prepare(queryString);
-		query.bindValue(":account", contact.account);
-		query.bindValue(":protocol", contact.protocol);
-		query.bindValue(":contact", contact.contact);
-		query.bindValue(":year", month.year());
-		query.bindValue(":month", month.month());
+		query.bindValue(QStringLiteral(":account"), contact.account);
+		query.bindValue(QStringLiteral(":protocol"), contact.protocol);
+		query.bindValue(QStringLiteral(":contact"), contact.contact);
+		query.bindValue(QStringLiteral(":year"), month.year());
+		query.bindValue(QStringLiteral(":month"), month.month());
 		if(!needle.isEmpty())
-			query.bindValue(":needle", QLatin1Char('%') + SqliteWorker::escapeSqliteLike(needle) + QLatin1Char('%'));
+			query.bindValue(QStringLiteral(":needle"), QLatin1Char('%') + SqliteWorker::escapeSqliteLike(needle) + QLatin1Char('%'));
 		query.exec();
 
 		while(query.next()) {
@@ -328,7 +334,7 @@ void SqliteHistory::errorHandler(const QString &error)
 
 void SqliteWorker::prepareDb()
 {
-	QString dbScheme = "CREATE TABLE IF NOT EXISTS qutim_history ("
+	QString dbScheme = QStringLiteral("CREATE TABLE IF NOT EXISTS qutim_history ("
 					   "`id` INTEGER PRIMARY KEY AUTOINCREMENT, "
 					   "`account` TEXT NOT NULL, "
 					   "`protocol` TEXT NOT NULL, "
@@ -342,18 +348,18 @@ void SqliteWorker::prepareDb()
 					   "`html` TEXT NOT NULL, "
 					   "`type` INTEGER(1) NOT NULL, "
 					   "`sendername` TEXT DEFAULT NULL"
-					   ");";
+					   ");");
 
 	QSqlQuery res = m_db.exec(dbScheme);
 	auto error = res.lastError();
 	if(error.isValid())
 		qDebug() << "Error during db init:" << error;
 
-	QString dbMigrations = "CREATE TABLE IF NOT EXISTS qutim_history_version ("
+	QString dbMigrations = QStringLiteral("CREATE TABLE IF NOT EXISTS qutim_history_version ("
 						   "`key` VARCHAR(32) NOT NULL, "
 						   "`value` INTEGER(1) NOT NULL, "
 						   "primary key (`key`)"
-						   ");";
+						   ");");
 	QSqlQuery migrationsResult = m_db.exec(dbMigrations);
 	auto migrationsError = migrationsResult.lastError();
 	if(migrationsError.isValid())
@@ -362,8 +368,8 @@ void SqliteWorker::prepareDb()
 	qDebug() << "Checking version of database...";
 
 	QSqlQuery query;
-	query.prepare("SELECT value FROM qutim_history_version WHERE key = :key LIMIT 1");
-	query.bindValue(":key", "sqlitehistory");
+	query.prepare(QStringLiteral("SELECT value FROM qutim_history_version WHERE key = :key LIMIT 1"));
+	query.bindValue(QStringLiteral(":key"), QStringLiteral("sqlitehistory"));
 	query.exec();
 
 	if(query.first()) {
@@ -377,6 +383,7 @@ void SqliteWorker::prepareDb()
 			qFatal("qutIM sqlite database is older than plugin. Cannot proceed. Please upgrade qutIM to last version");
 		} else if(version < currentVersion()) {
 			qDebug() << "Database older than plugin, executing migrations";
+
 			for(int i = version + 1; i < currentVersion(); ++i)
 				makeMigration(i);
 		}
@@ -384,10 +391,10 @@ void SqliteWorker::prepareDb()
 		qDebug() << "First run, inserting current version";
 		QSqlQuery query;
 
-		query.prepare("INSERT INTO qutim_history_version (key, value) "
-					  "VALUES (:key, :value)");
-		query.bindValue(":key", "sqlitehistory");
-		query.bindValue(":value", currentVersion());
+		query.prepare(QStringLiteral("INSERT INTO qutim_history_version (key, value) "
+					  "VALUES (:key, :value)"));
+		query.bindValue(QStringLiteral(":key"), QStringLiteral("sqlitehistory"));
+		query.bindValue(QStringLiteral(":value"), currentVersion());
 		query.exec();
 
 		qDebug() << "No migration needed";
@@ -424,8 +431,14 @@ void SqliteWorker::runJob(std::function<void ()> job)
 	if(!m_isRunning) {
 		m_isRunning = true;
 		m_runningLock.unlock();
-		exec();
-	}
+		QTimer::singleShot(0, this, SLOT(exec()));
+	} else
+		m_runningLock.unlock();
+}
+
+void SqliteWorker::shutdown()
+{
+	emit finished();
 }
 
 /**
@@ -434,16 +447,16 @@ void SqliteWorker::runJob(std::function<void ()> job)
 QString SqliteWorker::escapeSqliteLike(const QString &str)
 {
 	QString escaped = str;
-	escaped.replace('@', "@@");
-	escaped.replace('_', "@_");
-	escaped.replace('%', "@%");
+	escaped.replace(QLatin1Char('@'), QStringLiteral("@@"));
+	escaped.replace(QLatin1Char('_'), QStringLiteral("@_"));
+	escaped.replace(QLatin1Char('%'), QStringLiteral("@%"));
 
 	return escaped;
 }
 
 void SqliteWorker::process()
 {
-	m_db = QSqlDatabase::addDatabase("QSQLITE");
+	m_db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
 	QDir history_dir = SystemInfo::getDir(SystemInfo::HistoryDir);
 	QString pathToHistory = history_dir.absolutePath() + QDir::separator() + "qutim.sqlite";
 	qDebug() << "Trying to open database" << pathToHistory;
@@ -472,7 +485,7 @@ void SqliteWorker::makeMigration(int version)
 
 	switch(version) {
 	case 0:
-		query.prepare("ALTER TABLE qutim_history ADD COLUMN `sendername` TEXT DEFAULT NULL");
+		query.prepare(QStringLiteral("ALTER TABLE qutim_history ADD COLUMN `sendername` TEXT DEFAULT NULL"));
 		break;
 	default:
 		qFatal("Unhandled migration to version %i! Seems like a bug", version);
@@ -480,8 +493,6 @@ void SqliteWorker::makeMigration(int version)
 	}
 
 	query.exec();
-
-	m_db.commit();
 
 	auto error = query.lastError();
 	if(error.isValid()) {
@@ -495,10 +506,12 @@ void SqliteWorker::makeMigration(int version)
 	} else {
 		qDebug() << "Successful migration to version" << version;
 		QSqlQuery q;
-		q.prepare("UPDATE qutim_history_version SET value = :value WHERE key = :key");
-		q.bindValue(":key", "sqlitehistory");
-		q.bindValue(":value", version);
+		q.prepare(QStringLiteral("UPDATE qutim_history_version SET value = :value WHERE key = :key"));
+		q.bindValue(QStringLiteral(":key"), QStringLiteral("sqlitehistory"));
+		q.bindValue(QStringLiteral(":value"), version);
 		q.exec();
+
+		m_db.commit();
 	}
 }
 

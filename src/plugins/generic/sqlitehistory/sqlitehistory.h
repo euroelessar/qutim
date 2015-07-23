@@ -76,9 +76,9 @@ public:
 	};
 	Q_DECLARE_FLAGS(MessageTypes, MessageType)
 
-	void runJob(std::function<void ()> job);
 	static QString escapeSqliteLike(const QString &str);
-
+	void runJob(std::function<void ()> job);
+	void shutdown();
 public slots:
 	void process();
 	//void deleteLater();
@@ -86,6 +86,8 @@ signals:
 	void finished();
 	void error(const QString &error);
 
+private slots:
+	void exec();
 private:
 	inline int currentVersion() { return 1; }
 	void makeMigration(int version);
@@ -94,7 +96,6 @@ private:
 	QMutex m_runningLock;
 	QSqlDatabase m_db;
 	void prepareDb();
-	void exec();
 	bool m_isRunning = false;
 };
 
