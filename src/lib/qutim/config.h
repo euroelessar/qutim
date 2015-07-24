@@ -220,6 +220,8 @@ public:
 
 	T value() const;
 	operator T() const;
+	T operator& (const T &) const;
+	T operator| (const T &) const;
 
 	void onChange(QObject *guard, const std::function<void (const T &)> &callback);
 
@@ -376,6 +378,18 @@ template <typename T>
 ConfigValue<T>::operator T() const
 {
 	return value();
+}
+
+template <typename T>
+T ConfigValue<T>::operator& (const T& val) const
+{
+	return val & value();
+}
+
+template <typename T>
+T ConfigValue<T>::operator| (const T& val) const
+{
+	return val | value();
 }
 
 template <typename T>

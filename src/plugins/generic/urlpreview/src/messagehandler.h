@@ -76,7 +76,6 @@ private:
 	qutim_sdk_0_3::ConfigValue<quint64> m_maxImageHeight;
 	qutim_sdk_0_3::ConfigValue<quint64> m_maxImageWidth;
 
-	QSize m_maxImageSize;
 	qutim_sdk_0_3::ConfigValue<quint64> m_maxFileSize;
 	qutim_sdk_0_3::ConfigValue<bool> m_enableYoutubePreview;
 	qutim_sdk_0_3::ConfigValue<bool> m_enableImagesPreview;

@@ -61,18 +61,8 @@ UrlHandler::UrlHandler() :
 	Config cfg;
 	cfg.beginGroup("urlPreview");
 	m_flags = cfg.value(QLatin1String("flags"), PreviewImages | PreviewYoutube);
-
 	m_maxImageHeight = cfg.value(QLatin1String("maxHeight"), (quint64)600);
 	m_maxImageWidth = cfg.value(QLatin1String("maxWidth"), (quint64)800);
-	m_maxImageSize.setHeight(m_maxImageHeight);
-	m_maxImageSize.setWidth(m_maxImageWidth);
-
-	m_maxImageHeight.onChange(this, [this] (const quint64 & height) {
-		m_maxImageSize.setHeight(height);
-	});
-	m_maxImageWidth.onChange(this, [this] (const quint64 & width) {
-		m_maxImageSize.setWidth(width);
-	});
 
 	m_maxFileSize = cfg.value(QLatin1String("maxFileSize"), (quint64)100000);
 	m_template = "<br><b>" % tr("URL Preview") % "</b>: <i>%TYPE%, %SIZE% " % tr("bytes") % "</i><br>";
@@ -148,7 +138,7 @@ void UrlHandler::checkLink(const QStringRef &originalLink, QString &link, ChatUn
 
 	const QUrl url = QUrl::fromUserInput(link);
 
-	if (m_flags.value() & PreviewYoutube) {
+	if (m_flags & PreviewYoutube) {
 		QString urlquery = QUrlQuery(url.query()).queryItemValue(QLatin1String("v"));
 		const QString youtubeId = (url.host() == QLatin1String("youtube.com")
 								   || url.host() == QLatin1String("www.youtube.com"))
@@ -318,8 +308,8 @@ void UrlHandler::netmanFinished(QNetworkReply *reply)
 		QString amsg = m_imageTemplate;
 		amsg.replace("%URL%", url);
 		amsg.replace("%UID%", uid);
-		amsg.replace("%MAXW%", QString::number(m_maxImageSize.width()));
-		amsg.replace("%MAXH%", QString::number(m_maxImageSize.height()));
+		amsg.replace("%MAXW%", QString::number(m_maxImageWidth));
+		amsg.replace("%MAXH%", QString::number(m_maxImageHeight));
 		pstr += amsg;
 	}
 
