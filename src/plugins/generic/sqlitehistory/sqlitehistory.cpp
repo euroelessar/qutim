@@ -45,7 +45,6 @@ SqliteHistory::SqliteHistory() :
 	m_thread(new QThread),
 	m_worker(new SqliteWorker)
 {
-
 	m_worker->moveToThread(m_thread);
 
 	connect(m_worker, SIGNAL(error(QString)), this, SLOT(errorHandler(QString)));
@@ -223,9 +222,6 @@ AsyncResult<QVector<History::ContactInfo>> SqliteHistory::contacts(const Account
 		query.bindValue(QStringLiteral(":protocol"), account.protocol);
 		query.exec();
 
-		qDebug() << query.executedQuery();
-		qDebug() << "account" << account.account;
-		qDebug() << "protocol" << account.protocol;
 		auto error = query.lastError();
 		if (error.isValid()) {
 			qDebug() << "Error type: " << error.type();
@@ -392,7 +388,7 @@ void SqliteWorker::prepareDb()
 		QSqlQuery query;
 
 		query.prepare(QStringLiteral("INSERT INTO qutim_history_version (key, value) "
-					  "VALUES (:key, :value)"));
+									 "VALUES (:key, :value)"));
 		query.bindValue(QStringLiteral(":key"), QStringLiteral("sqlitehistory"));
 		query.bindValue(QStringLiteral(":value"), currentVersion());
 		query.exec();

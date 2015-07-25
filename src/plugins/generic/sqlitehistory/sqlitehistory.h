@@ -81,7 +81,6 @@ public:
 	void shutdown();
 public slots:
 	void process();
-	//void deleteLater();
 signals:
 	void finished();
 	void error(const QString &error);

@@ -55,8 +55,6 @@ HistView::HistView()
 
 HistView::~HistView()
 {
-	//MenuController::removeAction(m_historyAction.data());
-
 	delete m_historyAction;
 }
 
