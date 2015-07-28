@@ -69,7 +69,7 @@ void IdleStatusChanger::refillAccounts()
 
 void IdleStatusChanger::onIdle(int secs)
 {
-	if ((m_awayEnabled?m_state == Away:1)
+	if ((m_awayEnabled ? m_state == Away : 1)
 			&& secs > m_naSecs
 			&& m_naEnabled) {
 		refillAccounts();
@@ -100,11 +100,12 @@ void IdleStatusChanger::onIdle(int secs)
 
 void IdleStatusChanger::reloadSettings()
 {
-	Config conf(AA_CONFIG_GROUP);
+	Config conf;
+	conf.beginGroup("auto-away");
 	m_awayEnabled = conf.value("away-enabled", true);
 	m_naEnabled   = conf.value("na-enabled",   true);
-	m_awaySecs = conf.value("away-secs", AWAY_DEF_SECS);
-	m_naSecs   = conf.value("na-secs",   NA_DEF_SECS);
+	m_awaySecs = conf.value("away-secs", 3*60); // 3 minutes
+	m_naSecs   = conf.value("na-secs", 10*60); // 10 minutes
 	m_awayStatus.setText(conf.value("away-text", ""));
 	m_naStatus.  setText(conf.value("na-text",   ""));
 }

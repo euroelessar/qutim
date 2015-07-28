@@ -184,6 +184,7 @@ void AccountPrivate::updateStatus()
 		break;
 	case Account::Connected:
 	case Account::Disconnecting:
+		q_func()->doStatusChange(userStatus);
 		setStatus(userStatus);
 		break;
 	}
