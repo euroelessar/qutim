@@ -104,8 +104,8 @@ void IdleStatusChanger::reloadSettings()
 	conf.beginGroup("auto-away");
 	m_awayEnabled = conf.value("away-enabled", true);
 	m_naEnabled   = conf.value("na-enabled",   true);
-	m_awaySecs = conf.value("away-secs", 180); // 3*60 -- 3 minutes
-	m_naSecs   = conf.value("na-secs", 600); // 10*60 -- 10 minutes
+	m_awaySecs = conf.value("away-secs", 3*60); // 3 minutes
+	m_naSecs   = conf.value("na-secs", 10*60); // 10 minutes
 	m_awayStatus.setText(conf.value("away-text", ""));
 	m_naStatus.  setText(conf.value("na-text",   ""));
 }
