@@ -76,7 +76,7 @@ bool Idle::isActive() const
 
 bool Idle::usingPlatform() const
 {
-	return (platform ? true: false);
+	return (platform ? true : false);
 }
 
 void Idle::start()
@@ -101,9 +101,9 @@ void Idle::stop()
 int Idle::secondsIdle()
 {
 	int i;
-	if (platform)
+	if (platform) {
 		i = platform->secondsIdle();
-	else {
+	} else {
 		QPoint curMousePos = QCursor::pos();
 		QDateTime curDateTime = QDateTime::currentDateTime();
 		if(d->lastMousePos != curMousePos) {
@@ -131,12 +131,13 @@ int Idle::secondsIdle()
 
 	// how long have we been idle?
 	int idleTime = d->startTime.secsTo(QDateTime::currentDateTime());
+
 	return idleTime;
 }
 
 void Idle::doCheck()
 {
-	secondsIdle(secondsIdle());
+	emit secondsIdle(secondsIdle());
 }
 }
 
