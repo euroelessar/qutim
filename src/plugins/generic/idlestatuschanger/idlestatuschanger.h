@@ -42,23 +42,29 @@ public:
 
 public slots:
 	void onIdle(int secs);
-	void reloadSettings();
 
 private:
 	void refillAccounts();
+	void reloadSettings();
+
 	enum State
 	{
 		Active,
 		Away,
 		Inactive
 	};
-	bool m_awayEnabled;
-	bool m_naEnabled;
-	State m_state;
-	int m_awaySecs;
-	Status m_awayStatus;
-	int m_naSecs;
+	qutim_sdk_0_3::ConfigValue<bool> m_awayEnabled;
+	qutim_sdk_0_3::ConfigValue<bool> m_naEnabled;
+	qutim_sdk_0_3::ConfigValue<int> m_awaySecs;
+	qutim_sdk_0_3::ConfigValue<int> m_naSecs;
+
 	Status m_naStatus;
+	Status m_awayStatus;
+
+	qutim_sdk_0_3::ConfigValue<QString> m_naStatusText;
+	qutim_sdk_0_3::ConfigValue<QString> m_awayStatusText;
+
+	State m_state;
 	QList<QPointer<Account> > m_accounts;
 	QList<Status> m_statuses;
 };
