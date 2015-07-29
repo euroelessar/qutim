@@ -57,6 +57,8 @@
 #include <QTimer>
 #include <QDialogButtonBox>
 
+#include <jreen/chatstate.h>
+
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
 
@@ -507,6 +509,21 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 		ChatSession *chatSession = ChatLayer::get(user, true);
 		chatSession->appendMessage(coreMsg);
 	} else {
+		ChatSession *chatSession = ChatLayer::get(this, true);
+
+		Jreen::ChatState *state = msg.payload<Jreen::ChatState>().data();
+		if(state) {
+			qDebug() << "trying to put state in chat";
+			if(user && state->state() == Jreen::ChatState::Composing) {
+				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateComposing);
+			} else if(user) {
+				// yes, there are anothers states, but now there is only composing event
+				// for others we don't have neither api, nor icons
+				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateGone);
+			}
+			return;
+		}
+
 		d->lastMessage = QDateTime::currentDateTime();
 		qutim_sdk_0_3::Message coreMsg(msg.body());
 		coreMsg.setChatUnit(this);
@@ -514,7 +531,6 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 		if (user)
 			coreMsg.setProperty("senderId", user->id());
 		coreMsg.setIncoming(msg.from().resource() != d->room->nick());
-		ChatSession *chatSession = ChatLayer::get(this, true);
 		DelayedDelivery::Ptr when = msg.when();
 		if (when) {
 			coreMsg.setProperty("history", true);
@@ -832,6 +848,27 @@ void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 void JMUCSession::handleDeath(const QString &name)
 {
 	d_func()->users.remove(name);
+}
+
+bool JMUCSession::event(QEvent *ev)
+{
+	Q_D(JMUCSession);
+	qDebug() << "event in JMUCSession";
+
+	if (ev->type() == ChatStateEvent::eventType()) {
+		qDebug() << "OH HAI! ChatStateEvent in JMUCSession, sir!";
+
+		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
+
+		Jreen::Message msg(Jreen::Message::Groupchat,
+						   d->jid);
+		msg.setID(d->account.data()->client()->getID());
+
+		msg.addExtension(new Jreen::ChatState(state));
+		d->account->messageSessionManager()->send(msg);
+		return true;
+	}
 }
 
 void JMUCSession::onError(Jreen::Error::Ptr error)
