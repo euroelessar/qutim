@@ -383,13 +383,13 @@ ConfigValue<T>::operator T() const
 template <typename T>
 T ConfigValue<T>::operator& (const T& val) const
 {
-	return val & value();
+	return value() & val;
 }
 
 template <typename T>
 T ConfigValue<T>::operator| (const T& val) const
 {
-	return val | value();
+	return value() | val;
 }
 
 template <typename T>
