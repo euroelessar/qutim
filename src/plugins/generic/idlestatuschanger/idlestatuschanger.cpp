@@ -38,7 +38,6 @@ IdleStatusChanger::IdleStatusChanger() :
 	m_awayStatus(Status::Away), m_naStatus(Status::NA)
 {
 	QObject *idle = ServiceManager::getByName("Idle");
-	reloadSettings();
 	m_state = Active;
 	connect(idle, SIGNAL(secondsIdle(int)), this, SLOT(onIdle(int)));
 	SettingsItem *settings = new QmlSettingsItem(
@@ -46,11 +45,12 @@ IdleStatusChanger::IdleStatusChanger() :
 				Settings::General,
 				Icon("user-away-extended"),
 				QT_TRANSLATE_NOOP("AutoAway", "Auto-away"));
-	settings->connect(SIGNAL(saved()), this, SLOT(reloadSettings()));
 	Settings::registerItem(settings);
 
 	m_awayStatus.setChangeReason(Status::ByIdle);
 	m_naStatus.setChangeReason(Status::ByIdle);
+
+	reloadSettings();
 }
 
 void IdleStatusChanger::refillAccounts()
@@ -103,11 +103,22 @@ void IdleStatusChanger::reloadSettings()
 	Config conf;
 	conf.beginGroup("auto-away");
 	m_awayEnabled = conf.value("away-enabled", true);
-	m_naEnabled   = conf.value("na-enabled",   true);
+	m_naEnabled = conf.value("na-enabled", true);
+
 	m_awaySecs = conf.value("away-secs", 3*60); // 3 minutes
-	m_naSecs   = conf.value("na-secs", 10*60); // 10 minutes
-	m_awayStatus.setText(conf.value("away-text", ""));
-	m_naStatus.  setText(conf.value("na-text",   ""));
+	m_naSecs = conf.value("na-secs", 10*60); // 10 minutes
+
+	m_awayStatusText = conf.value("away-text", "");
+	m_awayStatus.setText(m_awayStatusText);
+	m_awayStatusText.onChange(this, [this] (const QString &text) {
+		m_awayStatus.setText(text);
+	});
+
+	m_naStatusText = conf.value("na-text", "");
+	m_naStatus.setText(m_naStatusText);
+	m_naStatusText.onChange(this, [this] (const QString &text) {
+		m_naStatus.setText(text);
+	});
 }
 }
 

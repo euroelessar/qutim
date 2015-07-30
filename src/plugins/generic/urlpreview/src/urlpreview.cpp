@@ -59,7 +59,6 @@ bool UrlPreviewPlugin::load()
 												   QLatin1String("UrlPreview"),
 												   qutim_sdk_0_3::MessageHandler::HighPriority,
 												   qutim_sdk_0_3::MessageHandler::HighPriority);
-	m_settingsItem->connect(SIGNAL(saved()), m_handler.data(), SLOT(loadSettings()));
 	return true;
 }
 
