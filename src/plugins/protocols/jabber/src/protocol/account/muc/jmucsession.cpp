@@ -88,6 +88,8 @@ public:
 	bool isError;
 	QDateTime lastMessage;
 	QString *thread;
+
+	bool slowmode = false;
 };
 
 void JMUCSessionPrivate::removeUser(JMUCSession *conference, JMUCUser *user)
@@ -512,8 +514,10 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 		ChatSession *chatSession = ChatLayer::get(this, true);
 
 		Jreen::ChatState *state = msg.payload<Jreen::ChatState>().data();
+
 		if(state) {
 			qDebug() << "trying to put state in chat";
+
 			if(user && state->state() == Jreen::ChatState::Composing) {
 				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateComposing);
 			} else if(user) {
@@ -598,6 +602,22 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);
 	qutim_sdk_0_3::Message coreMsg(msg.body());
+
+	if(msg.subtype() == Jreen::Message::Error && msg.containsPayload<Jreen::Error>()) {
+		qDebug() << "Service message with error" << msg.error().data()->condition();
+		coreMsg.setText(msg.error().data()->text());
+
+		// FIXME TODO (nico-izo):
+		// it appears that some servers have stanza limit
+		// and with chatstates enabled we can overflood and get error.
+		// This way we entering low-chat-state-mode
+		// TODO: maybe pseudoservice message about entering slowmode?
+		if(msg.error().data()->condition() == Jreen::Error::ResourceConstraint) {
+			d->slowmode = true;
+			qDebug() << "Entering slowmode for mucsession" << d->jid;
+		}
+	}
+
 	coreMsg.setChatUnit(this);
 	coreMsg.setProperty("service",true);
 	coreMsg.setProperty("silent", true);
@@ -860,6 +880,10 @@ bool JMUCSession::event(QEvent *ev)
 
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
 		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
+
+		// HACK: look in JMUCSession::onServiceMessage for more info
+		if(d->slowmode && state != Jreen::ChatState::Composing)
+			return true;
 
 		Jreen::Message msg(Jreen::Message::Groupchat,
 						   d->jid);
