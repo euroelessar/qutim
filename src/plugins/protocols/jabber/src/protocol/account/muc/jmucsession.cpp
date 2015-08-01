@@ -873,17 +873,17 @@ void JMUCSession::handleDeath(const QString &name)
 bool JMUCSession::event(QEvent *ev)
 {
 	Q_D(JMUCSession);
-	qDebug() << "event in JMUCSession";
 
 	if (ev->type() == ChatStateEvent::eventType()) {
-		qDebug() << "OH HAI! ChatStateEvent in JMUCSession, sir!";
-
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
 		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
 
 		// HACK: look in JMUCSession::onServiceMessage for more info
 		if(d->slowmode && state != Jreen::ChatState::Composing)
 			return true;
+
+		if(state == Jreen::ChatState::Gone)
+			return true; // ChatState::Gone forbidden in MUC
 
 		Jreen::Message msg(Jreen::Message::Groupchat,
 						   d->jid);
