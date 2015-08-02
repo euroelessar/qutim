@@ -126,8 +126,8 @@ public:
 	QVariant getText() const { return text; }
 	void setText(const QVariant &val) { text = val.toString(); }
 	QVariant getHtml() const {
+		QString mutableHtml = html;
 		if (html.isEmpty()) {
-			QString &mutableHtml = const_cast<QString&>(html);
 			mutableHtml = text.toHtmlEscaped();
 			// keep leading whitespaces
 			mutableHtml.replace(QLatin1String("\n "), QLatin1String("<br/>&nbsp;"));
@@ -137,7 +137,7 @@ public:
 			// keep multiple whitespaces
 			mutableHtml.replace(QLatin1String("  "), QLatin1String(" &nbsp;"));
 		}
-		return html;
+		return mutableHtml;
 	}
 	void setHtml(const QVariant &val) { html = val.toString(); }
 	QVariant getTime() const { return time; }
