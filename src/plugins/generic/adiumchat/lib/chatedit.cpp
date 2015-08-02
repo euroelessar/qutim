@@ -234,25 +234,26 @@ void ChatEdit::onTextChanged()
 {
 	if(!m_session)
 		return;
+
 	if(m_autoResize) {
 		QFontMetrics fontHeight = fontMetrics();
 		//const int docHeight = document()->size().toSize().height()*fontHeight.height() + int(document()->documentMargin()) * 3;
 		const int docHeight = document()->size().toSize().height()+int(document()->documentMargin());
-//		qDebug() << "New docHeight is: " << docHeight;
-		if (docHeight == previousTextHeight)
-			return;
-
-		previousTextHeight = docHeight;
-		const int resHeight = qMin(window()->height() / 3, qMax(docHeight, fontHeight.height()));
-		setMinimumHeight(resHeight);
-		setMaximumHeight(resHeight);
+		//qDebug() << "New docHeight is: " << docHeight;
+		if (docHeight != previousTextHeight) {
+			previousTextHeight = docHeight;
+			const int resHeight = qMin(window()->height() / 3, qMax(docHeight, fontHeight.height()));
+			setMinimumHeight(resHeight);
+			setMaximumHeight(resHeight);
+		}
 	}
 
 	QString text = textEditToPlainText();
-	if(!m_session || text.trimmed().isEmpty())
+	if(text.trimmed().isEmpty()) {
 		m_session.data()->setChatState(ChatUnit::ChatStateActive);
-	else
+	} else {
 		m_session.data()->setChatState(ChatUnit::ChatStateComposing);
+	}
 }
 
 void ChatEdit::setSendKey(SendMessageKey key)
