@@ -525,7 +525,8 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 				// for others we don't have neither api, nor icons
 				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateGone);
 			}
-			return;
+			if(msg.body().isEmpty())
+				return;
 		}
 
 		d->lastMessage = QDateTime::currentDateTime();
