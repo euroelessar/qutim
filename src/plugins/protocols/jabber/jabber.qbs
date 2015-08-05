@@ -7,7 +7,7 @@ Protocol {
 
     cpp.includePaths: ["src"]
     cpp.defines: {
-        var basicDefs = [];
+        var basicDefs = base
         if(jingle)
             basicDefs = basicDefs.concat("JABBER_HAVE_MULTIMEDIA")
         return basicDefs
