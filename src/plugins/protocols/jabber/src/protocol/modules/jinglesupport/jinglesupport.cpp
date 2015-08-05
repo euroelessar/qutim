@@ -22,7 +22,6 @@
 ** $QUTIM_END_LICENSE$
 **
 ****************************************************************************/
-
 #ifdef JABBER_HAVE_MULTIMEDIA
 
 #include "jinglesupport.h"
@@ -33,8 +32,8 @@
 #include <qutim/servicemanager.h>
 #include <qutim/icon.h>
 #include <qutim/menucontroller.h>
-#include <QAudioInput>
-#include <QAudioOutput>
+#include <QtMultimedia/QAudioOutput>
+#include <QtMultimedia/QAudioInput>
 #include <QDebug>
 
 using namespace qutim_sdk_0_3;
@@ -165,7 +164,16 @@ void init_button(JingleButton *button)
 	MenuController::addAction<JContactResource>(button);
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(JingleButton, button, init_button(x.data()))
+//Q_GLOBAL_STATIC_WITH_INITIALIZER(JingleButton, button, init_button(x.data()))
+
+JingleButton *button()
+{
+	static JingleButton *pointer;
+	if (!pointer) {
+		pointer = new JingleButton;
+		init_button(pointer);
+	}
+}
 
 JingleSupport::JingleSupport() : m_client(0)
 {

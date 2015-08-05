@@ -142,13 +142,11 @@ void JPlugin::init()
 				 new SingletonGenerator<JAttention, JabberExtension>(),
 				 ExtensionIcon("dialog-warning"));
 
-	#if 0
 	#ifdef JABBER_HAVE_MULTIMEDIA
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VoIP support"),
-					 QT_TRANSLATE_NOOP("Plugin", "Allows to talk by voice and video"),
-					 new GeneralGenerator<JingleSupport, JabberExtension>(),
-					 ExtensionIcon(""));
-	#endif
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber VoIP support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Allows to talk by voice and video"),
+				 new GeneralGenerator<JingleSupport, JabberExtension>(),
+				 ExtensionIcon(""));
 	#endif
 }
 
