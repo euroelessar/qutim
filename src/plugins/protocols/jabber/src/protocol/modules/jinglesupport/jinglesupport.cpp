@@ -173,6 +173,7 @@ JingleButton *button()
 		pointer = new JingleButton;
 		init_button(pointer);
 	}
+	return pointer;
 }
 
 JingleSupport::JingleSupport() : m_client(0)
