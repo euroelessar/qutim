@@ -891,7 +891,9 @@ bool JMUCSession::event(QEvent *ev)
 		msg.setID(d->account.data()->client()->getID());
 
 		msg.addExtension(new Jreen::ChatState(state));
-		d->account->messageSessionManager()->send(msg);
+
+		if(isJoined())
+			d->account->messageSessionManager()->send(msg);
 		return true;
 	}
 }
