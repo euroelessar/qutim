@@ -14,7 +14,6 @@ Framework {
     property string shareDir: qutim_share_path
 
     Depends { name: "k8json" }
-    Depends { name: "qxt" }
     Depends { name: "Qtsolutions" }
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'script', 'quick', 'widgets' ] }
