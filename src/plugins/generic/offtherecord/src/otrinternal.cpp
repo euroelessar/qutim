@@ -29,7 +29,7 @@
 #include <qutim/systeminfo.h>
 #include <qutim/buddy.h>
 #include <qutim/chatsession.h>
-#include <QtConcurrentRun>
+#include <QtConcurrent/QtConcurrentRun>
 #include <QtDebug>
 #include <QInputDialog>
 
