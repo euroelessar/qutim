@@ -7,7 +7,15 @@ Project {
         filePath: "vkontakte/vreen/vreen.qbs"
 
         Properties {
-            vreen_qml_path: qutim_qml_path
+            // location of Vreen/Base/... with qml, qmldir and .so file
+            vreen_qml_path: {
+                if (qbs.targetOS.contains('osx'))
+                    return "bin/qutim.app/Contents/";
+                else if (qbs.targetOS.contains('windows'))
+                    return "bin/"
+                else
+                    return "lib/qutim/";
+            }
             vreen_lib_path: qutim_lib_path
             vreen_libexec_path: qutim_libexec_path
             name: "vreen-imported"
