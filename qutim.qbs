@@ -9,6 +9,10 @@ Project {
     property string qutim_version_patch: '0'
     property string qutim_version: qutim_version_major + '.' + qutim_version_minor + '.' + qutim_version_release + '.' + qutim_version_patch
     property bool declarativeUi: false
+    /**
+     * Use: just pass project.addressSanitizer:true as qbs resolve/build parameter
+     */
+    property bool addressSanitizer: false
     property var additionalCppDefines: []
 
     property string shareDir: qutim_share_path

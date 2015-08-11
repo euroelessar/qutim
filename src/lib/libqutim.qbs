@@ -60,6 +60,9 @@ Framework {
     }
     cpp.linkerFlags: {
         var flags = base;
+        if(project.addressSanitizer)
+            flags = flags.concat("-fsanitize=address");
+
         if (qbs.toolchain.contains("clang"))
             flags = flags.concat(["-stdlib=libc++"])
         if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
@@ -98,6 +101,9 @@ Framework {
         }
         cpp.linkerFlags: {
             var flags = base;
+            if(project.addressSanitizer)
+                flags = flags.concat("-fsanitize=address");
+
             if (qbs.toolchain.contains("clang"))
                 flags = flags.concat(["-stdlib=libc++"])
             if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("linux"))
