@@ -896,6 +896,8 @@ bool JMUCSession::event(QEvent *ev)
 			d->account->messageSessionManager()->send(msg);
 		return true;
 	}
+
+	return Conference::event(ev);
 }
 
 void JMUCSession::onError(Jreen::Error::Ptr error)
