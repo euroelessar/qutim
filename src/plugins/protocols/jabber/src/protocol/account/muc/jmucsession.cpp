@@ -880,7 +880,7 @@ bool JMUCSession::event(QEvent *ev)
 		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
 
 		// HACK: look in JMUCSession::onServiceMessage for more info
-		if(d->slowmode && state != Jreen::ChatState::Composing)
+		if(d->slowmode) // && state != Jreen::ChatState::Composing
 			return true;
 
 		if(state == Jreen::ChatState::Gone)
