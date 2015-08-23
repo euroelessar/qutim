@@ -25,7 +25,7 @@
 #include "nowplaying.h"
 #include "icqsupport.h"
 #include "jabbersupport.h"
-#include "players/mpris/mprisplayerfactory.h"
+#include "../players/mpris/mprisplayerfactory.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/settingslayer.h>
 #include <qutim/debug.h>
@@ -229,7 +229,7 @@ void NowPlaying::playingStatusChanged(bool isPlaying)
 
 void NowPlaying::setStatuses(const TrackInfo &info)
 {
-	debug() << info.location.toString();
+	qDebug() << info.location.toString();
 	foreach (AccountTuneStatus *account, m_accounts)
 		account->setStatus(info);
 }

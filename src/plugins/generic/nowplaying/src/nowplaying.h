@@ -76,6 +76,7 @@ class NowPlaying : public Plugin
 	Q_OBJECT
 	Q_CLASSINFO("DebugInfo", "NowPlaying")
 	Q_CLASSINFO("Service", "NowPlaying")
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
 	NowPlaying();
 	void init();
