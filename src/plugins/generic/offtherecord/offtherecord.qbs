@@ -21,5 +21,18 @@ GenericPlugin {
 
     pluginTags: ['linux', 'crypto', 'mac']
     
-    cpp.dynamicLibraries: ["otr"]
+    cpp.dynamicLibraries: {
+
+        var flags = [];
+        var libs = (typeof pkgConfig.libs !== "undefined") ? pkgConfig.libs : "-lotr";
+
+        for (i in libs) {
+            splitflag = libs[i].split('-l');
+            if (splitflag.length == 2 && splitflag[0] == "") {
+                flags.push(splitflag[1]);
+            }
+        }
+
+        return flags;
+    }
 }

@@ -87,7 +87,6 @@ void OtrMessagePreHandler::decrypt(Message &message)
 
 MessageHandlerAsyncResult OtrMessagePostHandler::doHandle(Message &message)
 {
-	//Q_UNUSED(reason);
 	if (message.isIncoming()) {
 		if (message.text().startsWith(QLatin1String("<Internal OTR message>\n"))) {
 			message.setText(message.text().section(QLatin1Char('\n'), 1));
