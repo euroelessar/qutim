@@ -104,14 +104,14 @@ QStringList getAllPossibleNamesFromFreedesktopName(const QString &iconName) {
 
 QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 {
-	if(name.isEmpty() || IconsList::missingIcons.contains(name))
+	if(name.isEmpty() || m_missingIcons.contains(name))
 		return QIcon();
 
 	if(!QIcon::fromTheme(name).isNull())
 		return QIcon::fromTheme(name);
 	else if(m_defaultEnabled) {
-		qDebug() << "WARNING: missing icon in default fallback theme";
-		IconsList::missingIcons.insert(name);
+		qWarning() << "missing icon in default fallback theme";
+		m_missingIcons.insert(name);
 	} else if(m_fallbackIcons.contains(name)) {
 		QIcon icon;
 		icon.addFile(m_fallbackIcons.value(name), QSize(512, 512));
@@ -129,13 +129,13 @@ QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 			m_fallbackIcons.insert(name, iconfile);
 		} else {
 			qDebug() << "WARNING: icon" << name << "not found. See log for list of all missing icons";
-			IconsList::missingIcons.insert(name);
+			m_missingIcons.insert(name);
 		}
 
 		return icon;
 	} else {
 		qDebug() << "WARNING: icon" << name << "not found. See log for list of all missing icons";
-		IconsList::missingIcons.insert(name);
+		m_missingIcons.insert(name);
 
 		return QIcon();
 	}
@@ -171,17 +171,6 @@ QString IconLoaderImpl::doMoviePath(const QString &name, uint iconSize)
 	Q_UNUSED(name);
 	Q_UNUSED(iconSize);
 	return QString();
-}
-
-QSet<QString> IconsList::missingIcons;
-
-namespace QtIcons {
-
-void registerTypes()
-{
-	qmlRegisterType<IconsList>("org.qutim.qticons", 0, 4, "IconsList");
-}
-
 }
 
 }

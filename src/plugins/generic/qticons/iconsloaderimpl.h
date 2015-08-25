@@ -41,11 +41,18 @@ namespace Core
 class IconLoaderImpl : public IconLoader
 {
 	Q_OBJECT
+	/**
+	  List of missing icons
+	*/
+	Q_PROPERTY(QString iconsList READ iconsList)
 public:
 	IconLoaderImpl();
 	~IconLoaderImpl();
 
-	QString getMissingIcons() const;
+	QString iconsList() const
+	{
+		return m_missingIcons.toList().join("\n");
+	}
 protected:
 	QIcon doLoadIcon(const QString &name);
 	QMovie *doLoadMovie(const QString &name);
@@ -57,31 +64,8 @@ private:
 	QHash<QString, QString> m_fallbackIcons;
 	ConfigValue<bool> m_defaultEnabled;
 	ConfigValue<bool> m_nastyHack;
+	QSet<QString> m_missingIcons;
 };
-
-class IconsList : public QObject
-{
-	Q_OBJECT
-	Q_PROPERTY(QString iconsList READ iconsList)
-
-public:
-	IconsList(){}
-	~IconsList(){}
-
-	static QSet<QString> missingIcons;
-
-	QString iconsList() const
-	{
-		return IconsList::missingIcons.toList().join("\n");
-	}
-
-};
-
-namespace QtIcons {
-
-void registerTypes();
-
-}
 
 }
 

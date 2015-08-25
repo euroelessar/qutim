@@ -2,7 +2,6 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 import org.qutim 0.4
-import org.qutim.qticons 0.4
 
 SettingsItem {
     id: root
@@ -11,9 +10,10 @@ SettingsItem {
         id: config
         group: "qticons"
     }
-    
-    IconsList {
+
+    Service {
         id: iloader
+        name: "IconLoader"
     }
 
     function save() {
