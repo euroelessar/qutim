@@ -158,28 +158,17 @@ JingleHelper::JingleHelper(Jreen::JingleAudioContent *content)
 	output->start(device);
 }
 
-void init_button(JingleButton *button)
-{
-	MenuController::addAction<JContact>(button);
-	MenuController::addAction<JContactResource>(button);
-}
-
-//Q_GLOBAL_STATIC_WITH_INITIALIZER(JingleButton, button, init_button(x.data()))
-
-JingleButton *button()
-{
-	static JingleButton *pointer;
-	if (!pointer) {
-		pointer = new JingleButton;
-		init_button(pointer);
-	}
-	return pointer;
-}
+Q_GLOBAL_STATIC(JingleButton, jingleButton)
 
 JingleSupport::JingleSupport() : m_client(0)
 {
 	qDebug() << Q_FUNC_INFO;
-	Q_UNUSED(button());
+
+	if(!jingleButton.exists()) {
+		MenuController::addAction<JContact>(jingleButton());
+		MenuController::addAction<JContactResource>(jingleButton());
+	}
+
 //	m_button.reset(new JingleButton(this, SLOT(onCallAction(QAction*,QObject*))));
 //	m_button.reset(new JingleButton(this));
 //	if (ServicePointer<QObject> chatForm("ChatForm"))
@@ -246,7 +235,7 @@ void JingleSupport::onSessionCreated(Jreen::JingleSession *session)
 			connect(session, SIGNAL(terminated()), SLOT(deleteLater()));
 			return;
 		}
-		foreach (QAction *action, button()->actions(unit)) {
+		foreach (QAction *action, jingleButton()->actions(unit)) {
 			action->setEnabled(true);
 			action->setChecked(true);
 		}
@@ -264,7 +253,7 @@ void JingleSupport::onSessionTerminated()
 	Q_ASSERT(session);
 	session->deleteLater();
 	ChatUnit *unit = unitBySession(session, false);
-	foreach (QAction *action, button()->actions(unit))
+	foreach (QAction *action, jingleButton()->actions(unit))
 		action->setChecked(false);
 }
 

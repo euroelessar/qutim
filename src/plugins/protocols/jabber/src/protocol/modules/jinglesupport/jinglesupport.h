@@ -86,7 +86,6 @@ protected:
 	qutim_sdk_0_3::ChatUnit *unitBySession(Jreen::JingleSession *session, bool create = true);
 
 private:
-//	QScopedPointer<qutim_sdk_0_3::ActionGenerator> m_button;
 	Jreen::Client *m_client;
 	JAccount *m_account;
 	QHash<Jreen::JingleContent *, JingleHelper *> m_helpers;
