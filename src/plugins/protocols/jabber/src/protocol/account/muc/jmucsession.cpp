@@ -513,11 +513,7 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 	} else {
 		ChatSession *chatSession = ChatLayer::get(this, true);
 
-		Jreen::ChatState *state = msg.payload<Jreen::ChatState>().data();
-
-		if(state) {
-			qDebug() << "trying to put state in chat";
-
+		if(auto state = msg.payload<Jreen::ChatState>().data()) {
 			if(user && state->state() == Jreen::ChatState::Composing) {
 				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateComposing);
 			} else if(user) {
@@ -525,9 +521,10 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 				// for others we don't have neither api, nor icons
 				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateGone);
 			}
-			if(msg.body().isEmpty())
-				return;
 		}
+
+		if(msg.body().isEmpty())
+			return;
 
 		d->lastMessage = QDateTime::currentDateTime();
 		qutim_sdk_0_3::Message coreMsg(msg.body());
