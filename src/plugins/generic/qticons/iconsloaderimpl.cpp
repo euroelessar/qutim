@@ -128,13 +128,13 @@ QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 
 			m_fallbackIcons.insert(name, iconfile);
 		} else {
-			qDebug() << "WARNING: icon" << name << "not found. See log for list of all missing icons";
+			qWarning() << "icon" << name << "not found. See log for list of all missing icons";
 			m_missingIcons.insert(name);
 		}
 
 		return icon;
 	} else {
-		qDebug() << "WARNING: icon" << name << "not found. See log for list of all missing icons";
+		qWarning() << "icon" << name << "not found. See log for list of all missing icons";
 		m_missingIcons.insert(name);
 
 		return QIcon();
