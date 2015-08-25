@@ -7,7 +7,24 @@ The simple instructions for building qutIM are these commands:
                         mkdir ../qutim-build
                         qbs build -d ../qutim-build
                         qbs install -d ../qutim-build
+                        
+	You probably need to setup qbs with preferred Qt version (5.5+),
+so if you are using qbs first time, follow this way (also useful for maintainers):
 
+                        qbs setup-qt /usr/bin/qmake my-own-qt-5-5
+                        
+If you do not want to type profile:... every time
+                        qbs config defaultProfile my-own-qt-5-5
+
+                        qbs setup-toolchains /usr/bin/gcc my-gcc
+                        qbs config profiles.my-own-qt-5-5.baseProfile my-gcc
+                        
+And now build:
+                        qbs build debug profile:my-own-qt-5-5 project.addressSanitizer:true
+                        
+And after build install qutIM into some directory:
+
+                        qbs install --no-build --install-root ./install-root/ profile:my-own-qt-5-5
 
 Old (CMake-related) info
 ========================
