@@ -8,6 +8,6 @@ GenericPlugin {
 
     cpp.includePaths: [
         'include',
-        'src'
+        'src',
     ]
 }
