@@ -1,11 +1,21 @@
 import "../GenericPlugin.qbs" as GenericPlugin
 
 GenericPlugin {
+    condition: Qt.webchannel.present && Qt.websockets.present
+
     type: [ "dynamiclibrary", "installed_content" ]
 
-    Depends { name: "qutim-adiumwebview" }
-    Depends { name: "Qt.websockets" }
-    Depends { name: "Qt.webchannel" }
+    Depends {
+        name: "qutim-adiumwebview"
+    }
+    Depends {
+        name: "Qt.websockets"
+        required: false
+    }
+    Depends {
+        name: "Qt.webchannel"
+        required: false
+    }
 
     Group {
         name: "QML files"
