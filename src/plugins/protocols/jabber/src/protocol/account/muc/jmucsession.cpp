@@ -57,6 +57,8 @@
 #include <QTimer>
 #include <QDialogButtonBox>
 
+#include <jreen/chatstate.h>
+
 using namespace Jreen;
 using namespace qutim_sdk_0_3;
 
@@ -86,6 +88,8 @@ public:
 	bool isError;
 	QDateTime lastMessage;
 	QString *thread;
+
+	bool slowmode = false;
 };
 
 void JMUCSessionPrivate::removeUser(JMUCSession *conference, JMUCUser *user)
@@ -507,6 +511,21 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 		ChatSession *chatSession = ChatLayer::get(user, true);
 		chatSession->appendMessage(coreMsg);
 	} else {
+		ChatSession *chatSession = ChatLayer::get(this, true);
+
+		if (auto state = msg.payload<Jreen::ChatState>().data()) {
+			if (user && state->state() == Jreen::ChatState::Composing) {
+				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateComposing);
+			} else if (user) {
+				// yes, there are anothers states, but now there is only composing event
+				// for others we don't have neither api, nor icons
+				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateGone);
+			}
+		}
+
+		if (msg.body().isEmpty())
+			return;
+
 		d->lastMessage = QDateTime::currentDateTime();
 		qutim_sdk_0_3::Message coreMsg(msg.body());
 		coreMsg.setChatUnit(this);
@@ -514,7 +533,6 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 		if (user)
 			coreMsg.setProperty("senderId", user->id());
 		coreMsg.setIncoming(msg.from().resource() != d->room->nick());
-		ChatSession *chatSession = ChatLayer::get(this, true);
 		DelayedDelivery::Ptr when = msg.when();
 		if (when) {
 			coreMsg.setProperty("history", true);
@@ -582,6 +600,22 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 		return;
 	ChatSession *chatSession = ChatLayer::get(this, true);
 	qutim_sdk_0_3::Message coreMsg(msg.body());
+
+	if (msg.subtype() == Jreen::Message::Error && msg.containsPayload<Jreen::Error>()) {
+		qDebug() << "Service message with error" << msg.error().data()->condition();
+		coreMsg.setText(msg.error().data()->text());
+
+		// FIXME TODO (nico-izo):
+		// it appears that some servers have stanza limit
+		// and with chatstates enabled we can overflood and get error.
+		// This way we entering low-chat-state-mode
+		// TODO: maybe pseudoservice message about entering slowmode?
+		if (msg.error().data()->condition() == Jreen::Error::ResourceConstraint) {
+			d->slowmode = true;
+			qDebug() << "Entering slowmode for mucsession" << d->jid;
+		}
+	}
+
 	coreMsg.setChatUnit(this);
 	coreMsg.setProperty("service",true);
 	coreMsg.setProperty("silent", true);
@@ -832,6 +866,35 @@ void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 void JMUCSession::handleDeath(const QString &name)
 {
 	d_func()->users.remove(name);
+}
+
+bool JMUCSession::event(QEvent *ev)
+{
+	Q_D(JMUCSession);
+
+	if (ev->type() == ChatStateEvent::eventType()) {
+		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
+
+		// HACK: look in JMUCSession::onServiceMessage for more info
+		if (d->slowmode) // && state != Jreen::ChatState::Composing
+			return true;
+
+		if (state == Jreen::ChatState::Gone)
+			return true; // ChatState::Gone forbidden in MUC
+
+		Jreen::Message msg(Jreen::Message::Groupchat,
+						   d->jid);
+		msg.setID(d->account.data()->client()->getID());
+
+		msg.addExtension(new Jreen::ChatState(state));
+
+		if (isJoined())
+			d->account->messageSessionManager()->send(msg);
+		return true;
+	}
+
+	return Conference::event(ev);
 }
 
 void JMUCSession::onError(Jreen::Error::Ptr error)

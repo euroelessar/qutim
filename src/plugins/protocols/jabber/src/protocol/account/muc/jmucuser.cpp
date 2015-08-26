@@ -29,6 +29,8 @@
 #include <QStringBuilder>
 #include <qutim/tooltip.h>
 
+#include <QTimer>
+
 namespace Jabber
 {
 class JMUCUserPrivate : public JContactResourcePrivate
@@ -38,7 +40,7 @@ public:
 		JContactResourcePrivate(c)
 	{
 		affiliation = MUCRoom::AffiliationNone;
-			role = MUCRoom::RoleNone;
+		role = MUCRoom::RoleNone;
 	}
 	QString avatar;
 	QStringRef hash;
@@ -46,6 +48,7 @@ public:
 	MUCRoom::Role role;
 	QString realJid;
 	QPointer<JMUCSession> muc;
+	QTimer timer;
 };
 
 JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
@@ -55,6 +58,8 @@ JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
 	setUserName(name);
 	d->id = muc->id() % QLatin1Char('/') % name;
 	d->muc = muc;
+	d->timer.setSingleShot(true);
+	connect(&d->timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
 JMUCUser::~JMUCUser()
@@ -160,6 +165,35 @@ void JMUCUser::setMUCAffiliationAndRole(MUCRoom::Affiliation affiliation, MUCRoo
 	setExtendedInfo("mucRole", clientInfo);
 }
 
+void JMUCUser::setChatState(ChatUnit::ChatState state)
+{
+	Q_D(JMUCUser);
+	QString iconName;
+	switch (state) {
+	// TODO: okay, I just don't know how to find icons
+	case ChatUnit::ChatStateComposing:
+		iconName = "im-status-message-edit";
+		d->timer.setInterval(10000);
+		break;
+	case ChatUnit::ChatStateActive:
+	case ChatUnit::ChatStateInActive:
+	case ChatUnit::ChatStateGone: // State::Gone forbidden in MUC
+	case ChatUnit::ChatStatePaused:
+		d->timer.setInterval(30000);
+		iconName = ""; // TODO do something with icons :(
+		break;
+	default:
+		break;
+	}
+
+	QVariantHash chatState;
+	ExtensionIcon extIcon(iconName);
+	chatState.insert("id", "chatState");
+	chatState.insert("icon", QVariant::fromValue(extIcon));
+	setExtendedInfo("mucChatState", chatState);
+	d->timer.start();
+}
+
 MUCRoom::Role JMUCUser::role()
 {
 	return d_func()->role;
@@ -220,7 +254,13 @@ bool JMUCUser::event(QEvent *ev)
 		Buddy::event(ev);
 		return true;
 	}
+
 	return JContactResource::event(ev);
+}
+
+void JMUCUser::onTimeout()
+{
+	setChatState(ChatUnit::ChatStateGone);
 }
 
 QString JMUCUser::realJid() const

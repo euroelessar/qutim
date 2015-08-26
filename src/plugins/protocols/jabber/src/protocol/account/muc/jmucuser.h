@@ -67,12 +67,15 @@ public:
 	QString realJid() const;
 	void setRealJid(const QString &jid);
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
+	void setChatState(ChatUnit::ChatState state);
 public slots:
 	void kick(const QString &reason = QString());
 	void ban(const QString &reason = QString());
 protected:
 	bool event(QEvent *ev);
 	friend class JMUCSession;
+private slots:
+	void onTimeout();
 signals:
 	void affiliationChanged(const int &affiliation);
 	void mucRoleChanged(const int &mucRole);
