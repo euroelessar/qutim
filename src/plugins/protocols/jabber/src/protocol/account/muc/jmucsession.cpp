@@ -513,17 +513,17 @@ void JMUCSession::onMessage(Jreen::Message msg, bool priv)
 	} else {
 		ChatSession *chatSession = ChatLayer::get(this, true);
 
-		if(auto state = msg.payload<Jreen::ChatState>().data()) {
-			if(user && state->state() == Jreen::ChatState::Composing) {
+		if (auto state = msg.payload<Jreen::ChatState>().data()) {
+			if (user && state->state() == Jreen::ChatState::Composing) {
 				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateComposing);
-			} else if(user) {
+			} else if (user) {
 				// yes, there are anothers states, but now there is only composing event
 				// for others we don't have neither api, nor icons
 				user->setChatState(qutim_sdk_0_3::ChatUnit::ChatStateGone);
 			}
 		}
 
-		if(msg.body().isEmpty())
+		if (msg.body().isEmpty())
 			return;
 
 		d->lastMessage = QDateTime::currentDateTime();
@@ -601,7 +601,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	ChatSession *chatSession = ChatLayer::get(this, true);
 	qutim_sdk_0_3::Message coreMsg(msg.body());
 
-	if(msg.subtype() == Jreen::Message::Error && msg.containsPayload<Jreen::Error>()) {
+	if (msg.subtype() == Jreen::Message::Error && msg.containsPayload<Jreen::Error>()) {
 		qDebug() << "Service message with error" << msg.error().data()->condition();
 		coreMsg.setText(msg.error().data()->text());
 
@@ -610,7 +610,7 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 		// and with chatstates enabled we can overflood and get error.
 		// This way we entering low-chat-state-mode
 		// TODO: maybe pseudoservice message about entering slowmode?
-		if(msg.error().data()->condition() == Jreen::Error::ResourceConstraint) {
+		if (msg.error().data()->condition() == Jreen::Error::ResourceConstraint) {
 			d->slowmode = true;
 			qDebug() << "Entering slowmode for mucsession" << d->jid;
 		}
@@ -877,10 +877,10 @@ bool JMUCSession::event(QEvent *ev)
 		Jreen::ChatState::State state = static_cast<Jreen::ChatState::State>(chatEvent->chatState());
 
 		// HACK: look in JMUCSession::onServiceMessage for more info
-		if(d->slowmode) // && state != Jreen::ChatState::Composing
+		if (d->slowmode) // && state != Jreen::ChatState::Composing
 			return true;
 
-		if(state == Jreen::ChatState::Gone)
+		if (state == Jreen::ChatState::Gone)
 			return true; // ChatState::Gone forbidden in MUC
 
 		Jreen::Message msg(Jreen::Message::Groupchat,
@@ -889,7 +889,7 @@ bool JMUCSession::event(QEvent *ev)
 
 		msg.addExtension(new Jreen::ChatState(state));
 
-		if(isJoined())
+		if (isJoined())
 			d->account->messageSessionManager()->send(msg);
 		return true;
 	}
