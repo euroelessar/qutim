@@ -254,6 +254,11 @@ void JMUCSession::unban(const QString &jid, const QString &reason)
 	d_func()->room->setAffiliation(JID(jid), MUCRoom::AffiliationNone, reason);
 }
 
+void JMUCSession::invite(const QString &jid, const QString &reason)
+{
+	d_func()->room->invite(jid, reason);
+}
+
 void JMUCSession::member(const QString &nick, const QString &reason)
 {
 	d_func()->room->setAffiliation(nick, MUCRoom::AffiliationMember, reason);
@@ -602,18 +607,21 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	qutim_sdk_0_3::Message coreMsg(msg.body());
 
 	if (msg.subtype() == Jreen::Message::Error && msg.containsPayload<Jreen::Error>()) {
-		qDebug() << "Service message with error" << msg.error().data()->condition();
-		coreMsg.setText(msg.error().data()->text());
+		qDebug() << "Service message with error" << msg.error()->conditionText();
+		coreMsg.setText(msg.error()->text().isEmpty()
+						? msg.error()->conditionText() : msg.error()->text());
 
 		// FIXME TODO (nico-izo):
 		// it appears that some servers have stanza limit
 		// and with chatstates enabled we can overflood and get error.
 		// This way we entering low-chat-state-mode
 		// TODO: maybe pseudoservice message about entering slowmode?
-		if (msg.error().data()->condition() == Jreen::Error::ResourceConstraint) {
+		if (msg.error()->condition() == Jreen::Error::ResourceConstraint) {
 			d->slowmode = true;
 			qDebug() << "Entering slowmode for mucsession" << d->jid;
 		}
+
+		coreMsg.setProperty("error", true); // maybe we should somehow style error messages?
 	}
 
 	coreMsg.setChatUnit(this);

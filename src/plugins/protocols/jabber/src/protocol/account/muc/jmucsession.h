@@ -118,6 +118,7 @@ public slots:
 	void member(const QString &nick, const QString &reason = QString());
 	void participant(const QString &nick, const QString &reason = QString());
 	void unban(const QString &jid, const QString &reason = QString());
+	void invite(const QString &jid, const QString &reason = QString());
 	void showConfigDialog();
 private slots:
 	void closeConfigDialog();

@@ -43,6 +43,7 @@
 #include <qutim/debug.h>
 #include <qutim/rosterstorage.h>
 #include <QApplication>
+#include "jmessagehandler.h"
 #include <jreen/pgpencrypted.h>
 //Jreen
 #include <jreen/chatstate.h>
@@ -371,6 +372,26 @@ void JRoster::onNewMessage(Jreen::Message message)
 	ChatUnit *chatUnit = 0;
 	ChatUnit *unitForSession = 0;
 	ChatUnit *muc = d->account->conferenceManager()->muc(message.from().bareJID());
+
+	// TODO HACK: do something with that
+	// session is NOT created, but we received invite
+	// invite can be only from MUC room due to xep-0045
+#define JI Jreen::MUCRoom::Invite
+	if (!muc && JI::isInvite(message)) {
+		muc = d->account->conferenceManager()->createMucSession(message.from().bareJID());
+		// we created session, so message will go to JMUCSession::onServiceMessage
+		message.setBody(tr("%1 invited you to the room %2 with reason (%3)")
+						.arg(JI::getFrom(message).full())
+						.arg(message.from().bareJID())
+						.arg(JI::getReason(message))
+						);
+
+		d->account->messageSessionManager()->handleMessage(message);
+		// no need to proceed
+		return;
+	}
+#undef JI
+
 	if (muc) {
 		JMUCSession *session = static_cast<JMUCSession*>(muc);
 		chatUnit = session->findParticipant(message.from().resource());

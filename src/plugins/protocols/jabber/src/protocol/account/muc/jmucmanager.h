@@ -64,6 +64,10 @@ public:
 	void leave(const QString &room);
 	bool event(QEvent *event);
 	void appendMUCSession(JMUCSession *room);
+	/**
+	 * Create session with default login, but do not join
+	 */
+	qutim_sdk_0_3::ChatUnit *createMucSession(const QString &conference);
 signals:
 	void conferenceCreated(qutim_sdk_0_3::Conference*);
 private slots:
