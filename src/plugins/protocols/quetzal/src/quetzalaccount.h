@@ -77,6 +77,10 @@ public:
 	Q_INVOKABLE int sendRawData(const QByteArray &data);
 
 	void timerEvent(QTimerEvent *);
+
+	virtual void doConnectToServer() override;
+	virtual void doDisconnectFromServer() override;
+	virtual void doStatusChange(const Status &status) override;
 protected:
 	void fillStatusActions();
 	MenuController::ActionList dynamicActions() const;

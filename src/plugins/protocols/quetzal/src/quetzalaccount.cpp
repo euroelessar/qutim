@@ -191,11 +191,11 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : A
 	Config cfg = config();
 	QString purpleId = id;
 	if (protocol->id() == QLatin1String("irc")) {
-		purpleId = cfg.value(QLatin1String("nicks"), QStringList()).value(0);
+		purpleId = cfg.value(QLatin1String("nicks"), QStringList()).value().at(0);
 		purpleId += QLatin1Char('@');
 		int size = cfg.beginArray("servers");
 		if (size == 0) {
-			critical() << "Invalid irc account without server info:" << id;
+			qCritical() << "Invalid irc account without server info:" << id;
 			deleteLater();
 			return;
 		}
@@ -210,7 +210,7 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : A
 //	if (PURPLE_PLUGIN_PROTOCOL_INFO(m_account->gc->prpl)->chat_info != NULL) {
 //		addAction((new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Quetzal", "Join groupchat"), this, SLOT(showJoinGroupChat())))->setType(1));
 //	}
-	debug() << "created!" << this << m_account->protocol_id;
+	qDebug() << "created!" << this << m_account->protocol_id;
 	// Hack for anti-auto-connect
 	for (GList *it = purple_presence_get_statuses(m_account->presence); it; it = it->next) {
 		PurpleStatus *status = reinterpret_cast<PurpleStatus *>(it->data);
@@ -306,16 +306,16 @@ void QuetzalAccount::createNode(PurpleBlistNode *node)
 void QuetzalAccount::load(Config cfg)
 {
 	cfg.beginGroup(QLatin1String("general"));
-	QByteArray password = cfg.value(QLatin1String("passwd"), QString(), Config::Crypted).toUtf8();
+	QByteArray password = cfg.value(QLatin1String("passwd"), QString(), Config::Crypted).value().toUtf8();
 	if (!password.isEmpty()) {
 		purple_account_set_password(m_account, password.constData());
 		purple_account_set_remember_password(m_account, true);
 	}
 	purple_account_set_alias(m_account, cfg.value(QLatin1String("alias"),
-												  QString()).toUtf8().constData());
+												  QString()).value().toUtf8().constData());
 	purple_account_set_user_info(m_account, cfg.value(QLatin1String("userInfo"),
-													  QString()).toUtf8().constData());
-	QMapIterator<QString, QVariant> it(cfg.value(QLatin1String("quetzal_settings")).toMap());
+													  QString()).value().toUtf8().constData());
+	QMapIterator<QString, QVariant> it(cfg.value(QLatin1String("quetzal_settings")).value().toMap());
 	while (it.hasNext()) {
 		it.next();
 		QByteArray key = it.key().toUtf8();
@@ -339,7 +339,7 @@ void QuetzalAccount::load(Config cfg)
 	QString data = QLatin1String("data");
 	for (int i = 0; i < size; i++) {
 		cfg.setArrayIndex(i);
-		QByteArray alias = cfg.value(name, QString()).toUtf8();
+		QByteArray alias = cfg.value(name, QString()).value().toUtf8();
 		PurpleGroup *group = NULL;
 		if (cfg.value(recent, false)) {
 			group = purple_find_group("Recent");
@@ -349,7 +349,7 @@ void QuetzalAccount::load(Config cfg)
 			}
 		}
 		GHashTable *comps = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-		QMapIterator<QString, QVariant> it(cfg.value(data).toMap());
+		QMapIterator<QString, QVariant> it(cfg.value(data).value().toMap());
 		while (it.hasNext()) {
 			it.next();
 			QByteArray key = it.key().toUtf8();
@@ -391,6 +391,24 @@ void QuetzalAccount::timerEvent(QTimerEvent *ev)
 		cfg.endGroup();
 	}
 	g_list_free(chats);
+}
+
+void QuetzalAccount::doConnectToServer()
+{
+	// TODO
+	//Q_UNIMPLEMENTED;
+}
+
+void QuetzalAccount::doDisconnectFromServer()
+{
+	// TODO
+	//Q_UNIMPLEMENTED;
+}
+
+void QuetzalAccount::doStatusChange(const Status &status)
+{
+	// TODO
+	//Q_UNIMPLEMENTED;
 }
 
 void QuetzalAccount::save()
@@ -450,7 +468,7 @@ void QuetzalAccount::save(PurpleBuddy *buddy)
 void QuetzalAccount::remove(PurpleBuddy *buddy)
 {
 	QuetzalContact *contact = reinterpret_cast<QuetzalContact*>(buddy->node.ui_data);
-	debug() << Q_FUNC_INFO << __LINE__ << contact;
+	qDebug() << Q_FUNC_INFO << __LINE__ << contact;
 	if (!contact)
 		return;
 	if (contact->removeBuddy(buddy) == 0) {
@@ -508,7 +526,7 @@ void QuetzalAccount::remove(PurpleChat *chat)
 void QuetzalAccount::addChatUnit(ChatUnit *unit)
 {
 	m_units.insert(unit->id(), unit);
-	debug() << m_units.keys();
+	qDebug() << m_units.keys();
 	if (Conference *conference = qobject_cast<Conference*>(unit))
 		conferenceCreated(conference);
 }
@@ -521,7 +539,7 @@ void QuetzalAccount::removeChatUnit(ChatUnit *unit)
 void QuetzalAccount::setStatus(Status status)
 {
 	PurpleStatus *purple_status = quetzal_get_correct_status(m_account->presence, status);
-	debug() << purple_status_get_id(purple_status) << purple_status_get_name(purple_status);
+	qDebug() << purple_status_get_id(purple_status) << purple_status_get_name(purple_status);
 	purple_presence_set_status_active(m_account->presence, purple_status_get_id(purple_status), TRUE);
 	if (status.type() != Status::Offline)
 		purple_account_connect(m_account);
@@ -534,13 +552,13 @@ void QuetzalAccount::setStatusChanged(PurpleStatus *status)
 	if (!m_account->gc || m_account->gc->state != PURPLE_CONNECTED)
 		return;
 	Status stat = quetzal_get_status(status, protocol()->id());
-	Account::setStatus(stat);
+	Account::setUserStatus(stat);
 }
 
 void QuetzalAccount::handleSigningOn()
 {
 	Status oldStatus = status();
-	Account::setStatus(Status(Status::Connecting));
+	Account::setUserStatus(Status(Status::Connecting));
 }
 
 void QuetzalAccount::handleSignedOn()
@@ -553,7 +571,7 @@ void QuetzalAccount::handleSignedOn()
 void QuetzalAccount::handleSignedOff()
 {
 	Status oldStatus = status();
-	Account::setStatus(Status(Status::Offline));
+	Account::setUserStatus(Status(Status::Offline));
 	resetGroupChatManager(0);
 	foreach (QuetzalContact *contact, m_contacts) {
 		if (contact->purple())

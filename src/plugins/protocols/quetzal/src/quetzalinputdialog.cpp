@@ -59,7 +59,7 @@ void QuetzalInputDialog::onClicked(int button)
 	const DataItem item = form()->item().subitem(QLatin1String("data"));
 	QString value = item.data().toString();
 	if (item.property("html").toBool())
-		value = Qt::escape(value);
+		value = value.toHtmlEscaped();
 	cb(userData(), value.toUtf8().constData());
 	quetzal_request_close(PURPLE_REQUEST_INPUT, this);
 }

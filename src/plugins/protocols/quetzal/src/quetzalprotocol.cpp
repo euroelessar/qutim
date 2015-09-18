@@ -214,59 +214,134 @@ QByteArray quetzal_fix_protocol_name(const char *name)
 	return QByteArray(name).toLower();
 }
 
+// from Qt5's qmetaobjectbuilder.cpp
+static void writeString(char *out, int i, const QByteArray &str,
+		const int offsetOfStringdataMember, int &stringdataOffset)
+{
+	int size = str.size();
+	qptrdiff offset = offsetOfStringdataMember + stringdataOffset
+		- i * sizeof(QByteArrayData);
+	const QByteArrayData data =
+		Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(size, offset);
+	memcpy(out + i * sizeof(QByteArrayData), &data, sizeof(QByteArrayData));
+	memcpy(out + offsetOfStringdataMember + stringdataOffset, str.constData(), size);
+	out[offsetOfStringdataMember + stringdataOffset + size] = '\0';
+	stringdataOffset += size + 1;
+}
+
+/**
+ * WARNING: MAGIC.
+ * Here we are trying to be QMetaObjectBuilder.
+ * So if you just don't get any idea what the heck is happening here
+ * read more about "dynamic meta object" problem
+ * also about structure of QMetaObject description
+ * (because all code below just replicate current structure of qmetaobject)
+ * You can also use "git log" to see changes of this file between qt4 and qt5
+ * \see https://bugs.kde.org/show_bug.cgi?id=343779
+ * \see https://quickgit.kde.org/?p=kross.git&a=blobdiff&h=48a993472a1606700adde87a46233da5204b5876&hp=7b8f46bc24fc5954abc1c4ff51a2e32d2380ad05&hb=f079cc63c0fb217dffe57ec300c94facc4ed1886&f=src%2Fcore%2Fmetafunction.h
+ * \see http://habrahabr.ru/post/258441/
+ */
 QuetzalMetaObject::QuetzalMetaObject(PurplePlugin *protocol)
 {
-	QByteArray stringdata_b = "Quetzal::Protocol::";
-	stringdata_b += protocol->info->id;
-	stringdata_b += '\0';
-	stringdata_b.replace('-', '_');
-	int value = stringdata_b.size();
-	stringdata_b += quetzal_fix_protocol_name(protocol->info->name);
-	stringdata_b += '\0';
-	int key = stringdata_b.size();
-	stringdata_b.append("Protocol\0", 9);
-
-	char *stringdata = (char*)qMalloc(stringdata_b.size() + 1);
 	uint *data = (uint*) calloc(17, sizeof(uint));
-	qMemCopy(stringdata, stringdata_b.constData(), stringdata_b.size() + 1);
-	data[0] = 4;
-	data[2] = 1;
-	data[3] = 14;
-	data[14] = key;
-	data[15] = value;
+
+	data[ 0] = 7;  // revision
+	data[ 1] = 0;  // classname (the first string)
+
+	data[ 2] = 1;  // classinfo count
+	data[ 3] = 14; // classinfo data
+
+	data[ 4] = 0;  // methods count
+	data[ 5] = 0;  // methods data
+
+	data[ 6] = 0;  // properties count
+	data[ 7] = 0;  // properties data
+
+	data[ 8] = 0;  // enums/sets count
+	data[ 9] = 0;  // enums/sets data
+
+	data[10] = 0;  // constructors count
+	data[11] = 0;  // constructors data
+
+	data[12] = 0;  // flags
+
+	data[13] = 0;  // signal count
+
+	QByteArray className("Quetzal::Protocol::");
+	className += protocol->info->id;
+	className.replace('-', '_');
+	const QByteArray keyStr("Protocol");
+	const QByteArray valueStr(quetzal_fix_protocol_name(protocol->info->name));
+	// because we have ONE classname, ONE classInfoName and ONE classInfoValue
+	int offsetOfStringdataMember = 3 * sizeof(QByteArrayData);
+	int stringdataOffset = 0;
+	char* stringData = new char[offsetOfStringdataMember + className.size() + 1 + keyStr.size() + 1 + valueStr.size() + 1];
+	writeString(stringData, /*index*/0, className, offsetOfStringdataMember, stringdataOffset);
+	writeString(stringData, 1, keyStr, offsetOfStringdataMember, stringdataOffset);
+	writeString(stringData, 2, valueStr, offsetOfStringdataMember, stringdataOffset);
+
+	data[14] = 1; // because 0 is ClassName
+	data[15] = 2; //
+
+	data[16] = 0; // eods
 
 	d.superdata = &QuetzalProtocol::staticMetaObject;
-	d.stringdata = stringdata;
+	d.stringdata = reinterpret_cast<const QByteArrayData*>(stringData);
 	d.data = data;
+	d.relatedMetaObjects = 0;
 	d.extradata = 0;
 }
 
 QuetzalMetaObject::QuetzalMetaObject(QuetzalProtocolGenerator *protocol)
 {
-	const QMetaObject *meta = protocol->metaObject();
-	QByteArray stringdata_b = "Quetzal::AccountWizard::";
-	stringdata_b += protocol->plugin()->info->id;
-	stringdata_b += '\0';
-	stringdata_b.replace('-', '_');
-	int value = stringdata_b.size();
-	stringdata_b += meta->className();
-	stringdata_b += '\0';
-	int key = stringdata_b.size();
-	stringdata_b += "DependsOn";
-	stringdata_b += '\0';
-
-	char *stringdata = (char*)qMalloc(stringdata_b.size() + 1);
 	uint *data = (uint*) calloc(17, sizeof(uint));
-	qMemCopy(stringdata, stringdata_b.constData(), stringdata_b.size() + 1);
-	data[0] = 4;
-	data[2] = 1;
-	data[3] = 14;
-	data[14] = key;
-	data[15] = value;
+
+	data[ 0] = 7;  // revision
+	data[ 1] = 0;  // classname (the first string)
+
+	data[ 2] = 1;  // classinfo count
+	data[ 3] = 14; // classinfo data
+
+	data[ 4] = 0;  // methods count
+	data[ 5] = 0;  // methods data
+
+	data[ 6] = 0;  // properties count
+	data[ 7] = 0;  // properties data
+
+	data[ 8] = 0;  // enums/sets count
+	data[ 9] = 0;  // enums/sets data
+
+	data[10] = 0;  // constructors count
+	data[11] = 0;  // constructors data
+
+	data[12] = 0;  // flags
+
+	data[13] = 0;  // signal count
+
+	const QMetaObject *meta = protocol->metaObject();
+
+	QByteArray className("Quetzal::AccountWizard::");
+	className += protocol->plugin()->info->id;
+	className.replace('-', '_');
+	const QByteArray keyStr("DependsOn");
+	const QByteArray valueStr(meta->className());
+
+	// because we have ONE classname, ONE classInfoName and ONE classInfoValue
+	int offsetOfStringdataMember = 3 * sizeof(QByteArrayData);
+	int stringdataOffset = 0;
+	char* stringData = new char[offsetOfStringdataMember + className.size() + 1 + keyStr.size() + 1 + valueStr.size() + 1];
+	writeString(stringData, /*index*/0, className, offsetOfStringdataMember, stringdataOffset);
+	writeString(stringData, 1, keyStr, offsetOfStringdataMember, stringdataOffset);
+	writeString(stringData, 2, valueStr, offsetOfStringdataMember, stringdataOffset);
+
+	data[14] = 1; // key
+	data[15] = 2; // value
+
+	data[16] = 0; // eods
 
 	d.superdata = &QuetzalAccountWizard::staticMetaObject;
-	d.stringdata = stringdata;
+	d.stringdata = reinterpret_cast<const QByteArrayData*>(stringData);
 	d.data = data;
+	d.relatedMetaObjects = 0;
 	d.extradata = 0;
 }
-

@@ -45,7 +45,7 @@
 #include <QAbstractEventDispatcher>
 #include <QDateTime>
 #include <QThread>
-#include <QtConcurrentRun>
+#include <QtConcurrent/QtConcurrentRun>
 
 struct QuetzalConversationHandler
 {
@@ -69,7 +69,7 @@ void quetzal_menu_dump(PurpleMenuAction *action, int offset)
 	QByteArray off;
 	for (int i = 0; i < offset; i++)
 		off += "-";
-	debug() << off << action->label;
+	qDebug() << off << action->label;
 	for (GList *it = action->children; it; it = it->next)
 		quetzal_menu_dump((PurpleMenuAction *)it->data, offset + 1);
 }
@@ -79,10 +79,10 @@ void quetzal_create_conversation(PurpleConversation *conv)
 	if (conv->ui_data)
 		return;
 	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
-	debug() << acc;
+	qDebug() << acc;
 	ChatUnit *unit = acc->getUnit(conv->name);
-	debug() << Q_FUNC_INFO << conv->name;
-//	debug() << Q_FUNC_INFO << unit;
+	qDebug() << Q_FUNC_INFO << conv->name;
+//	qDebug() << Q_FUNC_INFO << unit;
 	if (conv->type == PURPLE_CONV_TYPE_IM) {
 //		PurpleConvIm *data = purple_conversation_get_im_data(conv);
 		const char *id = conv->name;
@@ -124,7 +124,7 @@ void quetzal_destroy_conversation(PurpleConversation *conv)
 	QuetzalConversationHandler *handler = reinterpret_cast<QuetzalConversationHandler*>(conv->ui_data);
 	if (handler)
 		handler->conversations.removeOne(conv);
-	debug() << Q_FUNC_INFO << conv->name;
+	qDebug() << Q_FUNC_INFO << conv->name;
 //	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
 ////	if (conv->type == PURPLE_CONV_TYPE_IM) {
 //		ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
@@ -142,7 +142,7 @@ void quetzal_destroy_conversation(PurpleConversation *conv)
 Message quetzal_convert_message(const char *message, PurpleMessageFlags flags, time_t mtime)
 {
 	Message mess;
-	debug() << QString::number(uint(flags), 16);
+	qDebug() << QString::number(uint(flags), 16);
 	if (!(flags & PURPLE_MESSAGE_RAW)) {
 		char *plain_text = purple_markup_strip_html(message);
 		mess.setText(plain_text);
@@ -164,7 +164,7 @@ void quetzal_write_chat(PurpleConversation *conv, const char *who,
 				   const char *message, PurpleMessageFlags flags,
 				   time_t mtime)
 {
-	debug() << Q_FUNC_INFO << who;
+	qDebug() << Q_FUNC_INFO << who;
 	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
 		PurpleConvChat *data = PURPLE_CONV_CHAT(chat->purple());
@@ -199,7 +199,7 @@ void quetzal_write_im(PurpleConversation *conv, const char *who,
 		quetzal_create_conversation(conv);
 	}
 	QuetzalConversationHandler *handler = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data);
-	debug() << Q_FUNC_INFO << who << handler;
+	qDebug() << Q_FUNC_INFO << who << handler;
 	ChatUnit *unit = handler->isAlive.data()->unit();
 	Message mess = quetzal_convert_message(message, flags, mtime);
 	if (!mess.isIncoming())
@@ -215,14 +215,14 @@ void quetzal_write_conv(PurpleConversation *conv,
 				   PurpleMessageFlags flags,
 				   time_t mtime)
 {
-	debug() << Q_FUNC_INFO << name << conv->account->username;
+	qDebug() << Q_FUNC_INFO << name << conv->account->username;
 	ChatUnit *unit;
 	if (conv->type == PURPLE_CONV_TYPE_IM)
 		unit = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive.data()->unit();
 	else
 		unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	Message message = quetzal_convert_message(text, flags, mtime);
-	debug() << name << alias;
+	qDebug() << name << alias;
 	if (!message.isIncoming())
 		return;
 	message.setChatUnit(unit);
@@ -340,13 +340,13 @@ void quetzal_debug_print(PurpleDebugLevel level, const char *category, const cha
 	QByteArray arg(arg_s);
 	arg.chop(1);
 	if (level >= PURPLE_DEBUG_FATAL)
-		fatal() << "[quetzal/" << category << "]: " << arg.constData();
+		qCritical() << "[quetzal/" << category << "]: " << arg.constData();
 	else if (level >= PURPLE_DEBUG_ERROR)
-		critical() << "[quetzal/" << category << "]: " << arg.constData();
+		qCritical() << "[quetzal/" << category << "]: " << arg.constData();
 	else if (level >= PURPLE_DEBUG_WARNING)
-		warning() << "[quetzal/" << category << "]: " << arg.constData();
+		qWarning() << "[quetzal/" << category << "]: " << arg.constData();
 	else
-		debug() << "[quetzal/" << category << "]: " << arg.constData();
+		qDebug() << "[quetzal/" << category << "]: " << arg.constData();
 }
 
 gboolean quetzal_debug_is_enabled(PurpleDebugLevel level, const char *category)
@@ -385,7 +385,7 @@ void quetzal_status_changed(PurpleAccount *account,
 	QuetzalAccount *acc = (QuetzalAccount *)account->ui_data;
 	if (acc)
 		acc->setStatusChanged(status);
-	debug() << Q_FUNC_INFO << account->username << account->alias << purple_status_get_name(status);
+	qDebug() << Q_FUNC_INFO << account->username << account->alias << purple_status_get_name(status);
 }
 
 void quetzal_request_add(PurpleAccount *account,
@@ -592,6 +592,13 @@ void QuetzalPlugin::initLibPurple()
 	/* Set a custom user directory (optional) */
 //	purple_util_set_user_dir("/dev/null");
 
+	// TODO: probably we need ability to disable qutim-located purple settings
+	QDir configDir = SystemInfo::getDir(SystemInfo::ConfigDir);
+	configDir.mkdir("purple");
+	const QString pathToHistory = configDir.absolutePath() + QDir::separator() + "purple" + QDir::separator();
+
+	purple_util_set_user_dir(pathToHistory.toStdString().c_str()); // libpurple would copy str
+
 	/* We do not want any debugging for now to keep the noise to a minimum. */
 	purple_debug_set_enabled(FALSE);
 
@@ -700,14 +707,14 @@ void QuetzalPlugin::init()
 	for(GList *it = purple_plugins_get_protocols(); it != NULL; it = it->next)
 	{
 		PurplePlugin *protocol = (PurplePlugin *)it->data;
-		debug() << "Protocol: " << protocol->info->name;
+		qDebug() << "Libpurple protocol: " << protocol->info->name;
 		QuetzalProtocolGenerator *gen = new QuetzalProtocolGenerator(protocol);
 		addExtension(LocalizedString(protocol->info->name),
-					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),
+					 QT_TRANSLATE_NOOP("Plugin", "powered by libpurple"),
 					 gen,
 					 ExtensionIcon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
 		addExtension(LocalizedString(protocol->info->name),
-					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),
+					 QT_TRANSLATE_NOOP("Plugin", "powered by libpurple"),
 					 new QuetzalProtocolGenerator(gen),
 					 ExtensionIcon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
 	}

@@ -47,7 +47,7 @@ protected slots:
 protected:
 	qutim_sdk_0_3::DataItem createItem(const char *title, const char *primary, const char *secondary);
 	void createItem(const qutim_sdk_0_3::DataItem &item, const char *okText, const char *cancelText);
-	void createItem(const qutim_sdk_0_3::DataItem &item, const qutim_sdk_0_3::AbstractDataForm::Buttons &);
+	void createItem(const qutim_sdk_0_3::DataItem &item, const QVector<QPair<int, const char *> > &);
 	virtual void closeEvent(QCloseEvent *);
 	void *userData() { return m_user_data; }
 	QVBoxLayout *boxLayout() { return m_boxLayout; }

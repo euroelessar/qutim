@@ -35,6 +35,7 @@ class QuetzalPlugin : public Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("DebugName", "quetzal")
+	Q_PLUGIN_METADATA(IID "org.qutim.Plugin")
 public:
 	virtual void init();
 	virtual bool load() { return true; }

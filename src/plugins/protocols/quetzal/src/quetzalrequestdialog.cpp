@@ -77,19 +77,31 @@ DataItem QuetzalRequestDialog::createItem(const char *title, const char *primary
 
 void QuetzalRequestDialog::createItem(const DataItem &item, const char *okText, const char *cancelText)
 {
-	AbstractDataForm::Buttons buttons;
-	AbstractDataForm::Button okButton = { okText, AbstractDataForm::AcceptRole };
-	AbstractDataForm::Button cancelButton = { cancelText, AbstractDataForm::RejectRole };
+	QVector<QPair<int, const char*> > buttons;
+	QPair<int, const char*> okButton = qMakePair(QDialogButtonBox::AcceptRole, okText);
+	QPair<int, const char*> cancelButton = qMakePair(QDialogButtonBox::RejectRole, cancelText);
 	buttons << okButton << cancelButton;
 	createItem(item, buttons);
 }
 
-void QuetzalRequestDialog::createItem(const DataItem &item, const AbstractDataForm::Buttons &buttons)
+void QuetzalRequestDialog::createItem(const DataItem &item, const QVector<QPair<int, const char*> > &buttons)
 {
+	m_form = AbstractDataForm::get(item);
+
 	m_boxLayout = new QVBoxLayout(this);
 	m_boxLayout->setMargin(0);
-	m_form = AbstractDataForm::get(item, AbstractDataForm::NoButton, buttons);
+
+	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, m_form);
+
+	if (!buttons.isEmpty()) {
+		buttonBox->clear();
+		for(auto it = buttons.constBegin(); it != buttons.constEnd(); ++it) {
+			buttonBox->addButton(QString::fromLatin1(it->second), static_cast<QDialogButtonBox::ButtonRole>(it->first));
+		}
+	}
+
 	m_boxLayout->addWidget(m_form);
+	m_boxLayout->addWidget(buttonBox);
 	connect(m_form, SIGNAL(clicked(int)), this, SLOT(onClicked(int)));
 }
 

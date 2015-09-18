@@ -33,7 +33,7 @@ using namespace qutim_sdk_0_3;
 void quetzal_new_list(PurpleBuddyList *list)
 {
 	Q_UNUSED(list);
-	debug() << "new_list";
+	qDebug() << "new_list";
 }
 
 void quetzal_debug_pair(const char *key,
@@ -169,7 +169,7 @@ void quetzal_remove_node(PurpleBlistNode *node)
 
 void quetzal_save_account(PurpleAccount *account)
 {
-	debug() << Q_FUNC_INFO << account;
+	qDebug() << Q_FUNC_INFO << account;
 	if (account) {
 		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
 		if (acc)

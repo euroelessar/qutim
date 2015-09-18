@@ -47,13 +47,13 @@ QString quetzal_create_label(const char *primary, const char *secondary)
 	QString label;
 	if (primary) {
 		label += QLatin1Literal("<span weight=\"bold\" size=\"larger\">")
-				 % Qt::escape(primary)
+				 % QString(primary).toHtmlEscaped()
 				 % QLatin1Literal("</span>");
 		if (secondary)
 			label += "\n\n";
 	}
 	if (secondary)
-		label += Qt::escape(secondary);
+		label += QString(secondary).toHtmlEscaped();
 	return label;
 }
 
@@ -85,7 +85,7 @@ void *quetzal_request_input(const char *title, const char *primary,
 							PurpleAccount *account, const char *who,
 							PurpleConversation *conv, void *user_data)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
@@ -121,7 +121,7 @@ void *quetzal_request_choice(const char *title, const char *primary,
 							 PurpleConversation *conv, void *user_data,
 							 va_list choices)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
@@ -137,7 +137,7 @@ void *quetzal_request_action(const char *title, const char *primary,
 							 PurpleConversation *conv, void *user_data,
 							 size_t action_count, va_list actions)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
@@ -204,7 +204,7 @@ void *quetzal_request_fields(const char *title, const char *primary,
 		if (!dgettext)
 			dgettext = dgettext_fallback;
 	}
-	debug() << Q_FUNC_INFO << (sizeof(quetzal_request_hooks)/sizeof(QuetzalRequestHook));
+	qDebug() << Q_FUNC_INFO << (sizeof(quetzal_request_hooks)/sizeof(QuetzalRequestHook));
 	for (unsigned i = 0; i < sizeof(quetzal_request_hooks)/sizeof(QuetzalRequestHook); i++) {
 		if (void *data = quetzal_request_hooks[i](primary, fields, ok_cb, cancel_cb, account, conv, user_data))
 			return data;
@@ -222,7 +222,7 @@ void *quetzal_request_file(const char *title, const char *filename,
 						   const char *who, PurpleConversation *conv,
 						   void *user_data)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
@@ -244,7 +244,7 @@ void quetzal_request_close(PurpleRequestType type, QObject *dialog)
 
 void quetzal_close_request(PurpleRequestType type, void *ui_handle)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Q_UNUSED(type);
 	QObject *obj = quetzal_request_guard_value(ui_handle);
 	if (QWidget *widget = qobject_cast<QWidget *>(obj))
@@ -260,7 +260,7 @@ void *quetzal_request_folder(const char *title, const char *dirname,
 							 PurpleAccount *account, const char *who,
 							 PurpleConversation *conv, void *user_data)
 {
-	debug() << Q_FUNC_INFO;
+	qDebug() << Q_FUNC_INFO;
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);

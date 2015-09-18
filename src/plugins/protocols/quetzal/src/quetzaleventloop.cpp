@@ -119,7 +119,7 @@ guint QuetzalEventLoop::addIO(int fd, PurpleInputCondition cond, PurpleInputFunc
 {
 	Q_ASSERT(QThread::currentThread() == qApp->thread());
 	if (fd < 0) {
-		warning() << "Invalid file descriptor" << fd << "return id" << m_socketId;
+		qWarning() << "Invalid file descriptor" << fd << "return id" << m_socketId;
 		return m_socketId++;
 	}
 
