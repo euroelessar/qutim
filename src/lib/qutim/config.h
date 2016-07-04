@@ -30,7 +30,7 @@
 #include <functional>
 #include <QVariant>
 #include <QSharedData>
-#include <QMetaTypeId>
+#include <QMap>
 
 namespace qutim_sdk_0_3
 {

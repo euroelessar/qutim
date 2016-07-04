@@ -13,7 +13,7 @@ Framework {
     type: ["dynamiclibrary", "installed_content"]
  
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'webkit', 'widgets', 'webkitwidgets' ] }
+    Depends { name: "Qt"; submodules: [ 'core', 'gui', 'network', 'webengine', 'widgets', 'webenginewidgets' ] }
     Depends { name: "libqutim" }
  
     //cpp.warningLevel: "all"
