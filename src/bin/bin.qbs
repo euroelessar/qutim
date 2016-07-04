@@ -12,7 +12,7 @@ Application {
     cpp.defines: [
         "QUTIM_PLUGIN_NAME=\"qutim\""
     ]
-    cpp.infoPlist: {
+    bundle.infoPlist: {
         return {
             CFBundleIconFile: 'qutim.icns',
             CFBundleGetInfoString: 'Module based instant messenger'

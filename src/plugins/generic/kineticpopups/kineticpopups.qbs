@@ -4,8 +4,9 @@ GenericPlugin {
     type: [ "dynamiclibrary", "installed_content" ]
 
     Group {
-        files: "src/quickpopup"
+        files: "src/quickpopup/**"
         qbs.install: true
-        qbs.installDir: project.qutim_share_path
+        qbs.installDir: project.qutim_share_path + "/src/quickpopup/"
+        qbs.installSourceBase: "src/quickpopup/"
     }
 }

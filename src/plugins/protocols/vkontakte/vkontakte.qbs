@@ -5,7 +5,7 @@ Protocol {
 
     Depends { name: "vreen" }
     Depends { name: "vreenoauth" }
-    Depends { name: "Qt.webkit" }
+    Depends { name: "Qt.webengine" }
 
     cpp.includePaths: ["src"]
 

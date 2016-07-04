@@ -5,8 +5,9 @@ GenericPlugin {
 
     Group {
         name: "QML files"
-        files: "qml"
+        files: "qml/**"
         qbs.install: true
-        qbs.installDir: project.qutim_share_path
+        qbs.installDir: project.qutim_share_path + "/qml/"
+        qbs.installSourceBase: "qml"
     }
 }

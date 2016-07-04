@@ -7,16 +7,18 @@ GenericPlugin {
 
     Group {
         name: "QML files"
-        files: "qml"
+        files: "qml/**"
         qbs.install: true
-        qbs.installDir: project.qutim_share_path
+        qbs.installDir: project.qutim_share_path + "/qml/"
+        qbs.installSourceBase: "qml"
     }
 
     Group {
         name: "QML files"
         files: "src/qmlchat"
         qbs.install: true
-        qbs.installDir: project.qutim_share_path
+        qbs.installDir: project.qutim_share_path + "/src/qmlchat/"
+        qbs.installSourceBase: "src/qmlchat"
     }
 
     Group {
