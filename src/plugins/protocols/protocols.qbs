@@ -34,6 +34,6 @@ Project {
         "jabber/jabber.qbs",
         "oscar/oscar.qbs",
         "irc/irc.qbs",
-//        "vkontakte/vkontakte.qbs",
+        //"vkontakte/vkontakte.qbs",
     ]
 }

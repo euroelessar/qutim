@@ -6,7 +6,7 @@ GenericPlugin {
     Group {
         files: "src/quickpopup/**"
         qbs.install: true
-        qbs.installDir: project.qutim_share_path + "/src/quickpopup/"
+        qbs.installDir: project.qutim_share_path + "/quickpopup/"
         qbs.installSourceBase: "src/quickpopup/"
     }
 }

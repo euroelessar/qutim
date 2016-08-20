@@ -13,17 +13,20 @@ GenericPlugin {
         qbs.installSourceBase: "qml"
     }
 
-    Group {
-        name: "QML files"
-        files: "src/qmlchat"
-        qbs.install: true
-        qbs.installDir: project.qutim_share_path + "/src/qmlchat/"
-        qbs.installSourceBase: "src/qmlchat"
-    }
+//    Group {
+//        name: "QML files"
+//        files: "src/qmlchat"
+//        qbs.install: true
+//        qbs.installDir: project.qutim_share_path + "/qmlchat/"
+//        qbs.installSourceBase: "src/qmlchat"
+//    }
 
     Group {
         fileTags: "dummy"
         name: "QML files [themes]"
         files: "src/qmlchat/**"
+        qbs.install: true
+        qbs.installDir: project.qutim_share_path + "/qmlchat/"
+        qbs.installSourceBase: "src/qmlchat"
     }
 }

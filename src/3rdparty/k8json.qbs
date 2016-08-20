@@ -12,6 +12,19 @@ StaticLibrary {
         "K8JSON_INCLUDE_COMPLEX_GENERATOR"
     ]
 
+    cpp.objcxxFlags: {
+        var flags = base.concat("-std=c++11");
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat("-stdlib=libc++");
+        return flags;
+    }
+    cpp.cxxFlags: {
+        var flags = base.concat("-std=c++11");
+        if (qbs.toolchain.contains("clang"))
+            flags = flags.concat("-stdlib=libc++");
+        return flags;
+    }
+
     files: [
         "k8json/k8json.h",
         "k8json/k8json.cpp"

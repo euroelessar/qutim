@@ -26,7 +26,7 @@ Product {
 
         qbs.installDir: project.qutim_share_path + "/imports/"
         qbs.install: true
-        files: "imports.**"
+        files: "imports/**"
         qbs.installSourceBase: "imports"
     }
     Group {

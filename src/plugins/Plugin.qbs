@@ -87,11 +87,11 @@ Product {
         fileTags: [ "pluginCppTemplate" ]
         files: [ templateFilePath ]
     }
-//    Group {
-//        fileTags: "dummy"
-//        name: "QML files [dummy]"
-//        files: "qml"
-//    }
+    Group {
+        fileTags: "dummy"
+        name: "QML files [dummy]"
+        files: "qml"
+    }
 
     Rule {
         inputs: ["pluginTemplate"]

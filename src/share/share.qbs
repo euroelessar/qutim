@@ -75,14 +75,14 @@ Product {
         files: "**"
     }
 
-    Group {
+    /*Group {
         name: "Default tray icons"
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
         files: "../../artwork/icons/qutim/**"
         qbs.installSourceBase: "../../artwork/icons/qutim"
-    }
+    }*/
     
     Group {
         name: "Default icon theme"
@@ -100,8 +100,8 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/hicolor/"
         qbs.install: true
-        files: "../../artwork/icons/qutim/icons/hicolor/**"
-        qbs.installSourceBase: "../../artwork/icons/qutim/icons/hicolor"
+        files: ["../../artwork/icons/qutim/icons/hicolor/**"]
+        qbs.installSourceBase: "../../artwork/icons/qutim/icons/hicolor/"
     }
 
     Group {
@@ -130,6 +130,7 @@ Product {
         qbs.installDir: shareDir + "/icons/hicolor/16x16/apps/"
         qbs.install: true
         files: "../../artwork/icons/clients/hicolor/16x16/apps/*"
+        excludeFiles: "../../artwork/icons/clients/hicolor/16x16/apps/qutim.png"
     }
 
     Group {
@@ -138,8 +139,8 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/humanity/"
         qbs.install: true
-        files: "../../artwork/icons/humanity/**"
-        qbs.installSourceBase: "../../artwork/icons/humanity/"
+        files: "../../artwork/icons/humanity/hicolor/**"
+        qbs.installSourceBase: "../../artwork/icons/humanity/hicolor/"
     }
 
     Group { // Mac tray icons
