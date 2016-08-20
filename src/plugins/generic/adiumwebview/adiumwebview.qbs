@@ -9,9 +9,10 @@ Project {
         Depends { name: "qutim-adiumwebview" }
 
         Group {
-            files: "data"
+            files: "data/**"
             qbs.install: true
-            qbs.installDir: project.qutim_share_path
+            qbs.installDir: project.qutim_share_path + "/data/"
+            qbs.installSourceBase: "data"
         }
     }
 

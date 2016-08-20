@@ -90,7 +90,7 @@ Product {
     Group {
         fileTags: "dummy"
         name: "QML files [dummy]"
-        files: "qml/**"
+        files: "qml"
     }
 
     Rule {

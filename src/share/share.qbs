@@ -39,23 +39,30 @@ Product {
     }
 
     Group {
-        name: "WebKit Styles and CA certificates"
+        name: "CA certificates"
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path
+        qbs.installDir: project.qutim_share_path + "/ca-certs/"
         qbs.install: true
-        files: [
-            "qutim/ca-certs",
-            "qutim/webkitstyle"
-        ]
+        files: "qutim/ca-certs/**"
+    }
+
+    Group {
+        name: "WebKit Styles"
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_share_path + "/webkitstyle/"
+        qbs.install: true
+        files: "qutim/webkitstyle/**"
+        qbs.installSourceBase: "qutim/webkitstyle"
     }
 
     Group {
         name: "Sounds"
         condition: installSoundTheme
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path
+        qbs.installDir: project.qutim_share_path + "/sounds/"
         qbs.install: true
-        files: "../../artwork/sounds"
+        files: "../../artwork/sounds/**"
+        qbs.installSourceBase: "../../artwork/sounds"
     }
 
     Group {
@@ -68,39 +75,43 @@ Product {
         files: "**"
     }
 
-    Group {
+    /*Group {
         name: "Default tray icons"
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/"
-        files: "../../artwork/icons/qutim"
-    }
+        files: "../../artwork/icons/qutim/**"
+        qbs.installSourceBase: "../../artwork/icons/qutim"
+    }*/
     
     Group {
         name: "Default icon theme"
         condition: installIcons
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.installDir: project.qutim_share_path + "/icons/qutim-default/"
         qbs.install: true
-        files: "../../artwork/icons/qutim-default"
+        files: "../../artwork/icons/qutim-default/**"
+        qbs.installSourceBase: "../../artwork/icons/qutim-default"
     }
 
     Group {
         name: "Fallback icon theme"
         condition: installIcons && installHicolorTheme
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.installDir: project.qutim_share_path + "/icons/hicolor/"
         qbs.install: true
-        files: "../../artwork/icons/qutim/icons/hicolor"
+        files: ["../../artwork/icons/qutim/icons/hicolor/**"]
+        qbs.installSourceBase: "../../artwork/icons/qutim/icons/hicolor/"
     }
 
     Group {
         name: "User-status icons"
         condition: installIcons
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons/qutim-default/"
+        qbs.installDir: project.qutim_share_path + "/icons/qutim-default/user-status/"
         qbs.install: true
-        prefix: "../../artwork/icons/user-status"
+        prefix: "../../artwork/icons/user-status/**"
+        qbs.installSourceBase: "../../artwork/icons/user-status"
     }
 
     Group {
@@ -119,15 +130,17 @@ Product {
         qbs.installDir: shareDir + "/icons/hicolor/16x16/apps/"
         qbs.install: true
         files: "../../artwork/icons/clients/hicolor/16x16/apps/*"
+        excludeFiles: "../../artwork/icons/clients/hicolor/16x16/apps/qutim.png"
     }
 
     Group {
         name: "Humanity icons"
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.installDir: project.qutim_share_path + "/icons/humanity/"
         qbs.install: true
-        files: "../../artwork/icons/humanity/"
+        files: "../../artwork/icons/humanity/hicolor/**"
+        qbs.installSourceBase: "../../artwork/icons/humanity/hicolor/"
     }
 
     Group { // Mac tray icons
@@ -143,9 +156,10 @@ Product {
         name: "Oxygen icons"
         condition: installIcons && installOxygenTheme
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons"
+        qbs.installDir: project.qutim_share_path + "/icons/oxygen/"
         qbs.install: true
-        files: "../../artwork/icons/oxygen"
+        files: "../../artwork/icons/oxygen/**"
+        qbs.installSourceBase: "../../artwork/icons/oxygen"
     }
 
     Group {

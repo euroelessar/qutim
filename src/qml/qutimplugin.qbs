@@ -24,9 +24,10 @@ Product {
     Group {
         name: "QML files"
 
-        qbs.installDir: project.qutim_share_path
+        qbs.installDir: project.qutim_share_path + "/imports/"
         qbs.install: true
-        files: "imports"
+        files: "imports/**"
+        qbs.installSourceBase: "imports"
     }
     Group {
         fileTagsFilter: product.type
