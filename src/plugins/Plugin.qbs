@@ -51,7 +51,9 @@ Product {
     destinationDirectory: qutim_plugin_path
     cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId, "QUTIM_PLUGIN_NAME=\"" + name + "\""]
     cpp.visibility: 'hidden'
-    cpp.installNamePrefix: "@rpath/plugins/"
+    // NOTE: sorry qbs < 1.5.0, I had no choice
+    //cpp.installNamePrefix: "@rpath/plugins/"
+    cpp.sonamePrefix: "@rpath/plugins/"
     cpp.rpaths: qbs.targetOS.contains("osx")
                 ? ["@loader_path/../..", "@executable_path/.."]
                 : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
@@ -87,11 +89,11 @@ Product {
         fileTags: [ "pluginCppTemplate" ]
         files: [ templateFilePath ]
     }
-    Group {
-        fileTags: "dummy"
-        name: "QML files [dummy]"
-        files: "qml"
-    }
+//    Group {
+//        fileTags: "dummy"
+//        name: "QML files [dummy]"
+//        files: "qml"
+//    }
 
     Rule {
         inputs: ["pluginTemplate"]
