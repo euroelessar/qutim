@@ -9,6 +9,9 @@ Application {
     cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@loader_path/..", "@executable_path/.."]
             : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../lib"]
+
+    cpp.useRPaths: project.useRPaths
+
     cpp.defines: [
         "QUTIM_PLUGIN_NAME=\"qutim\""
     ]
