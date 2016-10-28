@@ -71,6 +71,8 @@ Framework {
     }
     cpp.minimumOsxVersion: "10.8"
 
+    cpp.useRPaths: project.useRPaths
+
     Properties {
         condition: qbs.targetOS.contains("osx")
         cpp.frameworks: ["Cocoa", "Carbon" ]
@@ -111,6 +113,8 @@ Framework {
             return flags;
         }
         cpp.minimumOsxVersion: "10.8"
+
+        cpp.useRPaths: project.useRPaths
 
         Properties {
             condition: project.declarativeUi

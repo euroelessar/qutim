@@ -13,6 +13,12 @@ Project {
      * Use: just pass project.addressSanitizer:true as qbs resolve/build parameter
      */
     property bool addressSanitizer: false
+
+    /**
+     * Property to disable rpaths entirely (useful for linux distros like Fedora)
+     */
+    property bool useRPaths: true
+
     property var additionalCppDefines: []
 
     property string shareDir: qutim_share_path
