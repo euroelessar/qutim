@@ -27,6 +27,7 @@ Project {
 
         Properties {
             name: "jreen-imported"
+            condition: !systemJreen
         }
     }
 
