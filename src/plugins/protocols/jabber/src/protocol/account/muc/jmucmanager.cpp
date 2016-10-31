@@ -243,6 +243,43 @@ void JMUCManager::appendMUCSession(JMUCSession *room)
 	d_func()->rooms.insert(room->id(), room);
 }
 
+qutim_sdk_0_3::ChatUnit *JMUCManager::createMucSession(const QString &conference)
+{
+	Q_D(JMUCManager);
+	const QList<Bookmark::Conference> bookmarks = d->bookmarkManager->bookmarksList();
+	QString nick;
+	QString password = "";
+	const Bookmark::Conference *bookmark = nullptr;
+	for (int i = 0; i < bookmarks.count(); i++) {
+		if (bookmarks[i].jid() == conference) {
+			bookmark = &bookmarks[i];
+			nick = bookmarks[i].nick();
+			password = bookmarks[i].password();
+			break;
+		}
+	}
+
+	if(nick.isNull())
+		nick = d->account->name();
+
+	Jreen::JID jid = conference;
+	jid.setResource(nick);
+	auto room = new JMUCSession(jid, password, d->account);
+	if(bookmark)
+		room->setBookmark(*bookmark);
+
+	d->rooms.insert(conference, room);
+	emit conferenceCreated(room);
+
+	ChatSession *session = ChatLayer::get(room, true);
+	connect(session, SIGNAL(destroyed()), room, SIGNAL(initClose()));
+	connect(room, SIGNAL(initClose()), SLOT(closeMUCSession()));
+
+	bookmarkManager()->saveRecent(conference, nick, password);
+
+	return room;
+}
+
 void JMUCManager::setPresenceToRooms(const Jreen::Presence &presence)
 {
 	Q_D(JMUCManager);
