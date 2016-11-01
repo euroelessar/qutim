@@ -3,6 +3,8 @@ import qbs.base 1.0
 Project {
     name: "Protocols"
 
+    property bool systemJreen: false
+
 //    SubProject {
 //        filePath: "vkontakte/vreen/vreen.qbs"
 
@@ -27,6 +29,7 @@ Project {
 
         Properties {
             name: "jreen-imported"
+            condition: !systemJreen
         }
     }
 
@@ -34,6 +37,7 @@ Project {
         "jabber/jabber.qbs",
         "oscar/oscar.qbs",
         "irc/irc.qbs",
+        "quetzal/quetzal.qbs"
         //"vkontakte/vkontakte.qbs",
     ]
 }

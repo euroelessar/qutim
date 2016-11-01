@@ -7,7 +7,7 @@ Protocol {
      */
     property bool jingle: false
 
-    property bool systemJreen: false
+    property bool systemJreen: parent.systemJreen
 
     Probes.PkgConfigProbe {
         id: pkgProbe
@@ -17,7 +17,7 @@ Protocol {
     condition: {
         if(!pkgProbe.found) {
             if(systemJreen)
-                print("System jreen-qt5 hasn't been found")
+                console.log("System jreen-qt5 hasn't been found")
 
             return true
         }
