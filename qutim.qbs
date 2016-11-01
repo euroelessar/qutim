@@ -19,11 +19,6 @@ Project {
      */
     property bool useRPaths: true
 
-    /**
-     * Set to true to use system libjreen
-     */
-    property bool systemJreen: false
-
     property var additionalCppDefines: []
 
     property string shareDir: qutim_share_path

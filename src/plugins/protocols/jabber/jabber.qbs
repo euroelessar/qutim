@@ -2,7 +2,12 @@ import "../Protocol.qbs" as Protocol
 import qbs.Probes
 
 Protocol {
+    /**
+     * Set to true to enable experimental jingle support
+     */
     property bool jingle: false
+
+    property bool systemJreen: false
 
     Probes.PkgConfigProbe {
         id: pkgProbe
@@ -11,7 +16,7 @@ Protocol {
 
     condition: {
         if(!pkgProbe.found) {
-            if(project.systemJreen)
+            if(systemJreen)
                 print("System jreen-qt5 hasn't been found")
 
             return true
@@ -21,7 +26,7 @@ Protocol {
     }
 
     cpp.dynamicLibraries: {
-        if(!project.systemJreen)
+        if(!systemJreen)
             return undefined
 
         var flags = [];
@@ -38,14 +43,14 @@ Protocol {
     }
 
     cpp.cFlags: {
-        if(!project.systemJreen || (typeof pkgProbe.cflags === "undefined"))
+        if(!systemJreen || (typeof pkgProbe.cflags === "undefined"))
             return undefined
 
         return pkgProbe.cflags
     }
 
     cpp.cxxFlags: {
-        if(!project.systemJreen || (typeof pkgProbe.cflags === "undefined"))
+        if(!systemJreen || (typeof pkgProbe.cflags === "undefined"))
             return undefined
 
         return pkgProbe.cflags
@@ -53,7 +58,7 @@ Protocol {
 
     Depends {
         name: "jreen"
-        condition: !project.systemJreen
+        condition: !systemJreen
     }
 
     cpp.includePaths: ["src"]
