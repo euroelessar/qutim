@@ -29,7 +29,7 @@
 #include <QDialog>
 #include <purple.h>
 #include <qutim/groupchatmanager.h>
-#include <QMetaTypeId>
+#include <QMetaType>
 
 namespace Ui {
 	class QuetzalJoinChatDialog;
