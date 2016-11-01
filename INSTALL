@@ -21,7 +21,15 @@ If you do not want to type profile:... every time
                         
 And now build:
                         qbs build debug profile:my-own-qt-5-5 project.addressSanitizer:true
-                        
+
+Available options:
+
+                        project.useRPaths:false jreen.useRPaths:false — to disable RPath
+
+                        Protocols.systemJreen:true — to use system Jreen
+
+                        project.addressSanitizer:true — to enable address sanitizer. Must not be enabled for users (only for devs)
+
 And after build install qutIM into some directory:
 
                         qbs install --no-build --install-root ./install-root/ profile:my-own-qt-5-5
