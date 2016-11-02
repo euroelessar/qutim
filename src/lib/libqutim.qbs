@@ -144,8 +144,13 @@ Framework {
         files: ["*.h", "*.cpp"]
     }
 
-    Transformer {
-        inputs: [ "qutim/version.h.cmake" ]
+    FileTagger {
+        patterns: ["version.h.cmake"]
+        fileTags: ["version_h_cmake"]
+    }
+
+    Rule {
+        inputs: [ "version_h_cmake" ]
         Artifact {
             filePath: "GeneratedFiles/include/qutim/libqutim_version.h"
             fileTags: [ "hpp" ]
