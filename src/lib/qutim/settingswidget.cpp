@@ -261,9 +261,12 @@ void SettingsWidget::paintEvent(QPaintEvent *event)
 		return QWidget::paintEvent(event);
 	}
 
+	// TODO: add define to qbs files, something like project.showNonQmlWidgets:true
+#ifdef SHOW_NONQML_WIDGETS
 	QPainter painter(this);
 	painter.setPen(QColor(Qt::red));
 	painter.drawRect(0, 0, width(), height());
+#endif
 	event->accept();
 }
 
