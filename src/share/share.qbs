@@ -71,7 +71,7 @@ Product {
         fileTags: [ "install" ]
         qbs.installDir: "share/applications"
         qbs.install: true
-        prefix: "share/applications/"
+        prefix: "../../src/share/applications/"
         files: "**"
     }
 
