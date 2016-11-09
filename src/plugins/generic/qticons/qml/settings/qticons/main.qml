@@ -18,15 +18,12 @@ SettingsItem {
 
     function save() {
         config.setValue("qutim-default", defaultThemeCheckBox.checked)
-        config.setValue("nasty-fix", nastyIconsFix.checked)
     }
     
     function load() {
-        defaultThemeCheckBox.checked = config.value("qutim-default", false);
+        defaultThemeCheckBox.checked = config.value("qutim-default", true);
 
-        nastyIconsFix.checked = config.value("nasty-fix", false);
-
-        missingIconsBox.text = iloader.iconsList
+        missingIconsBox.text = iloader.object.iconsList;
     }
     
     ColumnLayout {
@@ -34,13 +31,7 @@ SettingsItem {
         
         CheckBox {
             id: defaultThemeCheckBox
-            text: qsTr("Enable qutim-default icon theme:")
-            onCheckedChanged: root.modify()
-        }
-
-        CheckBox {
-            id: nastyIconsFix
-            text: qsTr("Enable nasty icons fix (if you do not have any icons):")
+            text: qsTr("Enable qutim-default icon theme")
             onCheckedChanged: root.modify()
         }
 

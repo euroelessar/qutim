@@ -61,9 +61,7 @@ protected:
 
 private:
 	QString m_defaultTheme;
-	QHash<QString, QString> m_fallbackIcons;
 	ConfigValue<bool> m_defaultEnabled;
-	ConfigValue<bool> m_nastyHack;
 	QSet<QString> m_missingIcons;
 };
 

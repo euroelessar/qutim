@@ -47,13 +47,13 @@ IconLoaderImpl::IconLoaderImpl()
 
 	m_defaultTheme = QIcon::themeName();
 
-	qDebug() << "PATHS" << themeSearchPaths;
+	qDebug() << "theme search paths" << themeSearchPaths;
 
-	qDebug() << "THEME NAME" << m_defaultTheme;
+	qDebug() << "current theme name" << m_defaultTheme;
 
 	Config conf;
 	conf.beginGroup("qticons");
-	m_defaultEnabled = conf.value("qutim-default", false);
+	m_defaultEnabled = conf.value("qutim-default", true);
 
 	m_defaultEnabled.onChange(this, [this] (bool enabled) {
 		if(enabled)
@@ -61,8 +61,6 @@ IconLoaderImpl::IconLoaderImpl()
 		else
 			QIcon::setThemeName(m_defaultTheme);
 	});
-
-	m_nastyHack = conf.value("nasty-fix", false);
 
 #if defined(Q_OS_MAC) || defined(Q_OS_WIN)
 	QIcon::setThemeName(QStringLiteral(QUTIM_DEFAULT_THEME));
@@ -83,24 +81,24 @@ IconLoaderImpl::~IconLoaderImpl()
 {
 }
 
-QStringList getAllPossibleNamesFromFreedesktopName(const QString &iconName) {
-	QStringList splitted = iconName.split(QLatin1Char('-'));
-	if(splitted.length() == 1)
-		return QStringList() << iconName + ".*";
+//QStringList getAllPossibleNamesFromFreedesktopName(const QString &iconName) {
+//	QStringList splitted = iconName.split(QLatin1Char('-'));
+//	if(splitted.length() == 1)
+//		return QStringList() << iconName + ".*";
 
-	QStringList ret;
-	QString it;
-	while(!splitted.isEmpty()) {
-		if(it.isEmpty())
-			it += splitted.takeFirst();
-		else {
-			it += "-" + splitted.takeFirst();
-		}
-		ret << it + ".*"; // asterisk for file searching
-	}
-	std::reverse(ret.begin(), ret.end());
-	return ret;
-}
+//	QStringList ret;
+//	QString it;
+//	while(!splitted.isEmpty()) {
+//		if(it.isEmpty())
+//			it += splitted.takeFirst();
+//		else {
+//			it += "-" + splitted.takeFirst();
+//		}
+//		ret << it + ".*"; // asterisk for file searching
+//	}
+//	std::reverse(ret.begin(), ret.end());
+//	return ret;
+//}
 
 QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 {
@@ -109,31 +107,7 @@ QIcon IconLoaderImpl::doLoadIcon(const QString &name)
 
 	if(!QIcon::fromTheme(name).isNull())
 		return QIcon::fromTheme(name);
-	else if(m_defaultEnabled) {
-		qWarning() << "missing icon in default fallback theme";
-		m_missingIcons.insert(name);
-	} else if(m_fallbackIcons.contains(name)) {
-		QIcon icon;
-		icon.addFile(m_fallbackIcons.value(name), QSize(512, 512));
-
-		return icon;
-	} else if(m_nastyHack) {
-		const QString fallbackTheme(SystemInfo::getPath(SystemInfo::SystemShareDir) + QStringLiteral("/icons/") + QUTIM_DEFAULT_THEME);
-		QDirIterator it(fallbackTheme, getAllPossibleNamesFromFreedesktopName(name), QDir::Files, QDirIterator::Subdirectories);
-		QIcon icon;
-		if(it.hasNext()) {
-			QString iconfile = it.next();
-
-			icon.addFile(iconfile, QSize(512,512));
-
-			m_fallbackIcons.insert(name, iconfile);
-		} else {
-			qWarning() << "icon" << name << "not found. See log for list of all missing icons";
-			m_missingIcons.insert(name);
-		}
-
-		return icon;
-	} else {
+	else {
 		qWarning() << "icon" << name << "not found. See log for list of all missing icons";
 		m_missingIcons.insert(name);
 
