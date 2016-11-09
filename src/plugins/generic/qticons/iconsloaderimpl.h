@@ -30,24 +30,43 @@
 #include <qutim/settingswidget.h>
 #include <qutim/settingslayer.h>
 #include <QComboBox>
+#include <qutim/config.h>
+#include <QSet>
 
 using namespace qutim_sdk_0_3;
 
 namespace Core
 {
+
 class IconLoaderImpl : public IconLoader
 {
 	Q_OBJECT
+	/**
+	  List of missing icons
+	*/
+	Q_PROPERTY(QString iconsList READ iconsList)
 public:
 	IconLoaderImpl();
 	~IconLoaderImpl();
 
+	QString iconsList() const
+	{
+		return m_missingIcons.toList().join("\n");
+	}
 protected:
 	QIcon doLoadIcon(const QString &name);
 	QMovie *doLoadMovie(const QString &name);
 	QString doIconPath(const QString &name, uint iconSize);
 	QString doMoviePath(const QString &name, uint iconSize);
+
+private:
+	QString m_defaultTheme;
+	QHash<QString, QString> m_fallbackIcons;
+	ConfigValue<bool> m_defaultEnabled;
+	ConfigValue<bool> m_nastyHack;
+	QSet<QString> m_missingIcons;
 };
+
 }
 
 #endif // ICONSLOADERIMPL_H
