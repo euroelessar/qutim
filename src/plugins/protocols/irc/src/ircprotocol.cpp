@@ -141,15 +141,23 @@ Account *IrcProtocol::account(const QString &id) const
 	return d->accounts_hash.value(id).data();
 }
 
-IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
+IrcAccount *IrcProtocol::getAccount(const QString &id, bool create, bool do_not_emit)
 {
 	IrcAccount *account = d->accounts_hash.value(id).data();
 	if (!account && create) {
 		account = new IrcAccount(id);
 		d->accounts_hash.insert(id, account);
-		emit accountCreated(account);
+
+		// Note: see issue #386 on github for explanation.
+		// TODO FIXME: that's just not cool
+		if(!do_not_emit)
+			emit accountCreated(account);
 	}
 	return account;
+}
+
+void IrcProtocol::emitAccountCreated(IrcAccount *account) {
+	emit accountCreated(account);
 }
 
 ChatSession *IrcProtocol::activeSession() const

@@ -430,6 +430,10 @@ void IrcConnection::loadSettings()
 
 void IrcConnection::tryConnectToNextServer()
 {
+	if (m_hostLookupId != 0) {
+		return;
+	}
+
 	Q_ASSERT(m_hostLookupId == 0);
 	QString error;
 	if (m_servers.isEmpty())
@@ -456,6 +460,7 @@ void IrcConnection::tryConnectToNextServer()
 			m_socket->setPeerVerifyMode(QSslSocket::VerifyPeer);
 		m_socket->connectToHostEncrypted(server.hostName, server.port);
 	} else {
+		qDebug() << "doing lookup host" << server.hostName;
 		m_hostLookupId = QHostInfo::lookupHost(server.hostName, this, SLOT(hostFound(QHostInfo)));
 	}
 }
@@ -463,11 +468,13 @@ void IrcConnection::tryConnectToNextServer()
 void IrcConnection::hostFound(const QHostInfo &host)
 {
 	m_hostLookupId = 0;
+
+	qDebug() << "Host found" << host.addresses();
 	if (!host.addresses().isEmpty()) {
 		IrcServer server = m_servers.at(m_currentServer);
 		m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), server.port);
 	} else {
-		tryConnectToNextServer();
+		QTimer::singleShot(0, this, SLOT(tryConnectToNextServer()));
 	}
 }
 

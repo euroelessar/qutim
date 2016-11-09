@@ -93,7 +93,7 @@ QList<QWizardPage *> IrcAccountCreationWizard::createPages(QWidget *parent)
 
 void IrcAccountCreationWizard::finished()
 {
-	IrcAccount *account = IrcProtocol::instance()->getAccount(m_mainPage->networkName(), true);
+	IrcAccount *account = IrcProtocol::instance()->getAccount(m_mainPage->networkName(), true, true);
 	// Account config.
 	Config cfg = account->config();
 	m_mainPage->saveToConfig(cfg);
@@ -104,6 +104,8 @@ void IrcAccountCreationWizard::finished()
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	account->updateSettings();
+
+	IrcProtocol::instance()->emitAccountCreated(account);
 }
 
 } } // namespace qutim_sdk_0_3::irc

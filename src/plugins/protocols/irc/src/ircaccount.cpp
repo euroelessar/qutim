@@ -69,13 +69,14 @@ IrcAccount::~IrcAccount()
 void IrcAccount::doConnectToServer()
 {
 	d->conn->connectToNetwork();
-	setState(Disconnected);
+	setState(Connected);
 }
 
 void IrcAccount::doDisconnectFromServer()
 {
 	d->conn->disconnectFromHost(false);
 	resetGroupChatManager();
+	setState(Disconnected);
 }
 
 void IrcAccount::doStatusChange(const Status &status)

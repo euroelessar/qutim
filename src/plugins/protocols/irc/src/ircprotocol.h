@@ -53,7 +53,8 @@ public:
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
 	virtual QVariant data(DataType type);
-	IrcAccount *getAccount(const QString &id, bool create = false);
+	IrcAccount *getAccount(const QString &id, bool create = false, bool do_not_emit = false);
+	void emitAccountCreated(IrcAccount *account);
 	ChatSession *activeSession() const;
 	static void registerCommandAlias(IrcCommandAlias *alias);
 	static void removeCommandAlias(const QString &name);

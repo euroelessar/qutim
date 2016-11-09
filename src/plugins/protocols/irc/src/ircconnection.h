@@ -74,10 +74,10 @@ public:
 	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	QStringList supportedCtcpTags() { return m_ctcpHandlers.keys(); }
 private:
-	void tryConnectToNextServer();
 	void tryNextNick();
 	void channelIsNotJoinedError(const QString &cmd, const QString &channel, bool reply = true);
 private slots:
+	void tryConnectToNextServer();
 	void readData();
 	void stateChanged(QAbstractSocket::SocketState);
 	void error(QAbstractSocket::SocketError);
