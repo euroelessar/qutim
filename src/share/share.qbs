@@ -29,11 +29,11 @@ Product {
         qbs.install: true
         prefix: {
             if (qbs.targetOS.contains("osx"))
-                return "../config/mac/";
+                return "../../config/mac/";
             else if (qbs.targetOS.contains("windows"))
-                return "../config/win/";
+                return "../../config/win/";
             else
-                return "../config/generic/";
+                return "../../config/generic/";
         }
         files: "*.json"
     }
