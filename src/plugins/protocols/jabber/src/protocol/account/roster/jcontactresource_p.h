@@ -38,6 +38,7 @@ public:
 	JContactResourcePrivate(QObject *c) :
 		contact(c),
 		presence(Jreen::Presence::Unavailable,Jreen::JID(c->property("id").toString())) {}
+	virtual ~JContactResourcePrivate() {}
 	QObject *contact;
 	QString id;
 	QString name;
