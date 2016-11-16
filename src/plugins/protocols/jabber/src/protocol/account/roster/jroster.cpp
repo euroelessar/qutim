@@ -311,7 +311,7 @@ void JRoster::handleNewPresence(Jreen::Presence presence)
 void JRoster::handleSelfPresence(Jreen::Presence presence)
 {
 	Q_D(JRoster);
-	JContact * &contact = d->contacts[presence.from().full()];
+	JContact *contact = d->contacts[presence.from().full()];
 	bool contactCreated = false;
 	if (presence.subtype() == Jreen::Presence::Unavailable) {
 		bool hasSession = false;
@@ -323,12 +323,13 @@ void JRoster::handleSelfPresence(Jreen::Presence presence)
 		}
 		if (!hasSession) {
 			d->contacts.remove(presence.from().full());
-			delete contact;
+			contact->deleteLater();
 			contact = 0;
 		}
 	} else {
 		if (!contact) {
 			contact = new JAccountResource(d->account, presence.from().full(), presence.from().resource());
+			d->contacts[presence.from().full()] = contact;
 			contactCreated = true;
 		}
 		if (ChatSession *session = ChatLayer::get(contact, false))
