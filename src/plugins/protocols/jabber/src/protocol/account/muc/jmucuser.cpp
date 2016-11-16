@@ -65,6 +65,9 @@ JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
 JMUCUser::~JMUCUser()
 {
 	Q_D(JMUCUser);
+
+	d->timer.stop();
+	disconnect(&d->timer, 0, this, 0);
 	if (d->muc)
 		d->muc.data()->handleDeath(d->name);
 }
