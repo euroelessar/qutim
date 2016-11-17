@@ -98,7 +98,7 @@ struct ConfigValueCaster<QFlags<T>>
 
 class ConfigConnectionData;
 
-class ConfigConnection
+class LIBQUTIM_EXPORT ConfigConnection
 {
 public:
 	ConfigConnection();
