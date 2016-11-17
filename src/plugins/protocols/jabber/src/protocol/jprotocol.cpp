@@ -486,6 +486,7 @@ Status JStatus::presenceToStatus(Jreen::Presence::Type presence)
 	case Jreen::Presence::Error:
 	case Jreen::Presence::Unavailable:
 	default: //TODO probe,subscribe etc. isn't offline status
+		qDebug() << "default section of JStatus::presenceToStatus, type:" << presence;
 		status = Status::Offline;
 	}
 	return Status::instance(status, "jabber");
