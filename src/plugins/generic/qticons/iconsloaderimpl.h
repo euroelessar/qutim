@@ -32,6 +32,7 @@
 #include <QComboBox>
 #include <qutim/config.h>
 #include <QSet>
+#include <QStringList>
 
 using namespace qutim_sdk_0_3;
 
@@ -51,7 +52,7 @@ public:
 
 	QString iconsList() const
 	{
-		return m_missingIcons.toList().join("\n");
+		return QStringList(m_missingIcons.toList()).join('\n');
 	}
 protected:
 	QIcon doLoadIcon(const QString &name);
