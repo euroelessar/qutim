@@ -38,8 +38,6 @@ using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-class HistoryWindow;
-
 class JsonHistoryScope
 {
 public:
@@ -88,16 +86,12 @@ public:
 	AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) override;
 	AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) override;
 	AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) override;
-	void showHistory(const ChatUnit *unit) override;
 
 	static QString quote(const QString &str);
 	static QString unquote(const QString &str);
 
-private slots:
-	void onHistoryActionTriggered(QObject *object);
 private:
 	JsonHistoryScope::Ptr m_scope;
-	QPointer<HistoryWindow> m_historyWindow;
 };
 }
 

@@ -24,8 +24,8 @@
 **
 ****************************************************************************/
 
-#ifndef HISTORYWINDOW_H
-#define HISTORYWINDOW_H
+#ifndef HISTORYWINDOW2_H
+#define HISTORYWINDOW2_H
 
 #include <QWidget>
 #include <QByteArray>
@@ -68,5 +68,5 @@ private:
 
 }
 
-#endif // HISTORYWINDOW_H
+#endif // HISTORYWINDOW2_H
 

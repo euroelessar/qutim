@@ -150,6 +150,8 @@ void HistoryWindow::fillAccountComboBox()
 			fillContactComboBox(0);
 		else
 			ui.accountComboBox->setCurrentIndex(accountIndex);
+
+		qDebug() << "accountIndex" << accountIndex;
 	});
 }
 

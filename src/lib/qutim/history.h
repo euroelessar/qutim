@@ -75,9 +75,6 @@ namespace qutim_sdk_0_3
 
 		static ContactInfo info(const ChatUnit *unit);
 
-	public slots:
-		virtual void showHistory(const ChatUnit *unit) = 0;
-
 	protected:
 		History();
 

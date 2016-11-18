@@ -49,10 +49,6 @@ namespace qutim_sdk_0_3
 			return AsyncResult<MessageList>::create(MessageList());
 		}
 
-		void showHistory(const ChatUnit *) override
-		{
-		}
-
 		AsyncResult<QVector<AccountInfo>> accounts() override
 		{
 			return AsyncResult<QVector<AccountInfo>>::create(QVector<AccountInfo>());

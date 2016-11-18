@@ -31,7 +31,6 @@
 #include <qutim/json.h>
 #include <QStringBuilder>
 #include <QThreadPool>
-#include "historywindow.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 //#include <QElapsedTimer>
@@ -75,25 +74,8 @@ static void runJob(JsonHistoryScope::Ptr scope, Method method)
 	}
 }
 
-void init(History *history)
-{
-	ActionGenerator *gen = new ActionGenerator(Icon("view-history"),
-										QT_TRANSLATE_NOOP("Chat", "View History"),
-										history,
-										SLOT(onHistoryActionTriggered(QObject*)));
-	gen->setType(ActionTypeChatButton|ActionTypeContactList);
-	gen->setPriority(512);
-	MenuController::addAction<ChatUnit>(gen);
-}
-
 JsonHistory::JsonHistory() : m_scope(new JsonHistoryScope)
 {
-	static bool inited = false;
-	if (!inited) {
-		inited = true;
-		init(this);
-	}
-
 	m_scope->hasJobRunnable = false;
 }
 
@@ -493,18 +475,6 @@ AsyncResult<QList<QDate>> JsonHistory::dates(const ContactInfo &contact, const Q
 	return handler.result();
 }
 
-void JsonHistory::showHistory(const ChatUnit *unit)
-{
-	unit = unit->getHistoryUnit();
-	if (m_historyWindow) {
-		m_historyWindow.data()->setUnit(unit);
-		m_historyWindow.data()->raise();
-	} else {
-		m_historyWindow = new Core::HistoryWindow(unit);
-		m_historyWindow.data()->show();
-	}
-}
-
 QString JsonHistory::quote(const QString &str)
 {
 	const static bool true_chars[128] =
@@ -559,12 +529,6 @@ QString JsonHistory::unquote(const QString &str)
 		s++;
 	}
 	return result;
-}
-
-void JsonHistory::onHistoryActionTriggered(QObject* object)
-{
-	ChatUnit *unit = qobject_cast<ChatUnit*>(object);
-	showHistory(unit);
 }
 
 }
