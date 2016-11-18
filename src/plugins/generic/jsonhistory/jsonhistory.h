@@ -33,6 +33,7 @@
 #include <QPointer>
 #include <QMutex>
 #include <QQueue>
+#include <QRegularExpression>
 
 using namespace qutim_sdk_0_3;
 
