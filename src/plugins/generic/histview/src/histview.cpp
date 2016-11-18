@@ -42,29 +42,28 @@
 namespace Core
 {
 
-void init(HistView *history)
-{
-	ActionGenerator *gen = new ActionGenerator(Icon("view-history"),
-										QT_TRANSLATE_NOOP("Chat", "View History"),
-										history,
-										SLOT(onHistoryActionTriggered(QObject*)));
-	gen->setType(ActionTypeChatButton|ActionTypeContactList);
-	gen->setPriority(512);
-	MenuController::addAction<ChatUnit>(gen);
-}
-
 HistView::HistView()
 {
-	static bool inited = false;
-	if (!inited) {
-		inited = true;
-		init(this);
-	}
+	m_historyAction = new ActionGenerator(Icon("view-history"),
+										  QT_TRANSLATE_NOOP("Chat", "View History"),
+										  this,
+										  SLOT(onHistoryActionTriggered(QObject*)));
+	m_historyAction->setType(ActionTypeChatButton|ActionTypeContactList);
+	m_historyAction->setPriority(512);
+	MenuController::addAction<ChatUnit>(m_historyAction);
+}
+
+HistView::~HistView()
+{
+	//MenuController::removeAction(m_historyAction.data());
+
+	delete m_historyAction;
 }
 
 void HistView::onHistoryActionTriggered(QObject* object)
 {
 	ChatUnit *unit = qobject_cast<ChatUnit*>(object);
+	Q_ASSERT(unit);
 
 	showHistory(unit);
 }
