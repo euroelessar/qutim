@@ -34,6 +34,9 @@ namespace qutim_sdk_0_3
 {
 	class ChatUnit;
 
+	/**
+	 * @brief The History class is base class to implement history storage plugins
+	 */
 	class LIBQUTIM_EXPORT History : public QObject
 	{
 		Q_OBJECT
@@ -61,11 +64,24 @@ namespace qutim_sdk_0_3
 		};
 
 		virtual void store(const Message &message) = 0;
+		/**
+		 * Read messages from history.
+		 * \warning \a from or/and \a to parameter can be invalid, which means that
+		 * you should ignore that parameter
+		 */
 		virtual AsyncResult<MessageList> read(const ContactInfo &contact, const QDateTime &from, const QDateTime &to, int max_num) = 0;
 		virtual AsyncResult<QVector<AccountInfo>> accounts() = 0;
 		virtual AsyncResult<QVector<ContactInfo>> contacts(const AccountInfo &account) = 0;
-		virtual AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QRegularExpression &regex) = 0;
-		virtual AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QRegularExpression &regex) = 0;
+		/**
+		 * Returns list of date(year, month). If search string is presented, you may return list of months where
+		 * at least message contains search string.
+		 */
+		virtual AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QString &needle) = 0;
+		/**
+		 * Returns list of days in month of certain year. If search string is not empty, you should return list of days
+		 * where at least one message with search string is presented
+		 */
+		virtual AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QString &needle) = 0;
 
 		AsyncResult<MessageList> read(const ChatUnit *unit, const QDateTime &to, int max_num);
 		AsyncResult<MessageList> read(const ChatUnit *unit, int max_num);
@@ -74,9 +90,6 @@ namespace qutim_sdk_0_3
 		MessageList readSync(const ChatUnit *unit, int max_num);
 
 		static ContactInfo info(const ChatUnit *unit);
-
-	public slots:
-		virtual void showHistory(const ChatUnit *unit) = 0;
 
 	protected:
 		History();

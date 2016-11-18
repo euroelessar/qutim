@@ -2,7 +2,7 @@
 **
 ** qutIM - instant messenger
 **
-** Copyright © 2011 Ruslan Nigmatullin <euroelessar@yandex.ru>
+** Copyright © 2015 Nicolay Izoderov <nico-izo@ya.ru>
 **
 *****************************************************************************
 **
@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef JSONHISTORY_H
-#define JSONHISTORY_H
+#ifndef SQLITEHISTORY_H
+#define SQLITEHISTORY_H
 
 #include <qutim/history.h>
 #include <QRunnable>
@@ -33,52 +33,21 @@
 #include <QPointer>
 #include <QMutex>
 #include <QQueue>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
 
 using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-class JsonHistoryScope
-{
-public:
-	typedef QSharedPointer<JsonHistoryScope> Ptr;
+class SqliteWorker;
 
-	uint findEnd(QFile &file);
-	QString getFileName(const Message &message) const;
-	QString getFileName(const History::ContactInfo &info, const QDate &time) const;
-	QDir getAccountDir(const History::AccountInfo &info) const;
-
-	struct EndValue
-	{
-		EndValue(const QDateTime &t, uint e) : lastModified(t), end(e) {}
-		QDateTime lastModified;
-		uint end;
-	};
-
-	typedef QHash<QString, EndValue> EndCache;
-	bool hasJobRunnable;
-	EndCache cache;
-
-	QMutex queueLock;
-	QQueue< std::function<void ()> > queue;
-};
-
-class JsonHistoryJob : public QRunnable
-{
-public:
-	JsonHistoryJob(JsonHistoryScope::Ptr scope);
-	void run() override;
-
-private:
-	JsonHistoryScope::Ptr d;
-};
-
-class JsonHistory : public History
+class SqliteHistory : public History
 {
 	Q_OBJECT
 public:
-	JsonHistory();
-	virtual ~JsonHistory();
+	SqliteHistory();
+	virtual ~SqliteHistory();
 
 	void store(const Message &message) override;
 	AsyncResult<MessageList> read(const ContactInfo &info, const QDateTime &from, const QDateTime &to, int max_num) override;
@@ -87,13 +56,51 @@ public:
 	AsyncResult<QList<QDate>> months(const ContactInfo &contact, const QString &needle) override;
 	AsyncResult<QList<QDate>> dates(const ContactInfo &contact, const QDate &month, const QString &needle) override;
 
-	static QString quote(const QString &str);
-	static QString unquote(const QString &str);
+public slots:
+	void errorHandler(const QString & error);
 
 private:
-	JsonHistoryScope::Ptr m_scope;
+	QThread* m_thread;
+	SqliteWorker* m_worker;
 };
+
+class SqliteWorker : public QObject
+{
+	Q_OBJECT
+public:
+
+	enum MessageType {
+		Message = 0,
+		Topic = 1,
+		Service = 2
+	};
+	Q_DECLARE_FLAGS(MessageTypes, MessageType)
+
+	static QString escapeSqliteLike(const QString &str);
+	void runJob(std::function<void ()> job);
+	void shutdown();
+public slots:
+	void process();
+signals:
+	void finished();
+	void error(const QString &error);
+
+private slots:
+	void exec();
+private:
+	inline int currentVersion() { return 1; }
+	void makeMigration(int version);
+	QQueue<std::function<void ()>> m_queue;
+	QMutex m_queueLock;
+	QMutex m_runningLock;
+	QSqlDatabase m_db;
+	void prepareDb();
+	bool m_isRunning = false;
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SqliteWorker::MessageTypes)
+
 }
 
-#endif // JSONHISTORY_H
+#endif // SQLITEHISTORY_H
 
