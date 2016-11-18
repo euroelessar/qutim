@@ -577,24 +577,25 @@ void JMUCSession::onServiceMessage(const Jreen::Message &msg)
 	if (captcha && captcha->form()) {
 		QString text = tr("Conference \"%1\" requires you to fill the captcha to enter the room")
 					   .arg(d->jid.bare());
-		delete d->captchaForm.data();
+		d->captchaForm.data()->deleteLater();
 		d->captchaForm = new QDialog;
 
 		QLabel *label = new QLabel(text, d->captchaForm);
 		JDataForm *form = new JDataForm(captcha->form(), msg.payloads<BitsOfBinary>(), d->captchaForm);
 		QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, d->captchaForm);
 
-		QVBoxLayout *layout = new QVBoxLayout(d->captchaForm);
+		QVBoxLayout *layout = new QVBoxLayout;
 		form->layout()->setMargin(0);
 		layout->addWidget(label);
 		layout->addWidget(form);
 		layout->addWidget(buttonBox);
 
+		d->captchaForm->setLayout(layout);
+
 		connect(buttonBox, &QDialogButtonBox::accepted, d->captchaForm.data(), &QDialog::accept);
 		connect(buttonBox, &QDialogButtonBox::rejected, d->captchaForm.data(), &QDialog::reject);
 
 		connect(d->captchaForm.data(), &QDialog::accepted, this, &JMUCSession::onCaptchaFilled);
-		connect(d->captchaForm.data(), &QDialog::accepted, this, &QObject::deleteLater);
 		connect(d->captchaForm.data(), &QDialog::rejected, this, &QObject::deleteLater);
 		connect(d->account->client(), &Client::disconnected, d->captchaForm.data(), &QObject::deleteLater);
 
@@ -952,13 +953,16 @@ void JMUCSession::onNickSelected(const QString &nick)
 void JMUCSession::onCaptchaFilled()
 {
 	Q_D(JMUCSession);
-	JDataForm *form = qobject_cast<JDataForm*>(sender());
+	JDataForm *form = sender()->findChild<JDataForm*>();
+	Q_ASSERT(form);
 	Client *client = d->account.data()->client();
 	Jreen::IQ iq(Jreen::IQ::Set, d->jid.bareJID());
 	Captcha::Ptr captcha = Captcha::Ptr::create();
 	captcha->setForm(form->getDataForm());
 	iq.addPayload(captcha);
 	client->send(iq);
+
+	sender()->deleteLater();
 }
 
 }
