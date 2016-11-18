@@ -82,6 +82,6 @@ Project {
         "weather/weather.qbs",
         "xsettingsdialog/xsettingsdialog.qbs",
         "yandexnarod/yandexnarod.qbs",
-
+        "histview/histview.qbs",
     ]
 }
