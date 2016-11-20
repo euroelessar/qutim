@@ -9,7 +9,7 @@
 	url = git://github.com/euroelessar/jreen.git
 [submodule "artwork"]
 	path = artwork
-	url = git://github.com/gorthauer/artwork.git
+	url = git://github.com/qutIM/artwork.git
 [submodule "protocols/vkontakte/vreen"]
 	path = src/plugins/protocols/vkontakte/vreen
 	url = git://github.com/gorthauer/vreen.git
