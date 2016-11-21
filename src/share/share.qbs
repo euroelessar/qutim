@@ -137,7 +137,7 @@ Product {
         name: "Humanity icons"
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons/humanity/"
+        qbs.installDir: project.qutim_share_path + "/icons/Humanity/"
         qbs.install: true
         files: "../../artwork/icons/humanity/hicolor/**"
         qbs.installSourceBase: "../../artwork/icons/humanity/hicolor/"
