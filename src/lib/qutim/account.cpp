@@ -183,8 +183,9 @@ void AccountPrivate::updateStatus()
 		setStatus(Status::instance(Status::Offline, protocol));
 		break;
 	case Account::Connected:
-	case Account::Disconnecting:
 		q_func()->doStatusChange(userStatus);
+        // falling through
+	case Account::Disconnecting:
 		setStatus(userStatus);
 		break;
 	}
