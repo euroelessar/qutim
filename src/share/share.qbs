@@ -94,6 +94,16 @@ Product {
         qbs.installSourceBase: "../../artwork/icons/qutim-default"
     }
 
+    Group { // Yes, next theme is exactly the same
+        name: "System fallback theme"
+        condition: installIcons && installHicolorTheme && qbs.targetOS.contains("linux")
+        fileTags: [ "install" ]
+        qbs.installDir: project.qutim_system_share_path + "/icons/hicolor/"
+        qbs.install: true
+        files: ["../../artwork/icons/qutim/icons/hicolor/**"]
+        qbs.installSourceBase: "../../artwork/icons/qutim/icons/hicolor/"
+    }
+
     Group {
         name: "Fallback icon theme"
         condition: installIcons && installHicolorTheme
@@ -133,11 +143,11 @@ Product {
         excludeFiles: "../../artwork/icons/clients/hicolor/16x16/apps/qutim.png"
     }
 
-    Group {
+    Group { // YES, this will install Humanity (case matters!) as hicolor
         name: "Humanity icons"
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons/Humanity/"
+        qbs.installDir: project.qutim_share_path + "/icons/hicolor/"
         qbs.install: true
         files: "../../artwork/icons/humanity/hicolor/**"
         qbs.installSourceBase: "../../artwork/icons/humanity/hicolor/"

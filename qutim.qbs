@@ -48,6 +48,11 @@ Project {
         else
             return "share";
     }
+
+    /**
+     * For installing qutim icons in /usr/share/icons
+     */
+    property string qutim_system_share_path: "share"
     
     property string bin_path: qutim_bin_path
     property string lib_path: qutim_libexec_path
