@@ -75,14 +75,15 @@ Product {
         files: "**"
     }
 
-    /*Group {
+    Group {
         name: "Default tray icons"
         condition: installIcons && qbs.targetOS.contains("linux")
         fileTags: [ "install" ]
-        qbs.installDir: project.qutim_share_path + "/icons/"
+        qbs.installDir: project.qutim_system_share_path
+        qbs.install: true
         files: "../../artwork/icons/qutim/**"
-        qbs.installSourceBase: "../../artwork/icons/qutim"
-    }*/
+        qbs.installSourceBase: "../../artwork/icons/qutim/"
+    }
     
     Group {
         name: "Default icon theme"
@@ -94,19 +95,10 @@ Product {
         qbs.installSourceBase: "../../artwork/icons/qutim-default"
     }
 
-    Group { // Yes, next theme is exactly the same
-        name: "System fallback theme"
-        condition: installIcons && installHicolorTheme && qbs.targetOS.contains("linux")
-        fileTags: [ "install" ]
-        qbs.installDir: project.qutim_system_share_path + "/icons/hicolor/"
-        qbs.install: true
-        files: ["../../artwork/icons/qutim/icons/hicolor/**"]
-        qbs.installSourceBase: "../../artwork/icons/qutim/icons/hicolor/"
-    }
-
     Group {
-        name: "Fallback icon theme"
-        condition: installIcons && installHicolorTheme
+        name: "System fallback theme"
+        condition: installIcons && installHicolorTheme && !qbs.targetOS.contains("linux")
+        // thanks qbs for not allowing to install one file to two destinations
         fileTags: [ "install" ]
         qbs.installDir: project.qutim_share_path + "/icons/hicolor/"
         qbs.install: true
