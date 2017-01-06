@@ -6,12 +6,12 @@ import "../Framework.qbs" as Framework
 Framework {
     name: "libqutim"
 
-    property string versionMajor: qutim_version_major
-    property string versionMinor: qutim_version_minor
-    property string versionRelease: qutim_version_release
-    property string versionPatch: qutim_version_patch
-    property string version: qutim_version
-    property string shareDir: qutim_share_path
+    property string versionMajor: project.qutim_version_major
+    property string versionMinor: project.qutim_version_minor
+    property string versionRelease: project.qutim_version_release
+    property string versionPatch: project.qutim_version_patch
+    property string version: project.qutim_version
+    property string shareDir: project.qutim_share_path
 
     Depends { name: "k8json" }
     Depends { name: "Qtsolutions" }
@@ -37,7 +37,7 @@ Framework {
     cpp.staticLibraryPrefix: ""
     cpp.defines: {
         var sharePath = qbs.targetOS.contains("osx") ? "Resources/share"
-                                                     : qutim_share_path;
+                                                     : project.qutim_share_path;
         var defines = [
                     "LIBQUTIM_LIBRARY",
                     "QUTIM_SHARE_DIR=\"" + sharePath + "\"",
@@ -188,6 +188,6 @@ Framework {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: qutim_libexec_path
+        qbs.installDir: project.qutim_libexec_path
     }
 }

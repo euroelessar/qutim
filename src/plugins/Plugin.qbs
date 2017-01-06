@@ -48,7 +48,7 @@ Product {
 
     type: [ 'dynamiclibrary', 'installed_content' ]
     //name: sourceDirectory
-    destinationDirectory: qutim_plugin_path
+    destinationDirectory: project.qutim_plugin_path
     cpp.defines: [ "QUTIM_PLUGIN_ID=" + pluginId, "QUTIM_PLUGIN_NAME=\"" + name + "\""]
     cpp.visibility: 'hidden'
     // NOTE: sorry qbs < 1.5.0, I had no choice
@@ -66,7 +66,7 @@ Product {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: qutim_plugin_path
+        qbs.installDir: project.qutim_plugin_path
     }
     Group {
         name: "Source"

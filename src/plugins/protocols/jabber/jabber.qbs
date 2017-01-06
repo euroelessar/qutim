@@ -7,7 +7,7 @@ Protocol {
      */
     property bool jingle: false
 
-    property bool systemJreen: parent.systemJreen
+    property bool systemJreen: project.systemJreen
 
     Probes.PkgConfigProbe {
         id: pkgProbe

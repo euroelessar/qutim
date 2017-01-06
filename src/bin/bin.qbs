@@ -5,7 +5,7 @@ Application {
 
     property bool installSoundTheme: true
 
-    destinationDirectory: qutim_bin_path
+    destinationDirectory: project.qutim_bin_path
     cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@loader_path/..", "@executable_path/.."]
             : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../lib"]
@@ -62,12 +62,12 @@ Application {
             "infoplist"
         ]
         qbs.install: true
-        qbs.installDir: qutim_bin_path + "/Contents/Resources/"
+        qbs.installDir: project.qutim_bin_path + "/Contents/Resources/"
     }
 
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: qutim_bin_path
+        qbs.installDir: project.qutim_bin_path
     }
 }
