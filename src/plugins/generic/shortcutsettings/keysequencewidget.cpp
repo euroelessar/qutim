@@ -325,7 +325,7 @@ namespace Core
 	void KeySequenceWidget::setSequence ( const QKeySequence& sequence )
 	{
 		if (!m_is_recording)
-			m_old_sequence = m_old_sequence;
+			m_old_sequence = m_sequence;
 
 		m_sequence = sequence;
 		doneRecording();
