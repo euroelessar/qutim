@@ -70,19 +70,21 @@ Product {
     }
     Group {
         name: "Source"
-        prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
+        prefix: product.sourceDirectory + '/' + (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
+        excludeFiles: templateFilePath
         files: [ '*.cpp', '*.h', '*.ui', "*.c" ]
     }
     Group {
         name: "ObjectiveC sources [osx]"
         condition: qbs.targetOS.contains("osx")
-        prefix: (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
+        prefix: product.sourceDirectory + '/' + (sourcePath !== '' ? sourcePath + '/' : '') + '**/'
         files: [ '*.mm' ]
     }
     Group {
         name: "Meta information"
         fileTags: [ "pluginTemplate" ]
         files: '*.plugin.json'
+        prefix: product.sourceDirectory + '/'
     }
     Group {
         name: "Generic cpp template"
