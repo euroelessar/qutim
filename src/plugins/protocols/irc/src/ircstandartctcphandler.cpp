@@ -83,7 +83,7 @@ void IrcStandartCtcpHandler::handleCtcpResponse(IrcAccount *account, const QStri
 						 .arg(diff, 0, 'f', 3),
 						 true, "CTCP");
 		}
-	} else if (cmd == "CLIENTINFO" || cmd == "VERSION" || "TIME") {
+	} else if (cmd == "CLIENTINFO" || cmd == "VERSION" || cmd == "TIME") {
 		account->log(tr("Received CTCP-%1 reply from %2: %3")
 					 .arg(cmd)
 					 .arg(sender)
