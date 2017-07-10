@@ -26,13 +26,13 @@
 #define ASTRALACCOUNT_H
 
 #include <qutim/account.h>
-#include <TelepathyQt4/ConnectionManager>
-#include <TelepathyQt4/Connection>
-#include <TelepathyQt4/TextChannel>
-#include <TelepathyQt4/AccountManager>
-#include <TelepathyQt4/PendingConnection>
-#include <TelepathyQt4/PendingOperation>
-#include <TelepathyQt4/PendingReady>
+#include <TelepathyQt/ConnectionManager>
+#include <TelepathyQt/Connection>
+#include <TelepathyQt/TextChannel>
+#include <TelepathyQt/AccountManager>
+#include <TelepathyQt/PendingConnection>
+#include <TelepathyQt/PendingOperation>
+#include <TelepathyQt/PendingReady>
 
 #include "astralroster.h"
 

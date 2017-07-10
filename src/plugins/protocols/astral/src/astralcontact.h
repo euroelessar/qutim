@@ -26,9 +26,9 @@
 #define ASTRALCONTACT_H
 
 #include <qutim/contact.h>
-#include <TelepathyQt4/Types>
-#include <TelepathyQt4/Contact>
-#include <TelepathyQt4/Connection>
+#include <TelepathyQt/Types>
+#include <TelepathyQt/Contact>
+#include <TelepathyQt/Connection>
 
 using namespace Tp;
 using namespace qutim_sdk_0_3;
